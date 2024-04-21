@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres:15.4-alpine
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./.postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=event_score_db
+    container_name: event_score_db
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # restart: always
+    container_name: event-scoring-api
+    ports:
+      - '8085:8085'
+    volumes:
+      - .:/dist
+    environment:
+      - PGHOST=database
+      - PGDATABASE=event_score_db
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - NODE_ENV=development
+      - DEV_USER=d7d8e752-bfce-4d1a-9ef4-8a694f7e27de
+      - PG_SSL=false
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
