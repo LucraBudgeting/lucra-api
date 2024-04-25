@@ -10,7 +10,7 @@ export default async function Health(
     url: "/health",
     handler: async (request, reply) => {
       await dbClient.$queryRaw`SELECT 1`;
-      return { status: "ok" };
+      return { db_status: "ok" };
     },
   });
 }

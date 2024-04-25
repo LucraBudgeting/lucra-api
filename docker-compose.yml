@@ -10,8 +10,8 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=event_score_db
-    container_name: event_score_db
+      - POSTGRES_DB=lucra_db
+    container_name: lucra_db
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
@@ -23,14 +23,14 @@ services:
       context: .
       dockerfile: Dockerfile
     # restart: always
-    container_name: event-scoring-api
+    container_name: lucra-api
     ports:
       - '8085:8085'
     volumes:
       - .:/dist
     environment:
       - PGHOST=database
-      - PGDATABASE=event_score_db
+      - PGDATABASE=lucra_db
       - PGUSER=postgres
       - PGPASSWORD=postgres
       - NODE_ENV=development

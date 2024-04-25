@@ -1,7 +1,7 @@
 import Fastify, { FastifyError, FastifyInstance } from "fastify";
 import AutoLoad from "@fastify/autoload";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { CREDENTIALS, PORT, SECRET_KEY } from "./config";
+import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from "./config";
 import { schemaErrorFormatter } from "./utils/schemaErrorFormatter";
 import fastifyCors from "@fastify/cors";
 import fastifyEnv from "@fastify/env";
@@ -71,6 +71,7 @@ async function startServer() {
     await app.listen({ port, host: "0.0.0.0" });
     // await dbClient.$connect();
     console.log(`Server running on port ${port}`);
+    console.log(`Preview: ${API_URL}`);
     // schedulePing();
   } catch (err) {
     app.log.error("APP ERROR", err);
