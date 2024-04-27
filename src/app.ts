@@ -7,6 +7,7 @@ import fastifyCors from "@fastify/cors";
 import fastifyEnv from "@fastify/env";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyJwt from "@fastify/jwt";
+import fastifyWs from "@fastify/websocket";
 import { schema } from "./utils/validateEnv";
 import { join } from "path";
 import { defaultErrorMessage } from "./constants";
@@ -43,6 +44,9 @@ async function startServer() {
     dir: join(__dirname, "/plugins"),
     dirNameRoutePrefix: false,
   });
+
+  // Init WebSocket
+  app.register(fastifyWs);
 
   // Initialize Routes
   await app.register(AutoLoad, {

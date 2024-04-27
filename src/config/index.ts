@@ -11,4 +11,6 @@ export const {
   STRIPE_API_KEY,
   STRIPE_SUBSCRIPTION_WEBHOOK_SECRET,
   API_URL,
+  PLAID_CLIENT_ID,
+  PLAID_SECRET,
 } = process.env;

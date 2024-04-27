@@ -1,4 +1,5 @@
 import { dbClient } from "@/data/db.client";
+import { HttpMethods } from "@/utils/HttpMethods";
 import { FastifyInstance, RouteOptions } from "fastify";
 
 export default async function Health(
@@ -6,7 +7,7 @@ export default async function Health(
   opts: RouteOptions
 ) {
   fastify.route({
-    method: "GET",
+    method: HttpMethods.GET,
     url: "/health",
     handler: async (request, reply) => {
       await dbClient.$queryRaw`SELECT 1`;
