@@ -36,8 +36,11 @@ async function main() {
     !forceSeedUpdate ||
     currentMigration[0]?.migration_name === currentSeedHash[0]?.hash
   ) {
+    console.log("No Seed Update Needed");
     return;
   }
+
+  console.log("Seeding Data");
 
   const userIds = Object.values(userIdConstants);
 
