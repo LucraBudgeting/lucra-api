@@ -11,6 +11,7 @@ import fastifyWs from "@fastify/websocket";
 import { schema } from "./utils/validateEnv";
 import { join } from "path";
 import { defaultErrorMessage } from "./constants";
+import "@/extensions";
 
 async function startServer() {
   const app: FastifyInstance = Fastify({

@@ -11,6 +11,8 @@ model SeedHash {
     id          String   @id @unique @default(cuid())
     hash        String
     dateCreated DateTime @default(now())
+
+    @@index([hash], name: "seed_hash_index")
 }
 
 model User {
@@ -32,6 +34,9 @@ model User {
     UserSession         UserSession[]
     PlaidAccount        PlaidAccount[]
     TransactionCategory TransactionCategory[]
+
+    @@index([email], name: "user_email_index")
+    @@index([username], name: "user_username_index")
 }
 
 model UserAuth {
@@ -43,6 +48,8 @@ model UserAuth {
     dateUpdated DateTime @default(now()) @updatedAt
 
     User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId], name: "user_auth_user_id_index")
 }
 
 model UserSession {
@@ -54,6 +61,8 @@ model UserSession {
 
     User              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
     UserSessionAccess UserSessionAccess[]
+
+    @@index([userId], name: "user_session_user_id_index")
 }
 
 model UserSessionAccess {
@@ -67,6 +76,8 @@ model UserSessionAccess {
     dateUpdated DateTime @default(now()) @updatedAt
 
     UserSession UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+    @@index([sessionId], name: "user_session_access_session_id_index")
 }
 
 model PlaidAccount {
@@ -87,7 +98,8 @@ model PlaidAccount {
     PlaidAccountBalance PlaidAccountBalance[]
     PlaidTransaction    PlaidTransaction[]
 
-    @@index([accessToken], name: "access_token_index")
+    @@index([accessToken], name: "plaid_account_access_token_index")
+    @@index([accountId], name: "plaid_account_account_id_index")
 }
 
 model PlaidAccountBalance {
@@ -102,6 +114,8 @@ model PlaidAccountBalance {
     dateUpdated DateTime @default(now()) @updatedAt
 
     Account PlaidAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+    @@index([accountId], name: "plaid_account_balance_account_id_index")
 }
 
 model PlaidTransaction {
@@ -122,6 +136,8 @@ model PlaidTransaction {
     Account                             PlaidAccount                          @relation(fields: [accountId], references: [id], onDelete: Cascade)
     Address                             Address?                              @relation(fields: [addressId], references: [id], onDelete: Cascade)
     PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+
+    @@index([accountId], name: "plaid_transaction_account_id_index")
 }
 
 model TransactionCategory {
@@ -136,6 +152,8 @@ model TransactionCategory {
 
     User                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
     PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+
+    @@index([userId], name: "transaction_category_user_id_index")
 }
 
 model PlaidTransactionTransactionCategory {
@@ -148,6 +166,9 @@ model PlaidTransactionTransactionCategory {
 
     TransactionId PlaidTransaction    @relation(fields: [plaidTransactionId], references: [id], onDelete: Cascade)
     CategoryId    TransactionCategory @relation(fields: [transactionCategoryId], references: [id], onDelete: Cascade)
+
+    @@index([plaidTransactionId], name: "plaid_transaction_category_plaid_transaction_id_index")
+    @@index([transactionCategoryId], name: "plaid_transaction_category_transaction_category_id_index")
 }
 
 model Address {

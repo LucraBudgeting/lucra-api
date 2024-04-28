@@ -3,7 +3,6 @@ import { Guid } from "@/utils/Guid";
 import {
   Configuration,
   CountryCode,
-  ItemPublicTokenExchangeResponse,
   LinkTokenCreateRequest,
   LinkTokenGetRequest,
   PlaidApi,
@@ -30,8 +29,6 @@ const config = new Configuration({
     },
   },
 });
-
-console.log("Plaid Config: ", config);
 
 const clientName = "Lucra Budgeting";
 

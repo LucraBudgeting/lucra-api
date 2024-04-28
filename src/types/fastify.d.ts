@@ -4,11 +4,7 @@ import { schema } from "@utils/validateEnv";
 
 declare module "fastify" {
   interface FastifyInstance {
-    authenticateUser: (
-      request: FastifyRequest,
-      reply: FastifyReply
-    ) => Promise<void>;
-    authenticateGuestUser: (
+    authPrehandler: (
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
