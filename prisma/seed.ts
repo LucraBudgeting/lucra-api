@@ -32,10 +32,12 @@ async function main() {
       }
     ];
 
-  if (
-    !forceSeedUpdate ||
-    currentMigration[0]?.migration_name === currentSeedHash[0]?.hash
-  ) {
+  if (forceSeedUpdate) {
+    await seed();
+    return;
+  }
+
+  if (currentMigration[0]?.migration_name === currentSeedHash[0]?.hash) {
     console.log(
       "No Seed Update Needed",
       currentMigration[0]?.migration_name,
@@ -44,6 +46,10 @@ async function main() {
     return;
   }
 
+  await seed(currentMigration[0]?.migration_name);
+}
+
+const seed = async (currentMigration?: string) => {
   console.log("Seeding Data");
 
   const userIds = Object.values(userIdConstants);
@@ -63,7 +69,15 @@ async function main() {
   await prisma.userAuth.createMany({
     data: [user1Auth, user2Auth, user3Auth],
   });
-}
+
+  if (currentMigration) {
+    await prisma.seedHash.create({
+      data: {
+        hash: currentMigration,
+      },
+    });
+  }
+};
 
 main()
   .catch((e) => {
