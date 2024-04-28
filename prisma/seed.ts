@@ -36,7 +36,11 @@ async function main() {
     !forceSeedUpdate ||
     currentMigration[0]?.migration_name === currentSeedHash[0]?.hash
   ) {
-    console.log("No Seed Update Needed");
+    console.log(
+      "No Seed Update Needed",
+      currentMigration[0]?.migration_name,
+      currentSeedHash[0]?.hash
+    );
     return;
   }
 
