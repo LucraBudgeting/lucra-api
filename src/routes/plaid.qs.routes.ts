@@ -1,13 +1,13 @@
 import {
-  createPlaidLinkToken,
-  exchangePlaidToken,
-  getRecurringTransactions,
-  getTransactions,
-} from "@/modules/plaid/plaid.controller";
+  qsCreatePlaidLinkToken,
+  qsExchangePlaidToken,
+  qsGetRecurringTransactions,
+  qsGetTransactions,
+} from "@/modules/plaid/plaid.qs.controller";
 import { HttpMethods } from "@/utils/HttpMethods";
 import { FastifyInstance, RouteOptions } from "fastify";
 
-const basePath = "/plaid";
+const basePath = "/plaid/qs";
 
 export default async function Plaid(
   fastify: FastifyInstance,
@@ -16,24 +16,24 @@ export default async function Plaid(
   fastify.route({
     method: HttpMethods.POST,
     url: `${basePath}/link_token`,
-    handler: createPlaidLinkToken,
+    handler: qsCreatePlaidLinkToken,
   });
 
   fastify.route({
     method: HttpMethods.GET,
     url: `${basePath}/exchange_token/:publicToken`,
-    handler: exchangePlaidToken,
+    handler: qsExchangePlaidToken,
   });
 
   fastify.route({
     method: HttpMethods.GET,
     url: `${basePath}/transactions`,
-    handler: getTransactions,
+    handler: qsGetTransactions,
   });
 
   fastify.route({
     method: HttpMethods.GET,
     url: `${basePath}/recurring_transactions`,
-    handler: getRecurringTransactions,
+    handler: qsGetRecurringTransactions,
   });
 }

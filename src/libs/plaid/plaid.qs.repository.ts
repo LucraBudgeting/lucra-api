@@ -37,7 +37,7 @@ let LINK_TOKEN: string | null = null;
 let ITEM_ID: string | null = null;
 let ACCOUNT_ID = Guid(true);
 
-class PlaidRepository {
+class QsPlaidRepository {
   private plaidClient: PlaidApi;
 
   constructor() {
@@ -174,4 +174,4 @@ class PlaidRepository {
   }
 }
 
-export const plaidRepository = new PlaidRepository();
+export const qsPlaidRepository = new QsPlaidRepository();
