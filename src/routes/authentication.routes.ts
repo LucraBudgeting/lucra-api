@@ -1,16 +1,10 @@
-import {
-  AuthCheck,
-  AuthLogin,
-} from "@/modules/authentication/authentication.controller";
-import { HttpMethods } from "@/utils/HttpMethods";
-import { FastifyInstance, RouteOptions } from "fastify";
+import { FastifyInstance, RouteOptions } from 'fastify';
+import { AuthCheck, AuthLogin } from '@/modules/authentication/authentication.controller';
+import { HttpMethods } from '@/utils/HttpMethods';
 
-const basePath = "/auth";
+const basePath = '/auth';
 
-export default async function Authentication(
-  fastify: FastifyInstance,
-  opts: RouteOptions
-) {
+export default async function Authentication(fastify: FastifyInstance, _opts: RouteOptions) {
   fastify.route({
     method: HttpMethods.POST,
     url: `${basePath}/login`,

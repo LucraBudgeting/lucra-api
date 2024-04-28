@@ -1,5 +1,3 @@
-import { PLAID_CLIENT_ID, PLAID_SECRET } from "@/config";
-import { Guid } from "@/utils/Guid";
 import {
   Configuration,
   CountryCode,
@@ -11,10 +9,12 @@ import {
   RemovedTransaction,
   Transaction,
   TransactionsSyncRequest,
-} from "plaid";
+} from 'plaid';
+import { PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
+import { Guid } from '@/utils/Guid';
 
 function getPlaidEnvironment() {
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === 'production') {
     return PlaidEnvironments.production;
   }
   return PlaidEnvironments.sandbox;
@@ -24,18 +24,18 @@ const config = new Configuration({
   basePath: getPlaidEnvironment(),
   baseOptions: {
     headers: {
-      "PLAID-CLIENT-ID": PLAID_CLIENT_ID,
-      "PLAID-SECRET": PLAID_SECRET,
+      'PLAID-CLIENT-ID': PLAID_CLIENT_ID,
+      'PLAID-SECRET': PLAID_SECRET,
     },
   },
 });
 
-const clientName = "Lucra Budgeting";
+const clientName = 'Lucra Budgeting';
 
 let ACCESS_TOKEN: string | null = null;
 let LINK_TOKEN: string | null = null;
 let ITEM_ID: string | null = null;
-let ACCOUNT_ID = Guid(true);
+const ACCOUNT_ID = Guid(true);
 
 class QsPlaidRepository {
   private plaidClient: PlaidApi;
@@ -53,7 +53,7 @@ class QsPlaidRepository {
       client_name: clientName,
       products: [Products.Transactions],
       country_codes: [CountryCode.Us],
-      language: "en",
+      language: 'en',
     };
 
     const response = await this.plaidClient.linkTokenCreate(request);
@@ -69,7 +69,7 @@ class QsPlaidRepository {
 
     const response = await this.plaidClient.linkTokenGet(request);
 
-    console.log("Link Token Details: ", response.data);
+    console.log('Link Token Details: ', response.data);
 
     return response.data;
   }
@@ -79,7 +79,7 @@ class QsPlaidRepository {
       public_token: publicToken,
     });
 
-    console.log("Exchange Response: ", response.data);
+    console.log('Exchange Response: ', response.data);
 
     ACCESS_TOKEN = response.data.access_token;
     ITEM_ID = response.data.item_id;
@@ -92,12 +92,12 @@ class QsPlaidRepository {
     return transactions;
   }
 
-  public async getItemDetails(itemId: string) {
+  public async getItemDetails(_itemId: string) {
     const response = await this.plaidClient.itemGet({
       access_token: ACCESS_TOKEN!,
     });
 
-    console.log("Item Details: ", response.data.item);
+    console.log('Item Details: ', response.data.item);
 
     await this.getInstitutionById(response.data.item.institution_id!);
 
@@ -110,7 +110,7 @@ class QsPlaidRepository {
       country_codes: [CountryCode.Us],
     });
 
-    console.log("Institution Details: ", response.data.institution);
+    console.log('Institution Details: ', response.data.institution);
 
     return response.data.institution;
   }
@@ -129,7 +129,7 @@ class QsPlaidRepository {
 
   public async getTransactions() {
     // Set cursor to empty to receive all historical updates
-    let cursor = "";
+    let cursor = '';
 
     // New transaction updates since "cursor"
     let added: Transaction[] = [];

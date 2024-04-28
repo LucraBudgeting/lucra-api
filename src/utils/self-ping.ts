@@ -1,5 +1,5 @@
-import axios from "axios";
-import cron from "node-cron";
+import axios from 'axios';
+import cron from 'node-cron';
 
 let pingEvery7Minutes = true;
 let cronTask: cron.ScheduledTask | null = null;
@@ -11,7 +11,7 @@ export function schedulePing() {
   if (cronTask) {
     cronTask.stop(); // Stop the current task if it exists
   }
-  const interval = pingEvery7Minutes ? "*/7 * * * *" : "*/14 * * * *";
+  const interval = pingEvery7Minutes ? '*/7 * * * *' : '*/14 * * * *';
   cronTask = cron.schedule(
     interval,
     () => {
@@ -29,9 +29,9 @@ function pingServer() {
   axios
     .get(url)
     .then((response) => {
-      console.log("Server pinged successfully:", response.data);
+      console.log('Server pinged successfully:', response.data);
     })
     .catch((error) => {
-      console.error("Error pinging server:", error);
+      console.error('Error pinging server:', error);
     });
 }

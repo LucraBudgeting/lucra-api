@@ -1,8 +1,8 @@
-import { userRepository } from "@/data/repositories/user.repository";
-import { userAuthRepository } from "@/data/repositories/userAuth.repository";
-import { BadRequest, NotFound } from "@/exceptions/error";
-import { stringMatchesHash } from "@/libs/bcrypt";
-import { User } from "@prisma/client";
+import { User } from '@prisma/client';
+import { userRepository } from '@/data/repositories/user.repository';
+import { userAuthRepository } from '@/data/repositories/userAuth.repository';
+import { BadRequest, NotFound } from '@/exceptions/error';
+import { stringMatchesHash } from '@/libs/bcrypt';
 
 export async function LoginUserByUsername(username: string, password: string) {
   const user = await userRepository.findUserByUsername(username);
@@ -28,10 +28,7 @@ export async function LoginUserByEmail(email: string, password: string) {
   return user;
 }
 
-async function validateAuthFromUser(
-  user: User,
-  password: string
-): Promise<void> {
+async function validateAuthFromUser(user: User, password: string): Promise<void> {
   const userAuth = await userAuthRepository.findAuthByUserId(user.id);
 
   if (!userAuth) {
@@ -41,18 +38,15 @@ async function validateAuthFromUser(
   doesPasswordMatch(password, userAuth.passwordHash);
 }
 
-async function doesPasswordMatch(
-  password: string,
-  hashedPassword: string | null
-): Promise<void> {
+async function doesPasswordMatch(password: string, hashedPassword: string | null): Promise<void> {
   if (!hashedPassword) {
-    throw new BadRequest("Password not found");
+    throw new BadRequest('Password not found');
   }
 
   const isMatch = await stringMatchesHash(password, hashedPassword);
 
   if (!isMatch) {
-    throw new BadRequest("Incorrect password");
+    throw new BadRequest('Incorrect password');
   }
 }
 

@@ -1,6 +1,6 @@
-import cluster from "cluster";
-import os from "os";
-import App from "./app";
+import cluster from 'cluster';
+import os from 'os';
+import App from './app';
 
 const isClusterEnabled = false;
 
@@ -14,7 +14,7 @@ if (cluster.isPrimary && isClusterEnabled) {
     cluster.fork();
   }
 
-  cluster.on("exit", (worker, code, signal) => {
+  cluster.on('exit', (worker, _code, _signal) => {
     console.log(`Worker ${worker.process.pid} died, restarting...`);
     cluster.fork();
   });

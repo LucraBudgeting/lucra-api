@@ -1,15 +1,13 @@
-import { UserAuth } from "@prisma/client";
-import { BaseRepository } from "./base.repository";
-import { ValidationError } from "@/exceptions/error";
+import { UserAuth } from '@prisma/client';
+import { ValidationError } from '@/exceptions/error';
+import { BaseRepository } from './base.repository';
 
 type UserAuthResponse = UserAuth | null;
 
 class UserAuthRepository extends BaseRepository {
   async findAuthByUserId(userId: string): Promise<UserAuthResponse> {
     if (userId.isNullOrEmpty()) {
-      throw new ValidationError(
-        "Cannot Find Auth By User Id: User Id is null or empty"
-      );
+      throw new ValidationError('Cannot Find Auth By User Id: User Id is null or empty');
     }
 
     return this.client.userAuth.findFirst({

@@ -1,4 +1,4 @@
-import { Address } from "@/interfaces/Address.type";
+import { Address } from '@/interfaces/Address.type';
 
 export class CreateStripeCustomer {
   constructor(payload: any, companyId: string) {

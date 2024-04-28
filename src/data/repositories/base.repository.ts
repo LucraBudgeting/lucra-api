@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { dbClient } from "../db.client";
+import { PrismaClient } from '@prisma/client';
+import { dbClient } from '../db.client';
 
 export class BaseRepository {
   protected client: PrismaClient;

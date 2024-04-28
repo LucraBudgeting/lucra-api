@@ -1,4 +1,6 @@
 // string.extensions.ts
+
+// eslint-disable-next-line
 interface String {
   isValidEmail(): boolean;
   isNullOrEmpty(): boolean;
@@ -12,9 +14,6 @@ String.prototype.isValidEmail = function (): boolean {
 
 String.prototype.isNullOrEmpty = function (): boolean {
   return (
-    this == null ||
-    this.trim() == "" ||
-    this.toString() == null ||
-    this.toString().trim() === ""
+    this == null || this.trim() == '' || this.toString() == null || this.toString().trim() === ''
   );
 };

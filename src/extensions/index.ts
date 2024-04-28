@@ -1,1 +1,1 @@
-import "./string.extensions";
+import './string.extensions';

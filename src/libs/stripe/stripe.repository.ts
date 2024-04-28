@@ -1,8 +1,8 @@
-import { FRONTEND_ORIGIN } from "@/config";
-import { CreateStripeCustomer } from "./stripe.types";
-import { stripe } from "./stripe";
+import { FRONTEND_ORIGIN } from '@/config';
+import { CreateStripeCustomer } from './stripe.types';
+import { stripe } from './stripe';
 
-const initialSubscriptionId = "price_1OmQJ5GOia2yQ2r4bS5OGSHT";
+const initialSubscriptionId = 'price_1OmQJ5GOia2yQ2r4bS5OGSHT';
 
 class StripeRepository {
   public async createCustomer(payload: CreateStripeCustomer) {
@@ -38,14 +38,14 @@ class StripeRepository {
   private async initCheckout(customerId: string) {
     return await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: "subscription",
+      mode: 'subscription',
       line_items: [
         {
           price: initialSubscriptionId,
           quantity: 1,
         },
       ],
-      currency: "usd",
+      currency: 'usd',
       success_url: `${FRONTEND_ORIGIN}/events`,
       // cancel_url: `${FRONTEND_ORIGIN}/auth`,
     });
@@ -54,7 +54,7 @@ class StripeRepository {
   public async getInitCheckoutUrl(customerId: string): Promise<string> {
     const checkoutSession = await this.initCheckout(customerId);
     if (!checkoutSession.url) {
-      throw new Error("Error creating checkout session");
+      throw new Error('Error creating checkout session');
     }
     return checkoutSession.url;
   }

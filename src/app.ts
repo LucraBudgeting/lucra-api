@@ -1,17 +1,17 @@
-import Fastify, { FastifyError, FastifyInstance } from "fastify";
-import AutoLoad from "@fastify/autoload";
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from "./config";
-import { schemaErrorFormatter } from "./utils/schemaErrorFormatter";
-import fastifyCors from "@fastify/cors";
-import fastifyEnv from "@fastify/env";
-import fastifyHelmet from "@fastify/helmet";
-import fastifyJwt from "@fastify/jwt";
-import fastifyWs from "@fastify/websocket";
-import { schema } from "./utils/validateEnv";
-import { join } from "path";
-import { defaultErrorMessage } from "./constants";
-import "@/extensions";
+import { join } from 'path';
+import Fastify, { FastifyError, FastifyInstance } from 'fastify';
+import AutoLoad from '@fastify/autoload';
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import fastifyCors from '@fastify/cors';
+import fastifyEnv from '@fastify/env';
+import fastifyHelmet from '@fastify/helmet';
+import fastifyJwt from '@fastify/jwt';
+import fastifyWs from '@fastify/websocket';
+import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
+import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
+import { schema } from './utils/validateEnv';
+import { defaultErrorMessage } from './constants';
+import '@/extensions';
 
 async function startServer() {
   const app: FastifyInstance = Fastify({
@@ -33,16 +33,16 @@ async function startServer() {
   await app.register(fastifyEnv, { dotenv: true, schema });
   await app.register(fastifyCors, {
     origin: true,
-    credentials: CREDENTIALS === "true",
+    credentials: CREDENTIALS === 'true',
   });
   await app.register(fastifyHelmet);
   await app.register(fastifyJwt, {
-    secret: SECRET_KEY ?? "",
-    sign: { expiresIn: "7d" },
+    secret: SECRET_KEY ?? '',
+    sign: { expiresIn: '7d' },
   });
 
   await app.register(AutoLoad, {
-    dir: join(__dirname, "/plugins"),
+    dir: join(__dirname, '/plugins'),
     dirNameRoutePrefix: false,
   });
 
@@ -51,7 +51,7 @@ async function startServer() {
 
   // Initialize Routes
   await app.register(AutoLoad, {
-    dir: join(__dirname, "/routes"),
+    dir: join(__dirname, '/routes'),
     dirNameRoutePrefix: false,
     options: { prefix: `/api` },
   });
@@ -60,9 +60,7 @@ async function startServer() {
   app.setErrorHandler((error: FastifyError, request, reply) => {
     const status: number = error.statusCode ?? 500;
     const message: string =
-      status === 500
-        ? defaultErrorMessage
-        : error.message ?? defaultErrorMessage;
+      status === 500 ? defaultErrorMessage : error.message ?? defaultErrorMessage;
 
     app.log.error(
       `[${request.method}] ${request.url} >> StatusCode:: ${status}, Message:: ${message}`
@@ -73,13 +71,13 @@ async function startServer() {
 
   // Start listening
   try {
-    await app.listen({ port, host: "0.0.0.0" });
+    await app.listen({ port, host: '0.0.0.0' });
     // await dbClient.$connect();
     console.log(`Server running on port ${port}`);
     console.log(`Preview: ${API_URL}`);
     // schedulePing();
   } catch (err) {
-    app.log.error("APP ERROR", err);
+    app.log.error('APP ERROR', err);
     // dbClient.$disconnect();
     process.exit(1);
   }

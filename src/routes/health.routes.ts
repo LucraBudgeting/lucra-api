@@ -1,17 +1,14 @@
-import { dbClient } from "@/data/db.client";
-import { HttpMethods } from "@/utils/HttpMethods";
-import { FastifyInstance, RouteOptions } from "fastify";
+import { FastifyInstance, RouteOptions } from 'fastify';
+import { dbClient } from '@/data/db.client';
+import { HttpMethods } from '@/utils/HttpMethods';
 
-export default async function Health(
-  fastify: FastifyInstance,
-  opts: RouteOptions
-) {
+export default async function Health(fastify: FastifyInstance, _opts: RouteOptions) {
   fastify.route({
     method: HttpMethods.GET,
-    url: "/health",
-    handler: async (request, reply) => {
+    url: '/health',
+    handler: async (_request, _reply) => {
       await dbClient.$queryRaw`SELECT 1`;
-      return { db_status: "ok" };
+      return { db_status: 'ok' };
     },
   });
 }

@@ -1,0 +1,99 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 13,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "prettier", "unused-imports"],
+  "ignorePatterns": ["**/*.css", "**/*.scss", "node_modules/*"],
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "settings": {
+        "import/resolver": {
+          "typescript": {}
+        }
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
+      ],
+      "rules": {
+        "prettier/prettier": [
+          "warn",
+          {
+            "singleQuote": true,
+            "tabWidth": 2
+          },
+          {
+            "usePrettierrc": true
+          }
+        ],
+        "linebreak-style": ["error", "unix"],
+        "import/export": 0,
+        "import/order": [
+          "warn",
+          {
+            "groups": [
+              "builtin",
+              "external",
+              "internal",
+              "parent",
+              "sibling",
+              "index",
+              "object"
+            ]
+          }
+        ],
+        "import/default": "off",
+        "import/no-named-as-default-member": "off",
+        "import/no-named-as-default": "off",
+        "unused-imports/no-unused-imports": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_"
+          }
+        ],
+        // forbid usage of unused variables (marked with an _)
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": ["parameter", "variable"],
+            "leadingUnderscore": "forbid",
+            "filter": {
+              // keep this one open for destructuring
+              "regex": "_*",
+              "match": false
+            },
+            "format": null
+          },
+          {
+            "selector": "parameter",
+            "leadingUnderscore": "require",
+            "format": null,
+            "modifiers": ["unused"]
+          }
+        ],
+        "@typescript-eslint/explicit-function-return-type": ["off"],
+        "@typescript-eslint/explicit-module-boundary-types": ["off"],
+        "@typescript-eslint/no-empty-function": ["off"],
+        "@typescript-eslint/no-explicit-any": ["off"],
+        "@typescript-eslint/no-empty-interface": ["off"],
+        "no-empty-pattern": "off"
+      }
+    }
+  ]
+}
