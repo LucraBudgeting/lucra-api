@@ -5,7 +5,7 @@ export async function createPlaidLinkToken(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const linkToken = await plaidRepository.getLinkToken();
+  const linkToken = await plaidRepository.createLinkToken();
   return { linkToken };
 }
 

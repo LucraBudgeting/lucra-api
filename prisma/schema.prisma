@@ -1,28 +1,212 @@
-generator client {
-    provider = "prisma-client-js"
-}
-
 datasource db {
     provider = "postgresql"
     url      = env("DIRECT_DATABASE_URL")
 }
 
-// If a full DB reset needs to happen, you will need to delete the stored data types
-enum BillingStatus {
-    PENDING
-    COMPLETED
-    FAILED
+generator client {
+    provider = "prisma-client-js"
 }
 
-enum AccountStatus {
-    ACTIVE
-    INACTIVE
-    ONBOARDING
-    DELINQUENT
+model SeedHash {
+    id          String   @id @unique @default(cuid())
+    hash        String
+    dateCreated DateTime @default(now())
 }
 
 model User {
-    id    Int     @id @default(autoincrement())
-    email String  @unique
-    name  String?
+    id          String     @id @unique @default(cuid())
+    addressId   String?
+    username    String     @unique
+    email       String     @unique
+    lastName    String?
+    status      UserStatus @default(Active_Demo)
+    country     Country    @default(USA)
+    firstName   String
+    phoneNumber String?
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    Address             Address?              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    UserAuth            UserAuth[]
+    UserSession         UserSession[]
+    PlaidAccount        PlaidAccount[]
+    TransactionCategory TransactionCategory[]
+}
+
+model UserAuth {
+    id           String  @id @unique @default(cuid())
+    userId       String
+    passwordHash String?
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+    id     String @id @unique @default(cuid())
+    userId String
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    UserSessionAccess UserSessionAccess[]
+}
+
+model UserSessionAccess {
+    id               String @id @unique @default(cuid())
+    sessionId        String
+    deviceType       String
+    operatingSystem  String
+    sessionIpAddress String
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    UserSession UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model PlaidAccount {
+    id                      String       @id @unique @default(cuid())
+    userId                  String
+    accessToken             String
+    accountId               String
+    institutionDisplayName  String
+    institutionOfficialName String?
+    institutionId           String?
+    type                    AccountTypes @default(Other)
+    mask                    String       @default("0000")
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    PlaidAccountBalance PlaidAccountBalance[]
+    PlaidTransaction    PlaidTransaction[]
+
+    @@index([accessToken], name: "access_token_index")
+}
+
+model PlaidAccountBalance {
+    id          String          @id @unique @default(cuid())
+    accountId   String
+    available   BigInt
+    current     BigInt
+    limit       BigInt?
+    isoCurrency IsoCurrencyCode @default(USD)
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    Account PlaidAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model PlaidTransaction {
+    id              String          @id @unique @default(cuid())
+    accountId       String
+    amount          BigInt
+    date            DateTime        @default(now())
+    isoCurrencyCode IsoCurrencyCode @default(USD)
+    merchantName    String?
+    name            String?
+    pending         Boolean         @default(false)
+    paymentChannel  PaymentChannel  @default(Other)
+    addressId       String?
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    Account                             PlaidAccount                          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    Address                             Address?                              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+}
+
+model TransactionCategory {
+    id            String                 @id @unique @default(cuid())
+    userId        String
+    name          String
+    createdSource CategoryCreationSource @default(UserCreated)
+    status        CategoryStatus         @default(Ignore)
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+}
+
+model PlaidTransactionTransactionCategory {
+    id                    String @id @unique @default(cuid())
+    plaidTransactionId    String
+    transactionCategoryId String
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    TransactionId PlaidTransaction    @relation(fields: [plaidTransactionId], references: [id], onDelete: Cascade)
+    CategoryId    TransactionCategory @relation(fields: [transactionCategoryId], references: [id], onDelete: Cascade)
+}
+
+model Address {
+    id         String  @id @unique @default(cuid())
+    street1    String
+    street2    String?
+    city       String?
+    postalCode String?
+    country    Country @default(USA)
+    lat        String?
+    lng        String?
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User             User[]
+    PlaidTransaction PlaidTransaction[]
+}
+
+// If a full DB reset needs to happen, you will need to delete the stored data types
+enum UserStatus {
+    Active_Paid
+    Suspended
+    InActive
+    Deleted
+    Active_Demo
+}
+
+enum Country {
+    USA
+    Canada
+}
+
+enum CategoryCreationSource {
+    UserCreated
+    PlaidCreated
+}
+
+enum CategoryStatus {
+    Ignore
+    Active
+}
+
+enum IsoCurrencyCode {
+    USD
+}
+
+enum PaymentChannel {
+    InStore
+    Online
+    Other
+}
+
+enum AccountTypes {
+    Checking
+    Savings
+    CreditCard
+    Loan
+    Investment
+    Mortgage
+    Other
 }

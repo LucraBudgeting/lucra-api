@@ -5,6 +5,7 @@ import {
   CountryCode,
   ItemPublicTokenExchangeResponse,
   LinkTokenCreateRequest,
+  LinkTokenGetRequest,
   PlaidApi,
   PlaidEnvironments,
   Products,
@@ -30,9 +31,12 @@ const config = new Configuration({
   },
 });
 
+console.log("Plaid Config: ", config);
+
 const clientName = "Lucra Budgeting";
 
 let ACCESS_TOKEN: string | null = null;
+let LINK_TOKEN: string | null = null;
 let ITEM_ID: string | null = null;
 let ACCOUNT_ID = Guid(true);
 
@@ -43,7 +47,7 @@ class PlaidRepository {
     this.plaidClient = new PlaidApi(config);
   }
 
-  public async getLinkToken(userId?: string) {
+  public async createLinkToken(userId?: string) {
     userId = ACCOUNT_ID;
     const request: LinkTokenCreateRequest = {
       user: {
@@ -57,12 +61,23 @@ class PlaidRepository {
 
     const response = await this.plaidClient.linkTokenCreate(request);
     const linkToken = response.data.link_token;
+    LINK_TOKEN = linkToken;
     return linkToken;
   }
 
-  public async exchangePublicToken(
-    publicToken: string
-  ): Promise<ItemPublicTokenExchangeResponse> {
+  public async getLinkTokenDetails(linkToken: string) {
+    const request: LinkTokenGetRequest = {
+      link_token: linkToken,
+    };
+
+    const response = await this.plaidClient.linkTokenGet(request);
+
+    console.log("Link Token Details: ", response.data);
+
+    return response.data;
+  }
+
+  public async exchangePublicToken(publicToken: string): Promise<any> {
     const response = await this.plaidClient.itemPublicTokenExchange({
       public_token: publicToken,
     });
@@ -71,6 +86,46 @@ class PlaidRepository {
 
     ACCESS_TOKEN = response.data.access_token;
     ITEM_ID = response.data.item_id;
+
+    await this.getItemDetails(ITEM_ID);
+    await this.getAccountBalance(ACCESS_TOKEN);
+    await this.getLinkTokenDetails(LINK_TOKEN!);
+    const transactions = await this.syncTransactions();
+
+    return transactions;
+  }
+
+  public async getItemDetails(itemId: string) {
+    const response = await this.plaidClient.itemGet({
+      access_token: ACCESS_TOKEN!,
+    });
+
+    console.log("Item Details: ", response.data.item);
+
+    await this.getInstitutionById(response.data.item.institution_id!);
+
+    return response.data.item;
+  }
+
+  public async getInstitutionById(institutionId: string) {
+    const response = await this.plaidClient.institutionsGetById({
+      institution_id: institutionId,
+      country_codes: [CountryCode.Us],
+    });
+
+    console.log("Institution Details: ", response.data.institution);
+
+    return response.data.institution;
+  }
+
+  public async syncTransactions() {
+    // https://plaid.com/docs/api/products/transactions/#transactionssync
+    const response = await this.plaidClient.transactionsSync({
+      access_token: ACCESS_TOKEN!,
+      options: {
+        include_original_description: true,
+      },
+    });
 
     return response.data;
   }
