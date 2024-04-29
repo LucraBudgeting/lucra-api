@@ -15,7 +15,10 @@ import { PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 function getPlaidEnvironment() {
   if (process.env.NODE_ENV === 'production') {
     return PlaidEnvironments.production;
+  } else if (process.env.NODE_ENV === 'development') {
+    return PlaidEnvironments.development;
   }
+
   return PlaidEnvironments.sandbox;
 }
 
