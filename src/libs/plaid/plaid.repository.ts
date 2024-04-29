@@ -34,6 +34,8 @@ const config = new Configuration({
 
 const clientName = 'Lucra Budgeting';
 
+const daysRequestedDefault = 365 * 2; // 2 years
+
 class PlaidRepository {
   private plaidClient: PlaidApi;
 
@@ -58,7 +60,7 @@ class PlaidRepository {
         account_selection_enabled: true,
       },
       transactions: {
-        days_requested: 365 * 2, // 2 years
+        days_requested: daysRequestedDefault,
       },
     };
 
@@ -84,6 +86,10 @@ class PlaidRepository {
     const request: TransactionsSyncRequest = {
       access_token: accessToken,
       cursor,
+      options: {
+        include_original_description: true,
+        days_requested: daysRequestedDefault,
+      },
     };
 
     const response = await this.plaidClient.transactionsSync(request);

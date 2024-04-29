@@ -87,7 +87,6 @@ async function syncAccounts(
   const newAccountIds = await plaidAccountRepository.createPlaidAccountMany(plaidAccounts);
 
   const balances = accountDetails.accounts.map((account): PlaidAccountBalance => {
-    console.log('Balances', account.balances);
     return {
       accountId: newAccountIds[account.account_id],
       available: new Decimal(account.balances.available?.toString() ?? '0'),
@@ -125,9 +124,9 @@ async function syncTransactionHistory(accountIds: Record<string, string>, access
       } as PlaidTransaction;
     });
 
-    console.log('HasMore', transactionsData.has_more);
+    console.log('HasMore', transactionsData.has_more, 'Cursor', transactionsData.next_cursor);
 
-    console.log('Transactions', transactions[0]);
+    console.log('Transactions', transactions.length);
 
     await plaidTransactionRepository.createPlaidTransactionMany(transactions);
   }
