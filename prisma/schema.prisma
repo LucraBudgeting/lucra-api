@@ -111,7 +111,7 @@ model PlaidAccountAccess {
 
 model PlaidAccount {
     id                      String       @id @unique @default(cuid())
-    accessTokenId           String
+    accessAccountId         String
     accountId               String
     institutionDisplayName  String
     institutionOfficialName String?
@@ -123,7 +123,7 @@ model PlaidAccount {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    AccessToken PlaidAccountAccess @relation(fields: [accessTokenId], references: [id], onDelete: Cascade)
+    AccessToken PlaidAccountAccess @relation(fields: [accessAccountId], references: [id], onDelete: Cascade)
 
     PlaidAccountBalance PlaidAccountBalance[]
     PlaidTransaction    PlaidTransaction[]
@@ -134,9 +134,9 @@ model PlaidAccount {
 model PlaidAccountBalance {
     id               String          @id @unique @default(cuid())
     accountId        String
-    available        BigInt
-    current          BigInt
-    limit            BigInt?
+    available        Decimal
+    current          Decimal
+    limit            Decimal?
     isoCurrency      IsoCurrencyCode @default(USD)
     plaidLastUpdated DateTime
 
@@ -151,7 +151,7 @@ model PlaidAccountBalance {
 model PlaidTransaction {
     id              String          @id @unique @default(cuid())
     accountId       String
-    amount          BigInt
+    amount          Decimal
     date            DateTime        @default(now())
     isoCurrencyCode IsoCurrencyCode @default(USD)
     merchantName    String?

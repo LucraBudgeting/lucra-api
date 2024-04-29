@@ -4,7 +4,7 @@ import { BaseRepository } from './base.repository';
 
 class PlaidAccountRepository extends BaseRepository {
   async createPlaidAccount(account: PlaidAccount): Promise<string> {
-    if (account.accessTokenId.isNullOrEmpty()) {
+    if (account.accessAccountId.isNullOrEmpty()) {
       throw new ValidationError('Access token is required to create plaid account');
     }
 
@@ -18,22 +18,33 @@ class PlaidAccountRepository extends BaseRepository {
       .then((acc) => acc.id);
   }
 
-  async createPlaidAccountMany(accounts: PlaidAccount[]): Promise<string[]> {
+  async createPlaidAccountMany(accounts: PlaidAccount[]): Promise<Record<string, string>> {
     if (accounts.length === 0) {
-      return [];
+      return {};
     }
 
     await this.client.plaidAccount.createMany({
       data: accounts,
     });
 
-    return await this.client.plaidAccount
+    const accountIds: Record<string, string> = {};
+    await this.client.plaidAccount
       .findMany({
         where: {
-          accessTokenId: accounts[0]?.accessTokenId,
+          accessAccountId: accounts[0]?.accessAccountId,
+        },
+        select: {
+          id: true,
+          accountId: true,
         },
       })
-      .then((accs) => accs.map((acc) => acc.id));
+      .then((accs) =>
+        accs.map((acc) => {
+          accountIds[acc.accountId] = acc.id;
+        })
+      );
+
+    return accountIds;
   }
 }
 

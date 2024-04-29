@@ -28,8 +28,8 @@ export async function AuthLogin(
 }
 
 export async function AuthCheck(req: FastifyRequest, reply: FastifyReply) {
-  const user = req.user as { user: User };
-  const freshUser = await AuthCheckByUserId(user.user.id);
+  const user = req.user as User;
+  const freshUser = await AuthCheckByUserId(user.id);
 
   const accessToken = await reply.jwtSign({ user: freshUser });
 

@@ -10,11 +10,9 @@ export default fastifyPlugin(async (fastify: FastifyInstance, _: unknown) => {
         throw new ForbiddenError('No Authorization Header');
       }
 
-      const user = (await request.jwtVerify()) as {
-        user: User;
-      };
+      const payload = (await request.jwtVerify()) as { user: User };
 
-      request.user = user;
+      request.user = payload.user;
     } catch (error) {
       console.error('authPrehandler Error: ', JSON.stringify(error, null, 4));
       console.error('authPrehandler Error Auth Header: ', request.headers?.authorization);

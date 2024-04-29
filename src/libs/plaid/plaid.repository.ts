@@ -42,16 +42,11 @@ class PlaidRepository {
     const request: LinkTokenCreateRequest = {
       user: {
         client_user_id: user.id,
-        name: {
-          given_name: user?.firstName ?? 'Unknown_Given_Name',
-          family_name: user?.lastName ?? 'Unknown_Family_Name',
-        },
         phone_number: user?.phoneNumber ?? 'Unknown_Phone_Number',
         email_address: user?.email ?? 'Unknown_Email',
       },
       client_name: clientName,
-      products: [Products.Transactions, Products.Investments],
-      required_if_supported_products: [Products.Transactions],
+      products: [Products.Transactions],
       optional_products: [Products.Investments],
       // TODO - https://plaid.com/docs/api/tokens/#link-token-create-request-webhook
       country_codes: [CountryCode.Us],
@@ -65,8 +60,8 @@ class PlaidRepository {
     };
 
     const response = await this.plaidClient.linkTokenCreate(request);
-    const linkToken = response.data.link_token;
 
+    const linkToken = response.data.link_token;
     return linkToken;
   }
 
