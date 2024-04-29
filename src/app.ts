@@ -78,6 +78,7 @@ async function startServer() {
     // schedulePing();
   } catch (err) {
     app.log.error('APP ERROR', err);
+    console.error(err);
     // dbClient.$disconnect();
     process.exit(1);
   }
