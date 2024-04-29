@@ -32,8 +32,9 @@ model User {
     Address             Address?              @relation(fields: [addressId], references: [id], onDelete: Cascade)
     UserAuth            UserAuth[]
     UserSession         UserSession[]
-    PlaidAccount        PlaidAccount[]
     TransactionCategory TransactionCategory[]
+    UserPreferences     UserPreferences[]
+    PlaidAccountAccess  PlaidAccountAccess[]
 
     @@index([email], name: "user_email_index")
     @@index([username], name: "user_username_index")
@@ -50,6 +51,22 @@ model UserAuth {
     User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId], name: "user_auth_user_id_index")
+}
+
+model UserPreferences {
+    id          String          @id @unique @default(cuid())
+    userId      String
+    currency    IsoCurrencyCode @default(USD)
+    language    Language        @default(English)
+    theme       String?
+    autoRefresh Boolean         @default(false)
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId], name: "user_preferences_user_id_index")
 }
 
 model UserSession {
@@ -80,35 +97,48 @@ model UserSessionAccess {
     @@index([sessionId], name: "user_session_access_session_id_index")
 }
 
+model PlaidAccountAccess {
+    id          String @id @unique @default(cuid())
+    userId      String
+    accessToken String
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    PlaidAccount PlaidAccount[]
+}
+
 model PlaidAccount {
     id                      String       @id @unique @default(cuid())
-    userId                  String
-    accessToken             String
+    accessTokenId           String
     accountId               String
     institutionDisplayName  String
     institutionOfficialName String?
     institutionId           String?
     type                    AccountTypes @default(Other)
-    mask                    String       @default("0000")
+    subType                 String?
+    mask                    String?      @default("0000")
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    AccessToken PlaidAccountAccess @relation(fields: [accessTokenId], references: [id], onDelete: Cascade)
+
     PlaidAccountBalance PlaidAccountBalance[]
     PlaidTransaction    PlaidTransaction[]
 
-    @@index([accessToken], name: "plaid_account_access_token_index")
     @@index([accountId], name: "plaid_account_account_id_index")
 }
 
 model PlaidAccountBalance {
-    id          String          @id @unique @default(cuid())
-    accountId   String
-    available   BigInt
-    current     BigInt
-    limit       BigInt?
-    isoCurrency IsoCurrencyCode @default(USD)
+    id               String          @id @unique @default(cuid())
+    accountId        String
+    available        BigInt
+    current          BigInt
+    limit            BigInt?
+    isoCurrency      IsoCurrencyCode @default(USD)
+    plaidLastUpdated DateTime
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
@@ -230,4 +260,8 @@ enum AccountTypes {
     Investment
     Mortgage
     Other
+}
+
+enum Language {
+    English
 }

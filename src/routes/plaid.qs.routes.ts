@@ -9,7 +9,7 @@ import { HttpMethods } from '@/utils/HttpMethods';
 
 const basePath = '/plaid/qs';
 
-export default async function Plaid(fastify: FastifyInstance, _opts: RouteOptions) {
+export default async function QsPlaid(fastify: FastifyInstance, _opts: RouteOptions) {
   fastify.route({
     method: HttpMethods.POST,
     url: `${basePath}/link_token`,

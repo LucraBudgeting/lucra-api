@@ -7,38 +7,44 @@ class BaseError extends Error {
   }
 }
 
-export class NotFound extends BaseError {
+export class NotFoundError extends BaseError {
   constructor(message = 'Not found') {
     super(message, 404);
   }
 }
 
-export class Conflict extends BaseError {
+export class ConflictError extends BaseError {
   constructor(message = 'Conflict') {
     super(message, 409);
   }
 }
 
-export class Unauthorized extends BaseError {
+export class UnauthorizedError extends BaseError {
   constructor(message = 'Unauthorized') {
     super(message, 401);
   }
 }
 
-export class BadRequest extends BaseError {
+export class BadRequestError extends BaseError {
   constructor(message = 'Bad Request') {
     super(message, 400);
   }
 }
 
-export class Forbidden extends BaseError {
+export class ForbiddenError extends BaseError {
   constructor(message = 'Forbidden') {
     super(message, 403);
   }
 }
 
-export class ValidationError extends Forbidden {
+export class ValidationError extends ForbiddenError {
   constructor(message = 'Validation Error') {
     super(message);
+  }
+}
+
+export class ServiceUnavailableError extends BaseError {
+  constructor(message = 'Service Unavailable') {
+    super(message, 503);
   }
 }
