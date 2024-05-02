@@ -103,32 +103,23 @@ async function syncAccounts(
 }
 
 async function syncTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
-  let hasMore = true;
-  let cursor: string | undefined = undefined;
+  const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
 
-  while (hasMore) {
-    const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
-    hasMore = false;
-    // cursor = transactionsData.next_cursor;
+  console.log('total', transactionsData.total_transactions);
+  const transactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
+    return {
+      accountId: accountIds[transaction.account_id],
+      amount: new Decimal(transaction.amount.toString()),
+      isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
+      merchantName: transaction.merchant_name,
+      name: transaction.name,
+      pending: transaction.pending,
+      date: new Date(transaction.date),
+      paymentChannel: MapPaymentChannel(transaction.payment_channel),
+    } as PlaidTransaction;
+  });
 
-    console.log('total', transactionsData.total_transactions);
-    const transactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
-      return {
-        accountId: accountIds[transaction.account_id],
-        amount: new Decimal(transaction.amount.toString()),
-        isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-        merchantName: transaction.merchant_name,
-        name: transaction.name,
-        pending: transaction.pending,
-        date: new Date(transaction.date),
-        paymentChannel: MapPaymentChannel(transaction.payment_channel),
-      } as PlaidTransaction;
-    });
+  console.log('Transactions', transactions.length);
 
-    // console.log('HasMore', transactionsData.has_more, 'Cursor', transactionsData.next_cursor);
-
-    console.log('Transactions', transactions.length);
-
-    await plaidTransactionRepository.createPlaidTransactionMany(transactions);
-  }
+  await plaidTransactionRepository.createPlaidTransactionMany(transactions);
 }
