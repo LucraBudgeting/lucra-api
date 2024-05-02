@@ -2,6 +2,7 @@ import {
   AccountsGetResponse,
   Configuration,
   CountryCode,
+  ItemPublicTokenExchangeResponse,
   LinkTokenCreateRequest,
   PlaidApi,
   PlaidEnvironments,
@@ -82,12 +83,12 @@ class PlaidRepository {
     return linkToken;
   }
 
-  public async exchangePublicToken(publicToken: string) {
+  public async exchangePublicToken(publicToken: string): Promise<ItemPublicTokenExchangeResponse> {
     const response = await this.plaidClient.itemPublicTokenExchange({
       public_token: publicToken,
     });
 
-    const accessToken = response.data.access_token;
+    const accessToken = response.data;
     return accessToken;
   }
 

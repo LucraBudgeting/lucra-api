@@ -101,6 +101,7 @@ model PlaidAccountAccess {
     id          String @id @unique @default(cuid())
     userId      String
     accessToken String
+    itemId      String
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
@@ -128,6 +129,7 @@ model PlaidAccount {
     PlaidAccountBalance PlaidAccountBalance[]
     PlaidTransaction    PlaidTransaction[]
 
+    @@index([institutionId], name: "plaid_account_institution_id_index")
     @@index([accountId], name: "plaid_account_account_id_index")
 }
 
