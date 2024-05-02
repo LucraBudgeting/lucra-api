@@ -1,6 +1,5 @@
 import { PlaidAccount, PlaidAccountBalance, PlaidTransaction } from '@prisma/client';
 import { Record } from '@fastify/type-provider-typebox';
-import { Decimal } from '@prisma/client/runtime/library';
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userPreferencesRepository } from '@/data/repositories/userPreferences.repository';
@@ -8,10 +7,11 @@ import { BadRequestError, ServiceUnavailableError, ValidationError } from '@/exc
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
 import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
-import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
+import { Decimal } from '@prisma/client/runtime/library';
 import { MapPaymentChannel } from '../mappers/PaymentChannel.mapper';
+import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
 
 export async function createLinkToken(userId: string): Promise<string> {
   if (userId.isNullOrEmpty()) {
@@ -87,6 +87,7 @@ async function syncAccounts(
   const newAccountIds = await plaidAccountRepository.createPlaidAccountMany(plaidAccounts);
 
   const balances = accountDetails.accounts.map((account): PlaidAccountBalance => {
+    console.log('Balances', account.balances);
     return {
       accountId: newAccountIds[account.account_id],
       available: new Decimal(account.balances.available?.toString() ?? '0'),
@@ -103,6 +104,32 @@ async function syncAccounts(
 }
 
 async function syncTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
+  let hasMore = true;
+  let cursor: string | undefined = undefined;
+
+  while (hasMore) {
+    const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
+    hasMore = transactionsData.has_more;
+    cursor = transactionsData.next_cursor;
+
+    const transactions = transactionsData.added.map((transaction): PlaidTransaction => {
+      return {
+        accountId: accountIds[transaction.account_id],
+        amount: new Decimal(transaction.amount.toString()),
+        isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
+        merchantName: transaction.merchant_name,
+        name: transaction.name,
+        pending: transaction.pending,
+        date: new Date(transaction.date),
+        paymentChannel: MapPaymentChannel(transaction.payment_channel),
+      } as PlaidTransaction;
+    });
+
+    await plaidTransactionRepository.createPlaidTransactionMany(transactions);
+  }
+}
+
+async function getTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
   const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
 
   console.log('total', transactionsData.total_transactions);
