@@ -107,11 +107,12 @@ async function syncTransactionHistory(accountIds: Record<string, string>, access
   let cursor: string | undefined = undefined;
 
   while (hasMore) {
-    const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
-    hasMore = transactionsData.has_more;
-    cursor = transactionsData.next_cursor;
+    const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
+    hasMore = false;
+    // cursor = transactionsData.next_cursor;
 
-    const transactions = transactionsData.added.map((transaction): PlaidTransaction => {
+    console.log('total', transactionsData.total_transactions);
+    const transactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
       return {
         accountId: accountIds[transaction.account_id],
         amount: new Decimal(transaction.amount.toString()),
@@ -124,7 +125,7 @@ async function syncTransactionHistory(accountIds: Record<string, string>, access
       } as PlaidTransaction;
     });
 
-    console.log('HasMore', transactionsData.has_more, 'Cursor', transactionsData.next_cursor);
+    // console.log('HasMore', transactionsData.has_more, 'Cursor', transactionsData.next_cursor);
 
     console.log('Transactions', transactions.length);
 

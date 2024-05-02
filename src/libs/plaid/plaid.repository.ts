@@ -6,6 +6,8 @@ import {
   PlaidApi,
   PlaidEnvironments,
   Products,
+  TransactionsGetRequest,
+  TransactionsGetResponse,
   TransactionsSyncRequest,
   TransactionsSyncResponse,
 } from 'plaid';
@@ -21,6 +23,16 @@ function getPlaidEnvironment() {
 
   return PlaidEnvironments.sandbox;
 }
+
+const getDateTwoYearsAgo = (): string => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 2);
+  return date.toISOString().split('T')[0] as string;
+};
+
+const getTodaysDate = (): string => {
+  return new Date().toISOString().split('T')[0] as string;
+};
 
 const config = new Configuration({
   basePath: getPlaidEnvironment(),
@@ -92,7 +104,24 @@ class PlaidRepository {
       },
     };
 
+    console.log('Request: ', request);
+
     const response = await this.plaidClient.transactionsSync(request);
+
+    return response.data;
+  }
+
+  public async getHistoricalTransactions(accessToken: string): Promise<TransactionsGetResponse> {
+    const request: TransactionsGetRequest = {
+      access_token: accessToken,
+      options: {
+        include_original_description: true,
+      },
+      start_date: getDateTwoYearsAgo(),
+      end_date: getTodaysDate(),
+    };
+
+    const response = await this.plaidClient.transactionsGet(request);
 
     return response.data;
   }

@@ -150,6 +150,8 @@ class QsPlaidRepository {
       modified = modified.concat(data.modified);
       removed = removed.concat(data.removed);
       hasMore = data.has_more;
+
+      console.log('HasMore', data.has_more, 'Cursor', data.next_cursor);
       // Update cursor to the next cursor
       cursor = data.next_cursor;
     }
