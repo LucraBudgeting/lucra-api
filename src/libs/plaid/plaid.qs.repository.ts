@@ -138,7 +138,7 @@ class QsPlaidRepository {
     let removed: RemovedTransaction[] = [];
     let hasMore = true;
     // Iterate through each page of new transaction updates for item
-  while (hasMore) {
+    while (hasMore) {
       const request: TransactionsSyncRequest = {
         access_token: ACCESS_TOKEN!,
         cursor: cursor,

@@ -1,6 +1,5 @@
 import { ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
-import { PlaidAccount } from '@prisma/client';
 
 class PlaidAccountAccessRepository extends BaseRepository {
   async createPlaidAccountAccess(userId: string, accessToken: string, itemId: string) {

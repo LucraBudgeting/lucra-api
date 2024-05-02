@@ -1,5 +1,7 @@
 import { PlaidAccount, PlaidAccountBalance, PlaidTransaction } from '@prisma/client';
 import { Record } from '@fastify/type-provider-typebox';
+import { Decimal } from '@prisma/client/runtime/library';
+import { ItemPublicTokenExchangeResponse } from 'plaid';
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userPreferencesRepository } from '@/data/repositories/userPreferences.repository';
@@ -7,12 +9,10 @@ import { BadRequestError, ServiceUnavailableError, ValidationError } from '@/exc
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
 import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
+import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
-import { Decimal } from '@prisma/client/runtime/library';
 import { MapPaymentChannel } from '../mappers/PaymentChannel.mapper';
-import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
-import { ItemPublicTokenExchangeResponse } from 'plaid';
 
 export class InitializePlaidService {
   private userId: string;
