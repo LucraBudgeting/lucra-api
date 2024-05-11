@@ -31,10 +31,10 @@ async function startServer() {
 
   // Initialize Plugins
   await app.register(fastifyEnv, { dotenv: true, schema });
-  await app.register(fastifyCors, {
-    origin: true,
-    credentials: CREDENTIALS === 'true',
-  });
+  // await app.register(fastifyCors, {
+  //   origin: true,
+  //   credentials: CREDENTIALS === 'true',
+  // });
   await app.register(fastifyHelmet);
   await app.register(fastifyJwt, {
     secret: SECRET_KEY ?? '',
