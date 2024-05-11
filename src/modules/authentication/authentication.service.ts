@@ -16,7 +16,7 @@ export async function LoginUserByUsername(username: string, password: string) {
   return user;
 }
 
-export async function LoginUserByEmail(email: string, password: string) {
+export async function LoginUserByEmail(email: string, password: string): Promise<User> {
   const user = await userRepository.findUserByEmail(email);
 
   if (!user) {
@@ -35,16 +35,14 @@ async function validateAuthFromUser(user: User, password: string): Promise<void>
     throw new NotFoundError(`User auth with id ${user.id} not found`);
   }
 
-  doesPasswordMatch(password, userAuth.passwordHash);
+  await doesPasswordMatch(password, userAuth.passwordHash);
 }
 
 async function doesPasswordMatch(password: string, hashedPassword: string | null): Promise<void> {
   if (!hashedPassword) {
-    throw new BadRequestError('Password not found');
+    throw new NotFoundError('Password not found');
   }
-
   const isMatch = await stringMatchesHash(password, hashedPassword);
-
   if (!isMatch) {
     throw new BadRequestError('Incorrect password');
   }
