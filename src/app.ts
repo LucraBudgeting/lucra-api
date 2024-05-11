@@ -58,15 +58,21 @@ async function startServer() {
 
   // Initialize Error Handling
   app.setErrorHandler((error: FastifyError, request, reply) => {
-    const status: number = error.statusCode ?? 500;
-    const message: string =
-      status === 500 ? defaultErrorMessage : error.message ?? defaultErrorMessage;
+    try {
+      const status: number = error.statusCode ?? 500;
+      const message: string =
+        status === 500 ? defaultErrorMessage : error.message ?? defaultErrorMessage;
 
-    app.log.error(
-      `[${request.method}] ${request.url} >> StatusCode:: ${status}, Message:: ${message}`
-    );
+      app.log.error(
+        `[${request.method}] ${request.url} >> StatusCode:: ${status}, Message:: ${message}`
+      );
 
-    return reply.status(status).send({ error: true, message });
+      return reply.status(status).send({ error: true, message });
+    } catch (error) {
+      return reply
+        .status(500)
+        .send({ error: true, message: `Exception could not be handled: ${error}` });
+    }
   });
 
   // Start listening

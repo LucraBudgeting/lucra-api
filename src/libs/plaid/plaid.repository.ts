@@ -14,6 +14,7 @@ import {
 } from 'plaid';
 import { User, UserPreferences } from '@prisma/client';
 import { PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
+import { ServiceUnavailableError } from '@/exceptions/error';
 
 function getPlaidEnvironment() {
   if (process.env.NODE_ENV === 'production') {
@@ -57,30 +58,34 @@ class PlaidRepository {
   }
 
   public async createLinkToken(user: User, preferences: UserPreferences | null) {
-    const request: LinkTokenCreateRequest = {
-      user: {
-        client_user_id: user.id,
-        phone_number: user?.phoneNumber ?? 'Unknown_Phone_Number',
-        email_address: user?.email ?? 'Unknown_Email',
-      },
-      client_name: clientName,
-      products: [Products.Transactions],
-      optional_products: [Products.Investments],
-      // TODO - https://plaid.com/docs/api/tokens/#link-token-create-request-webhook
-      country_codes: [CountryCode.Us],
-      language: preferences?.language ?? 'en',
-      update: {
-        account_selection_enabled: true,
-      },
-      transactions: {
-        days_requested: daysRequestedDefault,
-      },
-    };
+    try {
+      const request: LinkTokenCreateRequest = {
+        user: {
+          client_user_id: user.id,
+          phone_number: user?.phoneNumber ?? 'Unknown_Phone_Number',
+          email_address: user?.email ?? 'Unknown_Email',
+        },
+        client_name: clientName,
+        products: [Products.Transactions],
+        optional_products: [Products.Investments],
+        // TODO - https://plaid.com/docs/api/tokens/#link-token-create-request-webhook
+        country_codes: [CountryCode.Us],
+        language: preferences?.language ?? 'en',
+        update: {
+          account_selection_enabled: true,
+        },
+        transactions: {
+          days_requested: daysRequestedDefault,
+        },
+      };
 
-    const response = await this.plaidClient.linkTokenCreate(request);
+      const response = await this.plaidClient.linkTokenCreate(request);
 
-    const linkToken = response.data.link_token;
-    return linkToken;
+      const linkToken = response.data.link_token;
+      return linkToken;
+    } catch (error) {
+      throw new ServiceUnavailableError(error as string);
+    }
   }
 
   public async exchangePublicToken(publicToken: string): Promise<ItemPublicTokenExchangeResponse> {
