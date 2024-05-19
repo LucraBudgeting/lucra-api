@@ -3,7 +3,7 @@ import { Address } from '@/interfaces/Address.type';
 export class CreateStripeCustomer {
   constructor(payload: any, companyId: string) {
     this.email = payload.email;
-    this.name = `${payload.firstName} ${payload.lastName}`;
+    this.name = payload.name;
     this.companyId = companyId;
     this.address = {
       street1: payload.streetAddress1,

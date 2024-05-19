@@ -24,8 +24,7 @@ export const user1: User = {
   phoneNumber: '123-456-7890',
   status: UserStatus.Active_Paid,
   country: Country.USA,
-  firstName: 'Alice',
-  lastName: 'Barker',
+  name: 'Alice Barker',
 
   addressId: null,
 };
@@ -38,8 +37,7 @@ export const user2: User = {
   phoneNumber: '098-765-4321',
   status: UserStatus.Active_Demo,
   country: Country.USA,
-  firstName: 'Bob',
-  lastName: 'Harris',
+  name: 'Bob Harris',
   addressId: null,
 };
 
@@ -51,8 +49,7 @@ export const user3: User = {
   phoneNumber: '456-789-0123',
   status: UserStatus.Suspended,
   country: Country.USA,
-  firstName: 'Charlie',
-  lastName: 'Smith',
+  name: 'Charlie Smith',
   addressId: null,
 };
 

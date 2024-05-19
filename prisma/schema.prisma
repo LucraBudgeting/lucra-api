@@ -18,12 +18,11 @@ model SeedHash {
 model User {
     id          String     @id @unique @default(cuid())
     addressId   String?
-    username    String     @unique
+    username    String?    @unique
     email       String     @unique
-    lastName    String?
+    name        String     @default("User")
     status      UserStatus @default(Active_Demo)
     country     Country    @default(USA)
-    firstName   String
     phoneNumber String?
 
     dateCreated DateTime @default(now())
@@ -227,6 +226,7 @@ enum UserStatus {
     InActive
     Deleted
     Active_Demo
+    Onboarding
 }
 
 enum Country {

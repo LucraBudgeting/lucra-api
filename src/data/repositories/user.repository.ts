@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User, UserStatus } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
@@ -15,6 +15,20 @@ class UserRepository extends BaseRepository {
         email,
       },
     });
+  }
+
+  async doesUserWithEmailExist(email: string): Promise<boolean> {
+    if (!email.isValidEmail()) {
+      throw new ValidationError('Cannot Find User By Email: Invalid email address');
+    }
+
+    const user = await this.client.user.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    return user !== null;
   }
 
   async findUserByUsername(username: string): Promise<UserResponse> {
@@ -37,6 +51,24 @@ class UserRepository extends BaseRepository {
     return this.client.user.findFirst({
       where: {
         id,
+      },
+    });
+  }
+
+  async createUser(email: string, fullName: string): Promise<UserResponse> {
+    if (!email.isValidEmail()) {
+      throw new ValidationError('Cannot Create User: Invalid email address');
+    }
+
+    if (fullName.isNullOrEmpty()) {
+      throw new ValidationError('Cannot Create User: Full Name is null or empty');
+    }
+
+    return this.client.user.create({
+      data: {
+        email,
+        name: fullName,
+        status: UserStatus.Onboarding,
       },
     });
   }
