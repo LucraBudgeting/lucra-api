@@ -1,24 +1,22 @@
-import { FRONTEND_ORIGIN } from '@/config';
+import { FRONTEND_ORIGIN, STRIPE_PRICE_ID } from '@/config';
 import { CreateStripeCustomer } from './stripe.types';
 import { stripe } from './stripe';
+import { User } from '@prisma/client';
 
-const initialSubscriptionId = 'price_1OmQJ5GOia2yQ2r4bS5OGSHT';
+export class StripeRepository {
+  private user?: User;
 
-class StripeRepository {
+  public setUser(user: User) {
+    this.user = user;
+  }
+
   public async createCustomer(payload: CreateStripeCustomer) {
     return await stripe.customers.create({
       email: payload.email,
       name: payload.name,
       phone: payload.phone,
-      address: {
-        line1: payload.address.street1,
-        line2: payload.address.street2,
-        city: payload.address.city,
-        state: payload.address.state,
-        postal_code: payload.address.postalCode,
-      },
       metadata: {
-        companyId: payload.companyId,
+        userId: payload.userId,
       },
     });
   }
@@ -26,7 +24,7 @@ class StripeRepository {
   private async createCustomBillingPortal(customerId: string) {
     return await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${FRONTEND_ORIGIN}/events`,
+      return_url: `${FRONTEND_ORIGIN}/dashboard`,
     });
   }
 
@@ -35,29 +33,26 @@ class StripeRepository {
     return billingSession.url;
   }
 
-  private async initCheckout(customerId: string) {
+  private async onboardingCheckout(customerId: string) {
     return await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       line_items: [
         {
-          price: initialSubscriptionId,
+          price: STRIPE_PRICE_ID,
           quantity: 1,
         },
       ],
       currency: 'usd',
-      success_url: `${FRONTEND_ORIGIN}/events`,
-      // cancel_url: `${FRONTEND_ORIGIN}/auth`,
+      success_url: `${FRONTEND_ORIGIN}/auth/register?userid=${this.user?.id}&step=3`,
     });
   }
 
-  public async getInitCheckoutUrl(customerId: string): Promise<string> {
-    const checkoutSession = await this.initCheckout(customerId);
+  public async getOnboardingCheckoutUrl(customerId: string): Promise<string> {
+    const checkoutSession = await this.onboardingCheckout(customerId);
     if (!checkoutSession.url) {
       throw new Error('Error creating checkout session');
     }
     return checkoutSession.url;
   }
 }
-
-export const stripeRepository = new StripeRepository();

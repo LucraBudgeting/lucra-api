@@ -1,4 +1,8 @@
-import { CreateAccount, DoesEmailAlreadyExist } from '@/modules/onboarding/onboarding.controller';
+import {
+  CreateAccount,
+  DoesEmailAlreadyExist,
+  GetUser,
+} from '@/modules/onboarding/onboarding.controller';
 import { HttpMethods } from '@/utils/HttpMethods';
 import { FastifyInstance, RouteOptions } from 'fastify';
 

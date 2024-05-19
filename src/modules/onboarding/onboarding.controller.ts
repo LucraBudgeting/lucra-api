@@ -3,6 +3,7 @@ import { HttpStatusCode } from 'axios';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { createAccountBody } from './types';
 import { userAuthRepository } from '@/data/repositories/userAuth.repository';
+import { SetupUserBilling } from './onboarding.service';
 
 export async function DoesEmailAlreadyExist(
   req: FastifyRequest<{ Params: { email: string } }>,
@@ -43,10 +44,11 @@ export async function CreateAccount(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
+  const checkoutUrl = await SetupUserBilling(user);
 
   return reply
     .status(HttpStatusCode.Ok)
-    .send({ message: 'Account created', token: onboardingAccessToken });
+    .send({ message: 'Account created', token: onboardingAccessToken, checkoutUrl });
 }
 
 export async function GetUser(
@@ -61,8 +63,9 @@ export async function GetUser(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
+  const checkoutUrl = await SetupUserBilling(user);
 
   return reply
     .status(HttpStatusCode.Ok)
-    .send({ message: 'User found', token: onboardingAccessToken });
+    .send({ message: 'User found', token: onboardingAccessToken, checkoutUrl });
 }
