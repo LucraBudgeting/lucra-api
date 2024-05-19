@@ -1,7 +1,7 @@
+import { User } from '@prisma/client';
 import { FRONTEND_ORIGIN, STRIPE_PRICE_ID } from '@/config';
 import { CreateStripeCustomer } from './stripe.types';
 import { stripe } from './stripe';
-import { User } from '@prisma/client';
 
 export class StripeRepository {
   private user?: User;

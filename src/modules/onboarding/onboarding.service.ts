@@ -1,6 +1,6 @@
+import { User } from '@prisma/client';
 import { StripeRepository } from '@/libs/stripe/stripe.repository';
 import { CreateStripeCustomer } from '@/libs/stripe/stripe.types';
-import { User } from '@prisma/client';
 
 export async function SetupUserBilling(user: User) {
   const stripeRepository = new StripeRepository();

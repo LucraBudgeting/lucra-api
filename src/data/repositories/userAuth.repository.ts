@@ -1,7 +1,7 @@
 import { UserAuth } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
-import { BaseRepository } from './base.repository';
 import { cryptHash } from '@/libs/bcrypt';
+import { BaseRepository } from './base.repository';
 
 type UserAuthResponse = UserAuth | null;
 

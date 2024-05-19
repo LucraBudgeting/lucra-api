@@ -1,8 +1,8 @@
-import { userRepository } from '@/data/repositories/user.repository';
 import { HttpStatusCode } from 'axios';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createAccountBody } from './types';
+import { userRepository } from '@/data/repositories/user.repository';
 import { userAuthRepository } from '@/data/repositories/userAuth.repository';
+import { createAccountBody } from './types';
 import { SetupUserBilling } from './onboarding.service';
 
 export async function DoesEmailAlreadyExist(
