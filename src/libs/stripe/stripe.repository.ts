@@ -44,7 +44,7 @@ export class StripeRepository {
         },
       ],
       currency: 'usd',
-      success_url: `${FRONTEND_ORIGIN}/auth/register?userid=${this.user?.id}&step=3`,
+      success_url: `${FRONTEND_ORIGIN}/auth/register?userid=${this.user?.id}&step=4`,
     });
   }
 

@@ -26,7 +26,7 @@ export default async function Onboarding(fastify: FastifyInstance, _opts: RouteO
   // Get user
   fastify.route({
     method: HttpMethods.GET,
-    url: `${basePath}/get_user/:userId`,
+    url: `${basePath}/user/:userId`,
     handler: GetUser,
   });
 }
