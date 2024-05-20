@@ -68,7 +68,7 @@ class UserRepository extends BaseRepository {
       data: {
         email,
         name: fullName,
-        status: UserStatus.Onboarding,
+        status: UserStatus.Onboarding_UnPaid,
       },
     });
   }

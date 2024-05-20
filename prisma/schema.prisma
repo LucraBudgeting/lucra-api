@@ -107,6 +107,8 @@ model PlaidAccountAccess {
 
     User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
     PlaidAccount PlaidAccount[]
+
+    @@index([userId], name: "plaid_account_access_user_id_index")
 }
 
 model PlaidAccount {
@@ -130,6 +132,7 @@ model PlaidAccount {
 
     @@index([institutionId], name: "plaid_account_institution_id_index")
     @@index([accountId], name: "plaid_account_account_id_index")
+    @@index([accessAccountId], name: "plaid_account_access_account_id_index") // Added index
 }
 
 model PlaidAccountBalance {
@@ -226,7 +229,8 @@ enum UserStatus {
     InActive
     Deleted
     Active_Demo
-    Onboarding
+    Onboarding_UnPaid
+    Onboarding_Paid
 }
 
 enum Country {
