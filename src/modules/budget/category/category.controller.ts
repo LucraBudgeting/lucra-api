@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { CategoryService } from './category.service';
 import { CategoryRequest } from '../types/category';
+import { CategoryService } from './category.service';
 
 export async function CreateCategory(
   req: FastifyRequest<{ Body: CategoryRequest }>,

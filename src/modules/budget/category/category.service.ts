@@ -1,6 +1,6 @@
-import { CategoryRequest, CategoryResponse } from '../types/category';
 import { budgetCategoryRepository } from '@/data/repositories/budgetCategory.repository';
 import { mapBudgetTypeToString } from '@/data/enumHelpers/BudgetCategoryType';
+import { CategoryRequest, CategoryResponse } from '../types/category';
 
 export class CategoryService {
   private userId: string;
