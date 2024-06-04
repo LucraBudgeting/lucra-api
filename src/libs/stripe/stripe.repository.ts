@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { FRONTEND_ORIGIN, STRIPE_PRICE_ID } from '@/config';
+import { API_URL, FRONTEND_ORIGIN, STRIPE_PRICE_ID } from '@/config';
 import { CreateStripeCustomer } from './stripe.types';
 import { stripe } from './stripe';
 
@@ -44,7 +44,7 @@ export class StripeRepository {
         },
       ],
       currency: 'usd',
-      success_url: `${FRONTEND_ORIGIN}/auth/register?userid=${this.user?.id}&step=4`,
+      success_url: `${API_URL}/api/onboarding/finalize_billing_connected/${this.user?.id}`,
     });
   }
 

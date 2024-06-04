@@ -2,8 +2,12 @@ import { HttpStatusCode } from 'axios';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userAuthRepository } from '@/data/repositories/userAuth.repository';
-import { createAccountBody } from './types';
+import { userOnboardingStageRepository } from '@/data/repositories/userOnboardingStage.repository';
+import { User } from '@/data/db.client';
+import { FRONTEND_ORIGIN } from '@/config';
+import { ConnectAccountsService } from '../bank/services/connectAccounts.service';
 import { SetupUserBilling } from './onboarding.service';
+import { createAccountBody } from './types';
 
 export async function DoesEmailAlreadyExist(
   req: FastifyRequest<{ Params: { email: string } }>,
@@ -46,6 +50,8 @@ export async function CreateAccount(
   const onboardingAccessToken = await reply.jwtSign({ user });
   const checkoutUrl = await SetupUserBilling(user);
 
+  await userOnboardingStageRepository.createUser(user.id);
+
   return reply
     .status(HttpStatusCode.Ok)
     .send({ message: 'Account created', token: onboardingAccessToken, checkoutUrl });
@@ -68,4 +74,26 @@ export async function GetUser(
   return reply
     .status(HttpStatusCode.Ok)
     .send({ message: 'User found', token: onboardingAccessToken, checkoutUrl });
+}
+
+export async function SyncAccounts(
+  req: FastifyRequest<{ Params: { publicToken: string } }>,
+  reply: FastifyReply
+) {
+  const user = req.user as User;
+  await new ConnectAccountsService(user.id).syncAccounts(req.params.publicToken);
+  await userOnboardingStageRepository.markBankingAccountConnected(user.id);
+
+  return reply.status(HttpStatusCode.Ok).send({ message: 'Accounts Synced' });
+}
+
+export async function FinalizeBilling(
+  req: FastifyRequest<{ Params: { userId: string } }>,
+  reply: FastifyReply
+) {
+  const redirectUrl = `${FRONTEND_ORIGIN}/auth/register?userid=${req.params.userId}&step=4`;
+
+  await userOnboardingStageRepository.markBillingConnected(req.params.userId);
+
+  return reply.redirect(HttpStatusCode.Found, redirectUrl);
 }

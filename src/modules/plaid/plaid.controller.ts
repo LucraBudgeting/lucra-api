@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { User } from '@prisma/client';
+import { ConnectAccountsService } from '../bank/services/connectAccounts.service';
 import { InitializePlaidService } from './services/initialize.plaid.service';
 
 export async function CreatePlaidLinkToken(request: FastifyRequest, reply: FastifyReply) {
@@ -14,9 +15,7 @@ export async function SyncAccounts(
   reply: FastifyReply
 ) {
   const user = request.user as User;
-  const service = new InitializePlaidService(user.id);
-  const exchangeData = await service.exchangePublicToken(request.params.publicToken);
-  await service.syncAccountsAndTransactions(exchangeData);
+  await new ConnectAccountsService(user.id).syncAccounts(request.params.publicToken);
 
   return reply.send({ message: 'Accounts Synced' });
 }

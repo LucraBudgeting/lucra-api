@@ -4,12 +4,13 @@ class BankRepository extends BaseRepository {
   async getBankAccounts(userId: string) {
     const plaidAccounts = await this.client.plaidAccount.findMany({
       where: {
-        AccessToken: {
+        accessToken: {
           userId: userId,
         },
       },
       include: {
-        AccessToken: true,
+        accessToken: false,
+        bankInstitution: true,
       },
     });
 

@@ -28,12 +28,13 @@ model User {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    Address             Address?              @relation(fields: [addressId], references: [id], onDelete: Cascade)
-    UserAuth            UserAuth[]
-    UserSession         UserSession[]
-    TransactionCategory TransactionCategory[]
-    UserPreferences     UserPreferences[]
-    PlaidAccountAccess  PlaidAccountAccess[]
+    address             Address?              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    userAuth            UserAuth[]
+    userSession         UserSession[]
+    transactionCategory TransactionCategory[]
+    userPreferences     UserPreferences[]
+    plaidAccountAccess  PlaidAccountAccess[]
+    userOnboardingStage UserOnboardingStage[]
 
     @@index([email], name: "user_email_index")
     @@index([username], name: "user_username_index")
@@ -41,20 +42,20 @@ model User {
 
 model UserAuth {
     id           String  @id @unique @default(cuid())
-    userId       String
+    userId       String  @unique
     passwordHash String?
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId], name: "user_auth_user_id_index")
 }
 
 model UserPreferences {
     id          String          @id @unique @default(cuid())
-    userId      String
+    userId      String          @unique
     currency    IsoCurrencyCode @default(USD)
     language    Language        @default(English)
     theme       String?
@@ -63,20 +64,35 @@ model UserPreferences {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId], name: "user_preferences_user_id_index")
 }
 
-model UserSession {
-    id     String @id @unique @default(cuid())
-    userId String
+model UserOnboardingStage {
+    id                         String  @id @unique @default(cuid())
+    userId                     String  @unique
+    isBillingConnected         Boolean @default(false)
+    hasBankingAccountConnected Boolean @default(false)
+    hasCreatedBudget           Boolean @default(false)
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-    UserSessionAccess UserSessionAccess[]
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId], name: "user_onboarding_step_user_id_index")
+}
+
+model UserSession {
+    id     String @id @unique @default(cuid())
+    userId String @unique
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userSessionAccess UserSessionAccess[]
 
     @@index([userId], name: "user_session_user_id_index")
 }
@@ -91,7 +107,7 @@ model UserSessionAccess {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    UserSession UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    userSession UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
     @@index([sessionId], name: "user_session_access_session_id_index")
 }
@@ -105,8 +121,8 @@ model PlaidAccountAccess {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-    PlaidAccount PlaidAccount[]
+    user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    plaidAccount PlaidAccount[]
 
     @@index([userId], name: "plaid_account_access_user_id_index")
 }
@@ -118,6 +134,7 @@ model PlaidAccount {
     institutionDisplayName  String
     institutionOfficialName String?
     institutionId           String?
+    bankInstitutionId       String?
     type                    AccountTypes @default(Other)
     subType                 String?
     mask                    String?      @default("0000")
@@ -125,14 +142,30 @@ model PlaidAccount {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    AccessToken PlaidAccountAccess @relation(fields: [accessAccountId], references: [id], onDelete: Cascade)
+    accessToken     PlaidAccountAccess @relation(fields: [accessAccountId], references: [id], onDelete: Cascade)
+    bankInstitution BankInstitution?   @relation(fields: [bankInstitutionId], references: [id], onDelete: Cascade)
 
-    PlaidAccountBalance PlaidAccountBalance[]
-    PlaidTransaction    PlaidTransaction[]
+    plaidAccountBalance PlaidAccountBalance[]
+    plaidTransaction    PlaidTransaction[]
 
-    @@index([institutionId], name: "plaid_account_institution_id_index")
+    @@index([bankInstitutionId], name: "plaid_account_bank_institution_id_index")
     @@index([accountId], name: "plaid_account_account_id_index")
     @@index([accessAccountId], name: "plaid_account_access_account_id_index") // Added index
+}
+
+model BankInstitution {
+    id            String  @id @unique @default(cuid())
+    institutionId String?
+    name          String?
+    website       String?
+    primaryColor  String?
+    logo          String?
+    country       Country @default(USA)
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    plaidAccount PlaidAccount[]
 }
 
 model PlaidAccountBalance {
@@ -147,7 +180,7 @@ model PlaidAccountBalance {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    Account PlaidAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    account PlaidAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
     @@index([accountId], name: "plaid_account_balance_account_id_index")
 }
@@ -167,16 +200,16 @@ model PlaidTransaction {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    Account                             PlaidAccount                          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-    Address                             Address?                              @relation(fields: [addressId], references: [id], onDelete: Cascade)
-    PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+    account                             PlaidAccount                          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    address                             Address?                              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    plaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
 
     @@index([accountId], name: "plaid_transaction_account_id_index")
 }
 
 model TransactionCategory {
     id            String                 @id @unique @default(cuid())
-    userId        String
+    userId        String                 @unique
     name          String
     createdSource CategoryCreationSource @default(UserCreated)
     status        CategoryStatus         @default(Ignore)
@@ -184,8 +217,8 @@ model TransactionCategory {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-    PlaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
+    user                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    plaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
 
     @@index([userId], name: "transaction_category_user_id_index")
 }
@@ -198,8 +231,8 @@ model PlaidTransactionTransactionCategory {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    TransactionId PlaidTransaction    @relation(fields: [plaidTransactionId], references: [id], onDelete: Cascade)
-    CategoryId    TransactionCategory @relation(fields: [transactionCategoryId], references: [id], onDelete: Cascade)
+    transactionId PlaidTransaction    @relation(fields: [plaidTransactionId], references: [id], onDelete: Cascade)
+    categoryId    TransactionCategory @relation(fields: [transactionCategoryId], references: [id], onDelete: Cascade)
 
     @@index([plaidTransactionId], name: "plaid_transaction_category_plaid_transaction_id_index")
     @@index([transactionCategoryId], name: "plaid_transaction_category_transaction_category_id_index")
@@ -218,8 +251,8 @@ model Address {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    User             User[]
-    PlaidTransaction PlaidTransaction[]
+    user             User[]
+    plaidTransaction PlaidTransaction[]
 }
 
 // If a full DB reset needs to happen, you will need to delete the stored data types

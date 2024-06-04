@@ -10,6 +10,7 @@ import { plaidRepository } from '@/libs/plaid/plaid.repository';
 import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
 import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
+import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 import { MapPaymentChannel } from '../mappers/PaymentChannel.mapper';
@@ -92,8 +93,21 @@ export class InitializePlaidService {
       throw new BadRequestError('User already has institution');
     }
 
+    const institutionDetails = await plaidRepository.getInstitutionDetails(
+      accountDetails.item.institution_id
+    );
+
+    let newInstitutionId: string | undefined = undefined;
+
+    if (institutionDetails) {
+      const details =
+        await bankInstitutionRepository.createBankInstitutionFromPlaid(institutionDetails);
+      newInstitutionId = details.id;
+    }
+
     const plaidAccounts = accountDetails.accounts.map((account): PlaidAccount => {
       return {
+        bankInstitutionId: newInstitutionId,
         accessAccountId: accountAccessId,
         accountId: account.account_id,
         mask: account.mask,
@@ -129,6 +143,10 @@ export class InitializePlaidService {
 
     while (hasMore) {
       const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
+      transactionsData.added = transactionsData.added.filter(
+        (transaction) => accountIds[transaction.account_id]
+      );
+
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;
 

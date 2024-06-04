@@ -23,7 +23,7 @@ class PlaidAccountAccessRepository extends BaseRepository {
     const result = await this.client.plaidAccountAccess.findMany({
       where: {
         userId,
-        PlaidAccount: {
+        plaidAccount: {
           some: {
             institutionId,
           },

@@ -2,6 +2,8 @@ import {
   AccountsGetResponse,
   Configuration,
   CountryCode,
+  Institution,
+  InstitutionsGetByIdRequest,
   ItemPublicTokenExchangeResponse,
   LinkTokenCreateRequest,
   PlaidApi,
@@ -15,6 +17,7 @@ import {
 import { User, UserPreferences } from '@prisma/client';
 import { PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
+import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
 
 function getPlaidEnvironment() {
   if (process.env.NODE_ENV === 'production') {
@@ -25,6 +28,8 @@ function getPlaidEnvironment() {
 
   return PlaidEnvironments.sandbox;
 }
+
+const enabledAccountTypes = ['depository'];
 
 const getDateTwoYearsAgo = (): string => {
   const date = new Date();
@@ -67,7 +72,7 @@ class PlaidRepository {
         },
         client_name: clientName,
         products: [Products.Transactions],
-        optional_products: [Products.Investments],
+        // optional_products: [Products.Investments],
         // TODO - https://plaid.com/docs/api/tokens/#link-token-create-request-webhook
         country_codes: [CountryCode.Us],
         language: preferences?.language ?? 'en',
@@ -86,6 +91,26 @@ class PlaidRepository {
     } catch (error) {
       throw new ServiceUnavailableError(error as string);
     }
+  }
+
+  public async getInstitutionDetails(institutionId?: string | null): Promise<Institution | null> {
+    if (!institutionId) return null;
+
+    const request: InstitutionsGetByIdRequest = {
+      country_codes: [CountryCode.Us],
+      institution_id: institutionId,
+      options: {
+        include_optional_metadata: true,
+      },
+    };
+
+    const details = await this.plaidClient.institutionsGetById(request);
+
+    if (!details.data.institution.logo) {
+      details.data.institution.logo = getBankImageUrl(details.data.institution.name);
+    }
+
+    return details.data.institution;
   }
 
   public async exchangePublicToken(publicToken: string): Promise<ItemPublicTokenExchangeResponse> {
@@ -109,8 +134,6 @@ class PlaidRepository {
         days_requested: daysRequestedDefault,
       },
     };
-
-    console.log('Request: ', request);
 
     const response = await this.plaidClient.transactionsSync(request);
 
@@ -136,6 +159,10 @@ class PlaidRepository {
     const response = await this.plaidClient.accountsGet({
       access_token: accessToken,
     });
+
+    response.data.accounts = response.data.accounts.filter((account) =>
+      enabledAccountTypes.includes(account.type.toLowerCase())
+    );
 
     return response.data;
   }
