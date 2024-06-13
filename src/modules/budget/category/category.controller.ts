@@ -19,5 +19,8 @@ export async function CreateCategory(
 export async function GetCategories(req: FastifyRequest, reply: FastifyReply) {
   const user = req.user as User;
 
-  return reply.send({ message: 'Categories', user });
+  const categoryService = new CategoryService(user.id);
+  const categories = await categoryService.getCategories();
+
+  return reply.send({ message: 'Categories Fetched', categories });
 }

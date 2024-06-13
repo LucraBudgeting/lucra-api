@@ -9,6 +9,7 @@ export default async function Category(fastify: FastifyInstance, _opts: RouteOpt
     method: HttpMethods.GET,
     url: `${basePath}`,
     handler: GetCategories,
+    preHandler: [fastify.authPrehandler],
   });
 
   fastify.route({

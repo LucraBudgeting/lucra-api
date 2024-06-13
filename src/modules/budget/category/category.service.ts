@@ -21,4 +21,17 @@ export class CategoryService {
       budgetType: mapBudgetTypeToString(category.budgetType),
     };
   }
+
+  async getCategories(): Promise<CategoryResponse[]> {
+    const categories = await budgetCategoryRepository.getCategories(this.userId);
+
+    return categories.map((category) => ({
+      id: category.id,
+      backgroundColor: category.color,
+      label: category.label,
+      emoji: category.emoji,
+      amount: parseInt(category.amount.toString(), 10),
+      budgetType: mapBudgetTypeToString(category.budgetType),
+    }));
+  }
 }

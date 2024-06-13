@@ -6,7 +6,6 @@ import { BaseRepository } from './base.repository';
 
 class BudgetCategoryRepository extends BaseRepository {
   async createCategory(userId: string, newCategory: CategoryRequest): Promise<BudgetCategory> {
-    console.log('newCategory', newCategory);
     return await this.client.budgetCategory.create({
       data: {
         userId,
@@ -15,6 +14,14 @@ class BudgetCategoryRepository extends BaseRepository {
         color: newCategory.backgroundColor,
         amount: new Decimal(newCategory.amount),
         budgetType: mapStringToBudgetType(newCategory.budgetType),
+      },
+    });
+  }
+
+  async getCategories(userId: string) {
+    return await this.client.budgetCategory.findMany({
+      where: {
+        userId,
       },
     });
   }
