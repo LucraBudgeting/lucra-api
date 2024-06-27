@@ -17,6 +17,18 @@ class PlaidTransactionRepository extends BaseRepository {
       data: transactions,
     });
   }
+
+  async getPlaidTransactions(userId: string) {
+    return this.client.plaidTransaction.findMany({
+      where: {
+        account: {
+          accessToken: {
+            userId: userId,
+          },
+        },
+      },
+    });
+  }
 }
 
 export const plaidTransactionRepository = new PlaidTransactionRepository();

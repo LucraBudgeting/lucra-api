@@ -1,6 +1,6 @@
 import { budgetCategoryRepository } from '@/data/repositories/budgetCategory.repository';
 import { mapBudgetTypeToString } from '@/data/enumHelpers/BudgetCategoryType';
-import { CategoryRequest, CategoryResponse } from '../types/category';
+import { ICategoryRequest, ICategoryResponse } from './types/category';
 
 export class CategoryService {
   private userId: string;
@@ -9,7 +9,7 @@ export class CategoryService {
     this.userId = userId;
   }
 
-  async createCategory(newCategory: CategoryRequest): Promise<CategoryResponse> {
+  async createCategory(newCategory: ICategoryRequest): Promise<ICategoryResponse> {
     const category = await budgetCategoryRepository.createCategory(this.userId, newCategory);
 
     return {
@@ -22,16 +22,20 @@ export class CategoryService {
     };
   }
 
-  async getCategories(): Promise<CategoryResponse[]> {
+  async getCategories(): Promise<ICategoryResponse[]> {
     const categories = await budgetCategoryRepository.getCategories(this.userId);
 
-    return categories.map((category) => ({
-      id: category.id,
-      backgroundColor: category.color,
-      label: category.label,
-      emoji: category.emoji,
-      amount: parseInt(category.amount.toString(), 10),
-      budgetType: mapBudgetTypeToString(category.budgetType),
-    }));
+    return categories
+      .filter((category) => {
+        return category.isActive;
+      })
+      .map((category) => ({
+        id: category.id,
+        backgroundColor: category.color,
+        label: category.label,
+        emoji: category.emoji,
+        amount: parseInt(category.amount.toString(), 10),
+        budgetType: mapBudgetTypeToString(category.budgetType),
+      }));
   }
 }

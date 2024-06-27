@@ -1,6 +1,6 @@
 import { FastifyInstance, RouteOptions } from 'fastify';
 import { HttpMethods } from '@/utils/HttpMethods';
-import { CreateCategory, GetCategories } from '@/modules/budget/category/category.controller';
+import { CreateCategory, GetCategories } from '@/modules/budget/category.controller';
 
 const basePath = '/category';
 

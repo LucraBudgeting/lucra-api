@@ -11,6 +11,8 @@ import { plaidAccountRepository } from '@/data/repositories/plaidAccount.reposit
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
 import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
+import { TransactionDto } from '@/modules/transaction/types/transaction';
+import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 import { MapPaymentChannel } from '../mappers/PaymentChannel.mapper';
@@ -150,7 +152,7 @@ export class InitializePlaidService {
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;
 
-      const transactions = transactionsData.added.map((transaction): PlaidTransaction => {
+      const plaidTransactions = transactionsData.added.map((transaction): PlaidTransaction => {
         return {
           accountId: accountIds[transaction.account_id],
           amount: new Decimal(transaction.amount.toString()),
@@ -163,7 +165,12 @@ export class InitializePlaidService {
         } as PlaidTransaction;
       });
 
-      await plaidTransactionRepository.createPlaidTransactionMany(transactions);
+      const lucraTransactions = transactionsData.added.map((transaction): TransactionDto => {
+        return new TransactionDto(this.userId).fromPlaidTransaction(transaction);
+      });
+
+      await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
+      await transactionRepository.createTransactionMany(lucraTransactions);
     }
   }
 

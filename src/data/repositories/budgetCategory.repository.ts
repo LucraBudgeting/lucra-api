@@ -1,11 +1,11 @@
 import { BudgetCategory } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
-import { CategoryRequest } from '@/modules/budget/types/category';
+import { ICategoryRequest } from '@/modules/budget/types/category';
 import { mapStringToBudgetType } from '../enumHelpers/BudgetCategoryType';
 import { BaseRepository } from './base.repository';
 
 class BudgetCategoryRepository extends BaseRepository {
-  async createCategory(userId: string, newCategory: CategoryRequest): Promise<BudgetCategory> {
+  async createCategory(userId: string, newCategory: ICategoryRequest): Promise<BudgetCategory> {
     return await this.client.budgetCategory.create({
       data: {
         userId,
