@@ -14,9 +14,11 @@ export class CategoryService {
 
     return {
       id: category.id,
-      backgroundColor: category.color,
+      avatar: {
+        backgroundColor: category.color,
+        emoji: category.emoji,
+      },
       label: category.label,
-      emoji: category.emoji,
       amount: parseInt(category.amount.toString(), 10),
       budgetType: mapBudgetTypeToString(category.budgetType),
     };
@@ -31,9 +33,11 @@ export class CategoryService {
       })
       .map((category) => ({
         id: category.id,
-        backgroundColor: category.color,
         label: category.label,
-        emoji: category.emoji,
+        avatar: {
+          backgroundColor: category.color,
+          emoji: category.emoji,
+        },
         amount: parseInt(category.amount.toString(), 10),
         budgetType: mapBudgetTypeToString(category.budgetType),
       }));

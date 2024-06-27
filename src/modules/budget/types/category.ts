@@ -5,9 +5,11 @@ export interface ICategoryResponse extends ICategory {
 }
 
 interface ICategory {
-  backgroundColor: string | null;
+  avatar: {
+    backgroundColor: string | null;
+    emoji: string;
+  };
   label: string;
-  emoji: string;
   amount: number;
   budgetType: 'debit' | 'credit';
 }

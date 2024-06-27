@@ -10,8 +10,8 @@ class BudgetCategoryRepository extends BaseRepository {
       data: {
         userId,
         label: newCategory.label,
-        emoji: newCategory.emoji,
-        color: newCategory.backgroundColor,
+        emoji: newCategory.avatar.emoji,
+        color: newCategory.avatar.backgroundColor,
         amount: new Decimal(newCategory.amount),
         budgetType: mapStringToBudgetType(newCategory.budgetType),
       },
