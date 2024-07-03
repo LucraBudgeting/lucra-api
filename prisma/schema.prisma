@@ -192,6 +192,7 @@ model Transaction {
 
     @@index([userId], name: "transaction_user_id_index")
     @@index([categoryId], name: "transaction_category_id_index")
+    @@index([date], name: "transaction_date_index")
 }
 
 model PlaidAccountBalance {

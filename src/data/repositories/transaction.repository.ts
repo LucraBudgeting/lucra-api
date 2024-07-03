@@ -1,4 +1,5 @@
 import { Transaction } from '@prisma/client';
+import { ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
 class TransactionRepository extends BaseRepository {
@@ -6,6 +7,9 @@ class TransactionRepository extends BaseRepository {
     const transactions = await this.client.transaction.findMany({
       where: {
         userId,
+      },
+      orderBy: {
+        date: 'desc',
       },
     });
 
@@ -19,6 +23,21 @@ class TransactionRepository extends BaseRepository {
 
     return this.client.transaction.createMany({
       data: transactions,
+    });
+  }
+
+  async associateCategoryWithTransaction(transactionId: string, categoryId: string) {
+    if (!transactionId || !categoryId) {
+      throw new ValidationError('TransactionId and categoryId are required');
+    }
+
+    await this.client.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        categoryId,
+      },
     });
   }
 }

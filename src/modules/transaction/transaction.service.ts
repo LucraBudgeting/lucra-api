@@ -13,4 +13,8 @@ export class TransactionService {
 
     return transactions;
   }
+
+  async associateCategoryWithTransaction(transactionId: string, categoryId: string): Promise<void> {
+    await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
+  }
 }

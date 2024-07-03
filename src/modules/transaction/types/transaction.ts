@@ -9,7 +9,7 @@ export interface ITransactionResponse extends Transaction {
 }
 
 export class TransactionDto implements Transaction {
-  id: string = '';
+  id: string = undefined as unknown as string;
   userId: string = '';
   amount: Decimal = new Decimal(0);
   date: Date = new Date();

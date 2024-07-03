@@ -73,7 +73,11 @@ export class InitializePlaidService {
     }
 
     const accountIds = await this.syncAccounts(exchangeData.access_token, plaidAccountAccess.id);
-    await this.syncTransactionHistory(accountIds, exchangeData.access_token);
+    try {
+      await this.syncTransactionHistory(accountIds, exchangeData.access_token);
+    } catch (error) {
+      console.error('Error syncing transaction history', error);
+    }
   }
 
   private async syncAccounts(
