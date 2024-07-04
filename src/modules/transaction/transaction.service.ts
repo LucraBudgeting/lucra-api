@@ -14,7 +14,15 @@ export class TransactionService {
     return transactions;
   }
 
-  async associateCategoryWithTransaction(transactionId: string, categoryId: string): Promise<void> {
-    await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
+  async associateCategoryWithTransaction(
+    transactionId: string,
+    categoryId?: string
+  ): Promise<void> {
+    try {
+      await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to associate category with transaction');
+    }
   }
 }

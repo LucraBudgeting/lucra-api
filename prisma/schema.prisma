@@ -188,7 +188,7 @@ model Transaction {
 
     user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
     address  Address?        @relation(fields: [addressId], references: [id], onDelete: Cascade)
-    category BudgetCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    category BudgetCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
     @@index([userId], name: "transaction_user_id_index")
     @@index([categoryId], name: "transaction_category_id_index")

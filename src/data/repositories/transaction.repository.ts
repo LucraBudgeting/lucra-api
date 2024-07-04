@@ -26,9 +26,9 @@ class TransactionRepository extends BaseRepository {
     });
   }
 
-  async associateCategoryWithTransaction(transactionId: string, categoryId: string) {
-    if (!transactionId || !categoryId) {
-      throw new ValidationError('TransactionId and categoryId are required');
+  async associateCategoryWithTransaction(transactionId: string, categoryId?: string) {
+    if (!transactionId) {
+      throw new ValidationError('TransactionId is required');
     }
 
     await this.client.transaction.update({
@@ -36,7 +36,7 @@ class TransactionRepository extends BaseRepository {
         id: transactionId,
       },
       data: {
-        categoryId,
+        categoryId: categoryId || null,
       },
     });
   }
