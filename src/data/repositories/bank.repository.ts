@@ -49,6 +49,7 @@ class BankRepository extends BaseRepository {
         institutionId,
         type,
         subType,
+        mask: account.mask,
         plaidAccountBalance: {
           id: plaidAccountBalance[0]?.id,
           plaidAccountId: plaidAccountBalance[0]?.accountId,

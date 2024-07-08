@@ -5,6 +5,8 @@ interface IBankAccount {
   linkSource: 'plaid';
   type: string;
   subType: string;
+  mask: string;
+  accountName: string;
   institution?: IBankInstitution;
   balance?: IBankBalance;
 }

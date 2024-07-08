@@ -6,6 +6,7 @@ export interface IPlaidBankAccount {
   institutionId: string;
   type: string;
   subType: string;
+  mask: string;
   plaidAccountBalance?: IPlaidAccountBalance;
   bankInstitution?: IPlaidBankInstitution;
 }

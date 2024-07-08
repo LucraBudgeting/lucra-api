@@ -37,6 +37,8 @@ function mapPlaidAccounts(plaidAccounts: IPlaidBankAccount[]): IBankAccountRespo
       linkSource: 'plaid', // Set the link source to 'plaid'
       type: account.type, // Set the type of the bank account
       subType: account.subType, // Set the subtype of the bank account
+      accountName: account.institutionDisplayName, // Set the account name to the institution display name
+      mask: account.mask ?? '0000', // Set the mask of the bank account
       balance: {
         currentBalance: account.plaidAccountBalance?.currentBalance ?? 0, // Set the current balance
         availableBalance: account.plaidAccountBalance?.availableBalance ?? 0, // Set the available balance
