@@ -1,9 +1,11 @@
 export interface IBankAccountResponse extends IBankAccount {}
 
+export type bankAccountType = 'depository' | 'credit' | 'investment' | 'loan' | 'other';
+
 interface IBankAccount {
   id: string;
   linkSource: 'plaid';
-  type: string;
+  type: bankAccountType;
   subType: string;
   mask: string;
   accountName: string;
