@@ -29,8 +29,10 @@ async function startServer() {
         options: {
           translateTime: true,
           ignore: 'pid,hostname',
+          levelFirst: true,
         },
       },
+      level: 'info',
     },
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();

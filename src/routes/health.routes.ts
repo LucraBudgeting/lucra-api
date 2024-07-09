@@ -11,5 +11,8 @@ export default async function Health(fastify: FastifyInstance, _opts: RouteOptio
       return { db_status: 'ok' };
     },
     logLevel: 'warn',
+    onRequest: async (request, _reply) => {
+      request.log = request.log.child({ level: 'silent' });
+    },
   });
 }

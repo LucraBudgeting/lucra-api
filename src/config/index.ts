@@ -14,4 +14,5 @@ export const {
   API_URL,
   PLAID_CLIENT_ID,
   PLAID_SECRET,
+  NODE_ENV,
 } = process.env;
