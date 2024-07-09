@@ -23,7 +23,15 @@ async function startServer() {
       },
       plugins: [],
     },
-    logger: true,
+    logger: {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          translateTime: true,
+          ignore: 'pid,hostname',
+        },
+      },
+    },
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
