@@ -44,7 +44,7 @@
     "fastify-plugin": "^4.5.1",
     "node-cron": "^3.0.3",
     "pino-pretty": "^11.2.1",
-    "plaid": "^23.0.0",
+    "plaid": "^26.0.0",
     "stripe": "^14.17.0",
     "uuid": "^9.0.1"
   },

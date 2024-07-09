@@ -20,10 +20,8 @@ import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
 
 function getPlaidEnvironment() {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development') {
     return PlaidEnvironments.production;
-  } else if (process.env.NODE_ENV === 'development') {
-    return PlaidEnvironments.development;
   }
 
   return PlaidEnvironments.sandbox;
