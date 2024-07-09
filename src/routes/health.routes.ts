@@ -10,5 +10,6 @@ export default async function Health(fastify: FastifyInstance, _opts: RouteOptio
       await dbClient.$queryRaw`SELECT 1`;
       return { db_status: 'ok' };
     },
+    logLevel: 'warn',
   });
 }
