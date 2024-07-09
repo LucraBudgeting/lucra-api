@@ -37,7 +37,7 @@ export function mapPlaidAccounts(plaidAccounts: IPlaidBankAccount[]): IBankAccou
  * @return {bankAccountType} The string representing the bank account type.
  */
 function mapPlaidType(type: string): bankAccountType {
-  switch (type) {
+  switch (type.toLowerCase()) {
     case 'checking':
       return 'depository';
     case 'credit':
