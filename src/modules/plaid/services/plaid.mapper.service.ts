@@ -40,7 +40,7 @@ function mapPlaidType(type: string): bankAccountType {
   switch (type.toLowerCase()) {
     case 'checking':
       return 'depository';
-    case 'credit':
+    case 'creditcard':
       return 'credit';
     case 'investment':
       return 'investment';

@@ -2,13 +2,7 @@ import { IPlaidBankAccount } from '@/modules/bank/types/PlaidBankAccount';
 import { BaseRepository } from './base.repository';
 
 class BankRepository extends BaseRepository {
-  /**
-   * Retrieves Plaid bank accounts for a given user ID.
-   * @param userId - The ID of the user.
-   * @returns An array of Plaid bank accounts.
-   */
   async getPlaidBankAccounts(userId: string): Promise<IPlaidBankAccount[]> {
-    // Retrieve Plaid accounts for the given user ID, including the most recent balance for each account.
     const plaidAccounts = await this.client.plaidAccount.findMany({
       where: {
         accessToken: {

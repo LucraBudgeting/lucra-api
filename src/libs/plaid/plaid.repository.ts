@@ -2,6 +2,8 @@ import {
   AccountsGetResponse,
   Configuration,
   CountryCode,
+  CreditAccountSubtype,
+  DepositoryAccountSubtype,
   Institution,
   InstitutionsGetByIdRequest,
   ItemPublicTokenExchangeResponse,
@@ -79,6 +81,14 @@ class PlaidRepository {
         },
         transactions: {
           days_requested: daysRequestedDefault,
+        },
+        account_filters: {
+          depository: {
+            account_subtypes: [DepositoryAccountSubtype.All],
+          },
+          credit: {
+            account_subtypes: [CreditAccountSubtype.All],
+          },
         },
       };
 
@@ -158,9 +168,9 @@ class PlaidRepository {
       access_token: accessToken,
     });
 
-    response.data.accounts = response.data.accounts.filter((account) =>
-      enabledAccountTypes.includes(account.type.toLowerCase())
-    );
+    // response.data.accounts = response.data.accounts.filter((account) =>
+    //   enabledAccountTypes.includes(account.type.toLowerCase())
+    // );
 
     return response.data;
   }
