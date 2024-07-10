@@ -15,12 +15,12 @@ import {
   TransactionsSyncResponse,
 } from 'plaid';
 import { User, UserPreferences } from '@prisma/client';
-import { PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
+import { NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
 
 function getPlaidEnvironment() {
-  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development') {
+  if (NODE_ENV === 'production' || NODE_ENV === 'development') {
     return PlaidEnvironments.production;
   }
 

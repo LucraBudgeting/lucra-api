@@ -206,7 +206,10 @@ export class InitializePlaidService {
    * @param {string} accessToken - The access token for the Plaid account.
    * @returns {Promise<void>} - A promise that resolves when the transaction history is synchronized.
    */
-  private async syncTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
+  private async syncTransactionHistory(
+    accountIds: Record<string, string>,
+    accessToken: string
+  ): Promise<void> {
     // Flag indicating whether there are more transactions to fetch
     let hasMore = true;
     // The cursor to use for fetching transactions
