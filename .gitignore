@@ -122,8 +122,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.vscode
-
 .postgres
 
 .env
