@@ -29,8 +29,6 @@ function getPlaidEnvironment() {
   return PlaidEnvironments.sandbox;
 }
 
-const enabledAccountTypes = ['depository'];
-
 const getDateTwoYearsAgo = (): string => {
   const date = new Date();
   date.setFullYear(date.getFullYear() - 2);
@@ -167,10 +165,6 @@ class PlaidRepository {
     const response = await this.plaidClient.accountsGet({
       access_token: accessToken,
     });
-
-    // response.data.accounts = response.data.accounts.filter((account) =>
-    //   enabledAccountTypes.includes(account.type.toLowerCase())
-    // );
 
     return response.data;
   }
