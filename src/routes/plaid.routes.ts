@@ -23,7 +23,7 @@ export default async function Plaid(fastify: FastifyInstance, _opts: RouteOption
   fastify.route({
     method: HttpMethods.GET,
     url: `${webSocketBase}${basePath}/sync_transactions`,
-    handler: (request: FastifyRequest, reply: FastifyReply) => {
+    handler: (_request: FastifyRequest, reply: FastifyReply) => {
       reply.status(200).send({ message: 'Sync Transactions' });
     },
     preHandler: [fastify.authPrehandler],
