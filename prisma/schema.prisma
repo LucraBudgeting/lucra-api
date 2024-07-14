@@ -37,9 +37,6 @@ model User {
     userOnboardingStage UserOnboardingStage[]
     BudgetCategory      BudgetCategory[]
     Transaction         Transaction[]
-
-    @@index([email], name: "user_email_index")
-    @@index([username], name: "user_username_index")
 }
 
 model UserAuth {
@@ -51,8 +48,6 @@ model UserAuth {
     dateUpdated DateTime @default(now()) @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId], name: "user_auth_user_id_index")
 }
 
 model UserPreferences {
@@ -67,8 +62,6 @@ model UserPreferences {
     dateUpdated DateTime @default(now()) @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId], name: "user_preferences_user_id_index")
 }
 
 model UserOnboardingStage {
@@ -82,8 +75,6 @@ model UserOnboardingStage {
     dateUpdated DateTime @default(now()) @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId], name: "user_onboarding_step_user_id_index")
 }
 
 model UserSession {
@@ -95,8 +86,6 @@ model UserSession {
 
     user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
     userSessionAccess UserSessionAccess[]
-
-    @@index([userId], name: "user_session_user_id_index")
 }
 
 model UserSessionAccess {
@@ -266,8 +255,6 @@ model TransactionCategory {
 
     user                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
     plaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
-
-    @@index([userId], name: "transaction_category_user_id_index")
 }
 
 model PlaidTransactionTransactionCategory {
