@@ -24,3 +24,16 @@ export async function GetCategories(req: FastifyRequest, reply: FastifyReply) {
 
   return reply.send({ message: 'Categories Fetched', categories });
 }
+
+export async function UpdateCategory(
+  req: FastifyRequest<{ Body: ICategoryRequest }>,
+  reply: FastifyReply
+) {
+  const user = req.user as User;
+
+  const categoryService = new CategoryService(user.id);
+
+  const categories = await categoryService.updateCategory(req.body);
+
+  return reply.send({ message: 'Category updated', categories });
+}

@@ -42,4 +42,10 @@ export class CategoryService {
         budgetType: mapBudgetTypeToString(category.budgetType),
       }));
   }
+
+  async updateCategory(updatedCategory: ICategoryRequest): Promise<ICategoryResponse[]> {
+    await budgetCategoryRepository.updateCategory(this.userId, updatedCategory);
+
+    return this.getCategories();
+  }
 }

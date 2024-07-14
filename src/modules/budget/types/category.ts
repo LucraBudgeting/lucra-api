@@ -1,4 +1,6 @@
-export interface ICategoryRequest extends ICategory {}
+export interface ICategoryRequest extends ICategory {
+  id: string;
+}
 
 export interface ICategoryResponse extends ICategory {
   id: string;

@@ -25,6 +25,22 @@ class BudgetCategoryRepository extends BaseRepository {
       },
     });
   }
+
+  async updateCategory(userId: string, updatedCategory: ICategoryRequest) {
+    return await this.client.budgetCategory.updateMany({
+      where: {
+        userId,
+        id: updatedCategory.id,
+      },
+      data: {
+        label: updatedCategory.label,
+        emoji: updatedCategory.avatar.emoji,
+        color: updatedCategory.avatar.backgroundColor,
+        amount: new Decimal(updatedCategory.amount),
+        budgetType: mapStringToBudgetType(updatedCategory.budgetType),
+      },
+    });
+  }
 }
 
 export const budgetCategoryRepository = new BudgetCategoryRepository();
