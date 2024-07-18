@@ -1,10 +1,10 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
 import { TransactionRule } from '../types/transaction.rules';
-import { applyRulesToTransaction } from './rules.transaction.service';
-import { Decimal } from '@prisma/client/runtime/library';
 import { conditionOperator, conditionType } from '../types/condition';
+import { applyRulesToTransaction } from './rules.transaction.service';
 
-let baseTransaction: ITransactionDto = {
+const baseTransaction: ITransactionDto = {
   id: 't87as87hd8',
   userId: 'u87as87hd8',
   amount: new Decimal(100),

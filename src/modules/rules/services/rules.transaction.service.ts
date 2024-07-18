@@ -1,11 +1,11 @@
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
+import { ValidationError } from '@/exceptions/error';
 import {
   TransactionCondition,
   TransactionConditionGroup,
   TransactionRule,
 } from '../types/transaction.rules';
 import { conditionOperator, conditionType } from '../types/condition';
-import { ValidationError } from '@/exceptions/error';
 
 export function applyRulesToTransaction(
   transaction: ITransactionDto,
