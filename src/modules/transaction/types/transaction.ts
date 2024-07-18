@@ -8,7 +8,11 @@ export interface ITransactionResponse extends Transaction {
   id: string;
 }
 
-export class TransactionDto implements Transaction {
+export interface ITransactionDto extends Transaction {
+  [key: string]: any;
+}
+
+export class TransactionDto implements ITransactionDto {
   id: string = undefined as unknown as string;
   userId: string = '';
   amount: Decimal = new Decimal(0);
