@@ -1,5 +1,6 @@
 import { Transaction } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
+import { TransactionRuleService } from '@/modules/rules/services/rules.transaction.service';
 import { BaseRepository } from './base.repository';
 
 class TransactionRepository extends BaseRepository {
@@ -16,10 +17,14 @@ class TransactionRepository extends BaseRepository {
     return transactions;
   }
 
-  async createTransactionMany(transactions: Transaction[]) {
+  async createTransactionMany(userId: string, transactions: Transaction[]) {
     if (transactions.length === 0) {
       return;
     }
+
+    const transactionRuleService = new TransactionRuleService(userId);
+
+    transactions = await transactionRuleService.applyRulesToTransactions(transactions);
 
     return this.client.transaction.createMany({
       data: transactions,

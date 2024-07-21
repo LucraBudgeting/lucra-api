@@ -1,5 +1,6 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
+import { Transaction } from '@/data/db.client';
 import { ITransactionRuleCondition } from '../types/transaction.rules';
 import { conditionOperator, conditionType } from '../types/condition';
 import { applyRulesToTransaction } from './rules.transaction.service';
@@ -22,10 +23,10 @@ const baseTransaction: ITransactionDto = {
 
 describe('applyRulesToTransaction', () => {
   it('should apply rule and change categoryId when conditions are met', () => {
-    const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
+    const transaction: Transaction = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditions: [
+      conditionGroup: [
         {
           type: conditionType.and,
           conditions: [{ field: 'name', operator: conditionOperator.contains, value: 'Test' }],
@@ -41,7 +42,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditions: [
+      conditionGroup: [
         {
           type: conditionType.and,
           conditions: [
@@ -80,7 +81,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditions: [
+      conditionGroup: [
         {
           type: conditionType.and,
           conditions: [
@@ -106,7 +107,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, categoryId: 'old' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditions: [
+      conditionGroup: [
         {
           type: conditionType.and,
           conditions: [{ field: 'name', operator: conditionOperator.contains, value: 'Sample' }],

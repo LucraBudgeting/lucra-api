@@ -1,7 +1,7 @@
 import { PlaidAccount, PlaidAccountBalance, PlaidTransaction } from '@prisma/client';
 import { Record } from '@fastify/type-provider-typebox';
 import { Decimal } from '@prisma/client/runtime/library';
-import { ItemPublicTokenExchangeResponse } from 'plaid';
+import { ItemPublicTokenExchangeResponse, Transaction } from 'plaid';
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userPreferencesRepository } from '@/data/repositories/userPreferences.repository';
@@ -195,16 +195,22 @@ export class InitializePlaidService {
         } as PlaidTransaction;
       });
 
-      // Map the fetched transactions to TransactionDto objects
-      const lucraTransactions = transactionsData.added.map((transaction): TransactionDto => {
-        return new TransactionDto(this.userId).fromPlaidTransaction(transaction);
-      });
-
       // Create the Plaid transactions in the database
       await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
-      // Create the Lucra transactions in the database
-      await transactionRepository.createTransactionMany(lucraTransactions);
+
+      // Sync the Plaid transactions to Lucra transactions
+      await this.syncPlaidTransactionsToLucraTransactions(transactionsData.added);
     }
+  }
+
+  private async syncPlaidTransactionsToLucraTransactions(plaidTransactions: Transaction[]) {
+    // Map the fetched transactions to TransactionDto objects
+    const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
+      return new TransactionDto(this.userId).fromPlaidTransaction(transaction);
+    });
+
+    // Create the Lucra transactions in the database
+    await transactionRepository.createTransactionMany(this.userId, lucraTransactions);
   }
 
   private async getTransactionHistory(accountIds: Record<string, string>, accessToken: string) {

@@ -5,7 +5,7 @@
       "type": "node",
       "request": "attach",
       "name": "Attach to Node",
-      "port": 9229,
+      "port": 8085,
       "restart": true,
       "protocol": "inspector",
       "skipFiles": ["<node_internals>/**"]

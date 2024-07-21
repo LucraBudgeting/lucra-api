@@ -12,10 +12,10 @@ class RuleRepository extends BaseRepository {
     });
   }
 
-  async createRule(newRule: IPutRule): Promise<IRule> {
+  async createRule(userId: string, newRule: IPutRule): Promise<IRule> {
     return await this.client.rule.create({
       data: {
-        userId: newRule.userId,
+        userId: userId,
         model: newRule.model,
         name: newRule.name,
         conditions: newRule.conditions,

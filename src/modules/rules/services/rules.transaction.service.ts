@@ -5,10 +5,11 @@ import { ruleRepository } from '@/data/repositories/rule.repository';
 import {
   ITransactionCondition,
   ITransactionConditionGroup,
+  ITransactionRule,
   ITransactionRuleCondition,
 } from '../types/transaction.rules';
 import { conditionOperator, conditionType } from '../types/condition';
-import { ITransactionRule } from '../types/rule';
+import { IPutRuleRequest } from '../types/rule';
 
 export class TransactionRuleService {
   private userId: string;
@@ -17,49 +18,49 @@ export class TransactionRuleService {
     this.userId = userId;
   }
 
-  async getTransactionRules(): Promise<ITransactionRule[]> {
+  async getRules(): Promise<ITransactionRule[]> {
     const rules = await ruleRepository.getTransactionRules(this.userId);
 
     return rules.map((rule) => ({
       ...rule,
-      condition: JSON.parse(rule.conditions as string),
+      parsedCondition: JSON.parse(rule.conditions as string) as ITransactionRuleCondition,
     }));
   }
-  async createNewTransactionRule(newRule: ITransactionRuleCondition): Promise<ITransactionRule> {
+  async createNewRule(
+    ruleCondition: IPutRuleRequest<ITransactionRuleCondition>
+  ): Promise<ITransactionRule> {
     // TODO Create flow to check if new rule overlaps with any existing rules
-    const rule = await ruleRepository.createRule({
-      userId: this.userId,
+    const rule = await ruleRepository.createRule(this.userId, {
       model: RuleModels.Transaction,
-      conditions: JSON.stringify(newRule.conditions),
-      name: '',
+      conditions: JSON.stringify(ruleCondition.rule),
+      name: ruleCondition.name,
     });
 
     return {
       ...rule,
-      condition: newRule,
+      parsedCondition: JSON.parse(rule.conditions as string),
     };
   }
-  async updateTransactionRule(
+  async updateRule(
     ruleId: string,
     updatedRule: ITransactionRuleCondition
   ): Promise<ITransactionRule> {
     const dbUpdatedRule = await ruleRepository.updateRule(this.userId, ruleId, {
-      userId: this.userId,
       model: RuleModels.Transaction,
-      conditions: JSON.stringify(updatedRule.conditions),
+      conditions: JSON.stringify(updatedRule.conditionGroup),
       name: '',
     });
 
     return {
       ...dbUpdatedRule,
-      condition: updatedRule,
+      parsedCondition: updatedRule,
     };
   }
-  async deleteTransactionRule(ruleId: string) {
+  async deleteRule(ruleId: string) {
     await ruleRepository.deleteRule(this.userId, ruleId);
   }
   async applyRulesToTransactions(transactions: ITransactionDto[]): Promise<ITransactionDto[]> {
-    const rules = await this.getTransactionRules();
+    const rules = await this.getRules();
 
     if (!rules.length) {
       return transactions;
@@ -72,7 +73,7 @@ export class TransactionRuleService {
           break;
         }
 
-        transaction = applyRulesToTransaction(transaction, rule.condition);
+        transaction = applyRulesToTransaction(transaction, rule.parsedCondition);
 
         if (transaction.categoryId !== null) {
           isTransactionUpdated = true;
@@ -89,7 +90,7 @@ export function applyRulesToTransaction(
   rule: ITransactionRuleCondition
 ): ITransactionDto {
   let isValidCondition = true;
-  for (const condition of rule.conditions) {
+  for (const condition of rule.conditionGroup) {
     if (!evaluateConditionGroup(transaction, condition)) {
       isValidCondition = false;
       continue;
@@ -121,7 +122,7 @@ function evaluateConditionGroup(
         : evaluateCondition(transaction, condition as ITransactionCondition)
     );
   } else {
-    throw new ValidationError('Invalid condition group type');
+    throw new ValidationError('Invalid condition group type: ' + group.type);
   }
 }
 
