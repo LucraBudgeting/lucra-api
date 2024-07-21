@@ -3,12 +3,12 @@ import { ICondition, IConditionGroup } from './condition';
 import { IRule } from './rule';
 
 export interface ITransactionRuleCondition {
-  conditionGroup: ITransactionConditionGroup[];
+  conditionGroups: ITransactionConditionGroup[];
   categoryId: string;
 }
 
 export interface ITransactionConditionGroup extends IConditionGroup {
-  conditions: (ITransactionCondition | ITransactionConditionGroup)[];
+  conditions: ITransactionCondition[];
 }
 
 export interface ITransactionCondition extends ICondition {

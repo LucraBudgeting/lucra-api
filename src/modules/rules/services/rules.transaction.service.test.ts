@@ -26,7 +26,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: Transaction = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditionGroup: [
+      conditionGroups: [
         {
           type: conditionType.and,
           conditions: [{ field: 'name', operator: conditionOperator.contains, value: 'Test' }],
@@ -42,7 +42,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditionGroup: [
+      conditionGroups: [
         {
           type: conditionType.and,
           conditions: [
@@ -81,7 +81,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditionGroup: [
+      conditionGroups: [
         {
           type: conditionType.and,
           conditions: [
@@ -107,7 +107,7 @@ describe('applyRulesToTransaction', () => {
     const transaction: ITransactionDto = { ...baseTransaction, categoryId: 'old' };
     const rule: ITransactionRuleCondition = {
       categoryId: 'new',
-      conditionGroup: [
+      conditionGroups: [
         {
           type: conditionType.and,
           conditions: [{ field: 'name', operator: conditionOperator.contains, value: 'Sample' }],

@@ -6,7 +6,7 @@ export interface ICondition {
 
 export interface IConditionGroup {
   type: conditionType;
-  conditions: (ICondition | IConditionGroup)[];
+  conditions: ICondition[];
 }
 
 export enum conditionOperator {

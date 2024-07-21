@@ -47,7 +47,7 @@ export class TransactionRuleService {
   ): Promise<ITransactionRule> {
     const dbUpdatedRule = await ruleRepository.updateRule(this.userId, ruleId, {
       model: RuleModels.Transaction,
-      conditions: JSON.stringify(updatedRule.conditionGroup),
+      conditions: JSON.stringify(updatedRule.conditionGroups),
       name: '',
     });
 
@@ -90,7 +90,7 @@ export function applyRulesToTransaction(
   rule: ITransactionRuleCondition
 ): ITransactionDto {
   let isValidCondition = true;
-  for (const condition of rule.conditionGroup) {
+  for (const condition of rule.conditionGroups) {
     if (!evaluateConditionGroup(transaction, condition)) {
       isValidCondition = false;
       continue;
@@ -111,15 +111,11 @@ function evaluateConditionGroup(
 ): boolean {
   if (group.type === conditionType.and) {
     return group.conditions.every((condition) =>
-      typeof condition === 'object' && 'type' in condition
-        ? evaluateConditionGroup(transaction, condition as ITransactionConditionGroup)
-        : evaluateCondition(transaction, condition as ITransactionCondition)
+      evaluateCondition(transaction, condition as ITransactionCondition)
     );
   } else if (group.type === conditionType.or) {
     return group.conditions.some((condition) =>
-      typeof condition === 'object' && 'type' in condition
-        ? evaluateConditionGroup(transaction, condition as ITransactionConditionGroup)
-        : evaluateCondition(transaction, condition as ITransactionCondition)
+      evaluateCondition(transaction, condition as ITransactionCondition)
     );
   } else {
     throw new ValidationError('Invalid condition group type: ' + group.type);

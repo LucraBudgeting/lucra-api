@@ -32,7 +32,7 @@ async function startServer() {
           levelFirst: true,
         },
       },
-      level: 'info',
+      level: 'warn',
     },
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
