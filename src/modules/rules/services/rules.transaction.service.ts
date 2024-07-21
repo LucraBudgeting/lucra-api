@@ -1,15 +1,92 @@
+import { RuleModels } from '@prisma/client';
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
 import { ValidationError } from '@/exceptions/error';
+import { ruleRepository } from '@/data/repositories/rule.repository';
 import {
-  TransactionCondition,
-  TransactionConditionGroup,
-  TransactionRule,
+  ITransactionCondition,
+  ITransactionConditionGroup,
+  ITransactionRuleCondition,
 } from '../types/transaction.rules';
 import { conditionOperator, conditionType } from '../types/condition';
+import { ITransactionRule } from '../types/rule';
+
+export class TransactionRuleService {
+  private userId: string;
+
+  constructor(userId: string) {
+    this.userId = userId;
+  }
+
+  async getTransactionRules(): Promise<ITransactionRule[]> {
+    const rules = await ruleRepository.getTransactionRules(this.userId);
+
+    return rules.map((rule) => ({
+      ...rule,
+      condition: JSON.parse(rule.conditions as string),
+    }));
+  }
+  async createNewTransactionRule(newRule: ITransactionRuleCondition): Promise<ITransactionRule> {
+    // TODO Create flow to check if new rule overlaps with any existing rules
+    const rule = await ruleRepository.createRule({
+      userId: this.userId,
+      model: RuleModels.Transaction,
+      conditions: JSON.stringify(newRule.conditions),
+      name: '',
+    });
+
+    return {
+      ...rule,
+      condition: newRule,
+    };
+  }
+  async updateTransactionRule(
+    ruleId: string,
+    updatedRule: ITransactionRuleCondition
+  ): Promise<ITransactionRule> {
+    const dbUpdatedRule = await ruleRepository.updateRule(this.userId, ruleId, {
+      userId: this.userId,
+      model: RuleModels.Transaction,
+      conditions: JSON.stringify(updatedRule.conditions),
+      name: '',
+    });
+
+    return {
+      ...dbUpdatedRule,
+      condition: updatedRule,
+    };
+  }
+  async deleteTransactionRule(ruleId: string) {
+    await ruleRepository.deleteRule(this.userId, ruleId);
+  }
+  async applyRulesToTransactions(transactions: ITransactionDto[]): Promise<ITransactionDto[]> {
+    const rules = await this.getTransactionRules();
+
+    if (!rules.length) {
+      return transactions;
+    }
+
+    return transactions.map((transaction) => {
+      let isTransactionUpdated = false;
+      for (const rule of rules) {
+        if (isTransactionUpdated) {
+          break;
+        }
+
+        transaction = applyRulesToTransaction(transaction, rule.condition);
+
+        if (transaction.categoryId !== null) {
+          isTransactionUpdated = true;
+        }
+      }
+
+      return transaction;
+    });
+  }
+}
 
 export function applyRulesToTransaction(
   transaction: ITransactionDto,
-  rule: TransactionRule
+  rule: ITransactionRuleCondition
 ): ITransactionDto {
   let isValidCondition = true;
   for (const condition of rule.conditions) {
@@ -20,7 +97,8 @@ export function applyRulesToTransaction(
   }
 
   if (isValidCondition) {
-    return { ...transaction, categoryId: rule.categoryId };
+    transaction.categoryId = rule.categoryId;
+    return transaction;
   }
 
   return transaction;
@@ -28,26 +106,29 @@ export function applyRulesToTransaction(
 
 function evaluateConditionGroup(
   transaction: ITransactionDto,
-  group: TransactionConditionGroup
+  group: ITransactionConditionGroup
 ): boolean {
   if (group.type === conditionType.and) {
     return group.conditions.every((condition) =>
       typeof condition === 'object' && 'type' in condition
-        ? evaluateConditionGroup(transaction, condition as TransactionConditionGroup)
-        : evaluateCondition(transaction, condition as TransactionCondition)
+        ? evaluateConditionGroup(transaction, condition as ITransactionConditionGroup)
+        : evaluateCondition(transaction, condition as ITransactionCondition)
     );
   } else if (group.type === conditionType.or) {
     return group.conditions.some((condition) =>
       typeof condition === 'object' && 'type' in condition
-        ? evaluateConditionGroup(transaction, condition as TransactionConditionGroup)
-        : evaluateCondition(transaction, condition as TransactionCondition)
+        ? evaluateConditionGroup(transaction, condition as ITransactionConditionGroup)
+        : evaluateCondition(transaction, condition as ITransactionCondition)
     );
   } else {
     throw new ValidationError('Invalid condition group type');
   }
 }
 
-function evaluateCondition(transaction: ITransactionDto, condition: TransactionCondition): boolean {
+function evaluateCondition(
+  transaction: ITransactionDto,
+  condition: ITransactionCondition
+): boolean {
   const { field, operator, value } = condition;
   let fieldValue = transaction[field];
 

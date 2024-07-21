@@ -1,6 +1,6 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
-import { TransactionRule } from '../types/transaction.rules';
+import { ITransactionRuleCondition } from '../types/transaction.rules';
 import { conditionOperator, conditionType } from '../types/condition';
 import { applyRulesToTransaction } from './rules.transaction.service';
 
@@ -23,7 +23,7 @@ const baseTransaction: ITransactionDto = {
 describe('applyRulesToTransaction', () => {
   it('should apply rule and change categoryId when conditions are met', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
-    const rule: TransactionRule = {
+    const rule: ITransactionRuleCondition = {
       categoryId: 'new',
       conditions: [
         {
@@ -39,7 +39,7 @@ describe('applyRulesToTransaction', () => {
 
   it('should apply rule and change categoryId when complex conditions are met', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
-    const rule: TransactionRule = {
+    const rule: ITransactionRuleCondition = {
       categoryId: 'new',
       conditions: [
         {
@@ -78,7 +78,7 @@ describe('applyRulesToTransaction', () => {
 
   it('should not apply rule and change categoryId when condition groups should be AND', () => {
     const transaction: ITransactionDto = { ...baseTransaction, name: 'Test Transaction' };
-    const rule: TransactionRule = {
+    const rule: ITransactionRuleCondition = {
       categoryId: 'new',
       conditions: [
         {
@@ -104,7 +104,7 @@ describe('applyRulesToTransaction', () => {
 
   it('should not change categoryId when conditions are not met', () => {
     const transaction: ITransactionDto = { ...baseTransaction, categoryId: 'old' };
-    const rule: TransactionRule = {
+    const rule: ITransactionRuleCondition = {
       categoryId: 'new',
       conditions: [
         {

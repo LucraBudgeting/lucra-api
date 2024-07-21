@@ -1,15 +1,15 @@
 import { TransactionDto } from '@/modules/transaction/types/transaction';
-import { Condition, ConditionGroup } from './condition';
+import { ICondition, IConditionGroup } from './condition';
 
-export interface TransactionRule {
-  conditions: TransactionConditionGroup[];
+export interface ITransactionRuleCondition {
+  conditions: ITransactionConditionGroup[];
   categoryId: string;
 }
 
-export interface TransactionConditionGroup extends ConditionGroup {
-  conditions: (TransactionCondition | TransactionConditionGroup)[];
+export interface ITransactionConditionGroup extends IConditionGroup {
+  conditions: (ITransactionCondition | ITransactionConditionGroup)[];
 }
 
-export interface TransactionCondition extends Condition {
+export interface ITransactionCondition extends ICondition {
   field: keyof TransactionDto;
 }

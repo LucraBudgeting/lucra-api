@@ -37,6 +37,7 @@ model User {
     userOnboardingStage UserOnboardingStage[]
     BudgetCategory      BudgetCategory[]
     Transaction         Transaction[]
+    Rule                Rule[]
 }
 
 model UserAuth {
@@ -290,6 +291,23 @@ model Address {
     Transaction      Transaction[]
 }
 
+model Rule {
+    id          String     @id @unique @default(cuid())
+    userId      String
+    name        String
+    description String?
+    conditions  Json
+    isActive    Boolean    @default(true)
+    model       RuleModels @default(Transaction)
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId], name: "transaction_rule_user_id_index")
+}
+
 // If a full DB reset needs to happen, you will need to delete the stored data types
 enum UserStatus {
     Active_Paid
@@ -299,6 +317,10 @@ enum UserStatus {
     Active_Demo
     Onboarding_UnPaid
     Onboarding_Paid
+}
+
+enum RuleModels {
+    Transaction
 }
 
 enum Country {

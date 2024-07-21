@@ -1,12 +1,12 @@
-export interface Condition {
+export interface ICondition {
   field: string;
   operator: conditionOperator;
   value: any;
 }
 
-export interface ConditionGroup {
+export interface IConditionGroup {
   type: conditionType;
-  conditions: (Condition | ConditionGroup)[];
+  conditions: (ICondition | IConditionGroup)[];
 }
 
 export enum conditionOperator {
