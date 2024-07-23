@@ -4,7 +4,9 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "prod": "npm install --force && npm run lint && npm run db:deploy && npm run build",
+    "install:all": "NODE_ENV=development npm install && NODE_ENV=production npm install --only=prod",
+    "prod": "npm run install:all && npm run lint && npm run db:deploy && npm run build",
+    "staging": "npm install && npm run lint && npm run db:deploy && npm run build",
     "dev": "npm i && npm run db:deploy && npm run nodemon",
     "dev:server": "npm run build && npm run start",
     "db:deploy": "npm run db:migrate && npm run db:generate && npm run db:seed",
