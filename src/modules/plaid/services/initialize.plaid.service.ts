@@ -79,6 +79,8 @@ export class InitializePlaidService {
       exchangeData.item_id
     );
 
+    console.warn('plaidAccountAccess', plaidAccountAccess.id);
+
     // Check if the Plaid account access is created
     if (plaidAccountAccess?.accessToken.isNullOrEmpty()) {
       throw new ServiceUnavailableError('Plaid account access could not be created');
@@ -156,6 +158,8 @@ export class InitializePlaidService {
 
     await plaidAccountBalanceRepository.createPlaidAccountBalanceMany(balances);
 
+    console.warn('newAccountIds', newAccountIds);
+
     return newAccountIds;
   }
 
@@ -172,6 +176,7 @@ export class InitializePlaidService {
     while (hasMore) {
       // Fetch the transactions using the access token and cursor
       const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
+      console.warn('transactionsData', transactionsData);
       // Filter out transactions that are not associated with any account ID
       transactionsData.added = transactionsData.added.filter(
         (transaction) => accountIds[transaction.account_id]
