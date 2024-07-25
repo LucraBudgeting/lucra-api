@@ -15,4 +15,7 @@ export const {
   PLAID_CLIENT_ID,
   PLAID_SECRET,
   NODE_ENV,
+  NEW_RELIC_LICENSE_KEY,
 } = process.env;
+
+export const IS_PRODUCTION = NODE_ENV === 'production' || NODE_ENV === 'development';

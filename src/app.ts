@@ -1,4 +1,5 @@
 import { join } from 'path';
+import type { IncomingMessage, Server, ServerResponse } from 'http';
 import Fastify, { FastifyError, FastifyInstance } from 'fastify';
 import AutoLoad from '@fastify/autoload';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
@@ -7,14 +8,36 @@ import fastifyEnv from '@fastify/env';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
 import fastifyWs from '@fastify/websocket';
+import pino, { LoggerOptions } from 'pino';
+import nrPinoEnricher from '@newrelic/pino-enricher';
 import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
 import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
 import { schema } from './utils/validateEnv';
 import { defaultErrorMessage } from './constants';
 import '@/extensions';
 
+const loggerOptions: LoggerOptions = {
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      translateTime: true,
+      ignore: 'pid,hostname',
+      levelFirst: true,
+    },
+  },
+  level: 'warn',
+};
+
+const logger = pino(nrPinoEnricher(loggerOptions));
+
 async function startServer() {
-  const app: FastifyInstance = Fastify({
+  const app: FastifyInstance<
+    Server,
+    IncomingMessage,
+    ServerResponse,
+    typeof logger,
+    TypeBoxTypeProvider
+  > = Fastify({
     schemaErrorFormatter,
     ajv: {
       customOptions: {
@@ -23,17 +46,7 @@ async function startServer() {
       },
       plugins: [],
     },
-    logger: {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: true,
-          ignore: 'pid,hostname',
-          levelFirst: true,
-        },
-      },
-      level: 'warn',
-    },
+    logger,
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
