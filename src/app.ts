@@ -102,8 +102,8 @@ async function startServer() {
   try {
     await app.listen({ port, host: '0.0.0.0' });
     // await dbClient.$connect();
-    console.log(`Server running on port ${port}`);
-    console.log(`Preview: ${API_URL}`);
+    console.warn(`Server running on port ${port}`);
+    console.warn(`Preview: ${API_URL}`);
     // schedulePing();
   } catch (err) {
     app.log.error('APP ERROR', err);
