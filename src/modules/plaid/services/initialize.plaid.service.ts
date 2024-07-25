@@ -176,12 +176,8 @@ export class InitializePlaidService {
     while (hasMore) {
       // Fetch the transactions using the access token and cursor
       const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
-      console.warn('transactionsData', transactionsData);
-      // Filter out transactions that are not associated with any account ID
-      transactionsData.added = transactionsData.added.filter(
-        (transaction) => accountIds[transaction.account_id]
-      );
 
+      console.warn('transactionsData', transactionsData);
       // Update the flags and cursor
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;

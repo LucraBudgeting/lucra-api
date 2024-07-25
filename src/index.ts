@@ -1,3 +1,4 @@
+import 'newrelic';
 import cluster from 'cluster';
 import os from 'os';
 import App from './app';

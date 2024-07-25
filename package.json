@@ -18,7 +18,7 @@
     "debug": "nodemon --config nodemon.json --inspect",
     "server": "npm run build && npm run start",
     "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
-    "start": "node dist/index.js",
+    "start": "node -r newrelic dist/index.js",
     "test": "ENV_FILE=./config/.env.test jest",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "npm run lint -- --fix"
@@ -45,6 +45,7 @@
     "dotenv": "^16.4.1",
     "fastify": "^4.26.0",
     "fastify-plugin": "^4.5.1",
+    "newrelic": "^11.23.2",
     "node-cron": "^3.0.3",
     "pino-pretty": "^11.2.1",
     "plaid": "^26.0.0",
