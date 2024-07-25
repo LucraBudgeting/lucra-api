@@ -1,7 +1,8 @@
 'use strict';
-import { config as dotenvConfig } from 'dotenv';
+const { config: dotenvConfig } = require('dotenv');
 dotenvConfig();
-export const config = {
+
+module.exports = {
   application_logging: {
     forwarding: {
       enabled: true,
