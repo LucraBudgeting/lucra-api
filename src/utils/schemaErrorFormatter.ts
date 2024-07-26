@@ -1,3 +1,4 @@
+import { logger } from '@/libs/logger';
 import { FastifySchemaValidationError } from 'fastify/types/schema';
 
 export const schemaErrorFormatter = (errors: FastifySchemaValidationError[]) => {
@@ -5,7 +6,7 @@ export const schemaErrorFormatter = (errors: FastifySchemaValidationError[]) => 
     return new Error('Validation failed: No errors found.');
   }
 
-  console.error('ERROR: ', errors);
+  logger.error('ERROR: ', errors);
 
   const firstError = errors[0];
   const instancePath = firstError?.instancePath.substring(1) ?? '';
