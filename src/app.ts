@@ -1,19 +1,20 @@
 import { join } from 'path';
 import type { IncomingMessage, Server, ServerResponse } from 'http';
-import Fastify, { FastifyError, FastifyInstance } from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
 import AutoLoad from '@fastify/autoload';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import fastifyCors from '@fastify/cors';
 import fastifyEnv from '@fastify/env';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
-import fastifyWs from '@fastify/websocket';
 import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
 import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
 import { schema } from './utils/validateEnv';
-import { defaultErrorMessage } from './constants';
 import '@/extensions';
 import { baseLogger, logger } from './libs/logger';
+import { globalErrorHandler } from './utils/globalErrorHandler';
+
+const port: number = Number(PORT) ?? 3001;
 
 async function startServer() {
   const app: FastifyInstance<
@@ -35,7 +36,8 @@ async function startServer() {
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
-  const port: number = Number(PORT) ?? 3001;
+  // Initialize Error Handling
+  app.setErrorHandler(globalErrorHandler);
 
   // Initialize Plugins
   await app.register(fastifyEnv, { dotenv: true, schema });
@@ -54,33 +56,11 @@ async function startServer() {
     dirNameRoutePrefix: false,
   });
 
-  // Init WebSocket
-  app.register(fastifyWs);
-
-  // Initialize Routes
+  // Initialize Routes - KEEP THIS AS THE LAST REGISTRED ITEM
   await app.register(AutoLoad, {
     dir: join(__dirname, '/routes'),
     dirNameRoutePrefix: false,
     options: { prefix: `/api` },
-  });
-
-  // Initialize Error Handling
-  app.setErrorHandler((error: FastifyError, request, reply) => {
-    try {
-      const status: number = error.statusCode ?? 500;
-      const message: string =
-        status === 500 ? defaultErrorMessage : error.message ?? defaultErrorMessage;
-
-      app.log.error(
-        `[${request.method}] ${request.url} >> StatusCode:: ${status}, Message:: ${message}`
-      );
-
-      return reply.status(status).send({ error: true, message });
-    } catch (error) {
-      return reply
-        .status(500)
-        .send({ error: true, message: `Exception could not be handled: ${error}` });
-    }
   });
 
   // Start listening
@@ -91,8 +71,7 @@ async function startServer() {
     logger.warn(`Preview: ${API_URL}`);
     // schedulePing();
   } catch (err) {
-    app.log.error('APP ERROR', err);
-    console.error(err);
+    logger.error('APP ERROR', err);
     // dbClient.$disconnect();
     process.exit(1);
   }

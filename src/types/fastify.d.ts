@@ -1,4 +1,3 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
 import { Static } from '@fastify/type-provider-typebox';
 import { schema } from '@utils/validateEnv';
 

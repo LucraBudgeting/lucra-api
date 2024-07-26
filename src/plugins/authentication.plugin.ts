@@ -3,7 +3,7 @@ import { FastifyInstance, FastifyRequest } from 'fastify';
 import fastifyPlugin from 'fastify-plugin';
 import { ForbiddenError } from '@/exceptions/error';
 
-export default fastifyPlugin(async (fastify: FastifyInstance, _: unknown) => {
+export default fastifyPlugin(async (fastify: FastifyInstance) => {
   const authPrehandler = async (request: FastifyRequest) => {
     try {
       if (!request.headers?.authorization?.includes('Bearer')) {
