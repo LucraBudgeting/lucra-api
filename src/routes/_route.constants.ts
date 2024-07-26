@@ -1,1 +1,1 @@
-export const webSocketBase = '/ws';
+export const webHookBase = '/webhook';

@@ -11,15 +11,23 @@ import {
   PlaidApi,
   PlaidEnvironments,
   Products,
+  Transaction,
   TransactionsGetRequest,
   TransactionsGetResponse,
   TransactionsSyncRequest,
   TransactionsSyncResponse,
 } from 'plaid';
-import { User, UserPreferences } from '@prisma/client';
+import { PlaidTransaction, User, UserPreferences } from '@prisma/client';
 import { NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
+import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
+import { MapPlaidIsoCode } from '@/modules/plaid/mappers/IsoCurrencyCode.mapper';
+import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper';
+import { Decimal } from '@prisma/client/runtime/library';
+import { logger } from '../logger';
+import { TransactionDto } from '@/modules/transaction/types/transaction';
+import { transactionRepository } from '@/data/repositories/transaction.repository';
 
 function getPlaidEnvironment() {
   if (NODE_ENV === 'production' || NODE_ENV === 'development') {
@@ -128,6 +136,64 @@ class PlaidRepository {
     return accessToken;
   }
 
+  public async syncTransactionHistory(
+    userId: string,
+    accountIds: Record<string, string>,
+    accessToken: string
+  ): Promise<void> {
+    // Flag indicating whether there are more transactions to fetch
+    let hasMore = true;
+    // The cursor to use for fetching transactions
+    let cursor: string | undefined = undefined;
+
+    // Fetch and process transactions until there are no more to fetch
+    while (hasMore) {
+      // Fetch the transactions using the access token and cursor
+      const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
+
+      logger.warn('transactionsDataAdded', transactionsData.added.length);
+      logger.warn('transactionsDataModified', transactionsData.modified.length);
+      logger.warn('transactionsDataRemoved', transactionsData.removed.length);
+
+      // Update the flags and cursor
+      hasMore = transactionsData.has_more;
+      cursor = transactionsData.next_cursor;
+
+      // Map the fetched transactions to PlaidTransaction objects
+      const plaidTransactions = transactionsData.added.map((transaction): PlaidTransaction => {
+        return {
+          accountId: accountIds[transaction.account_id],
+          amount: new Decimal(transaction.amount.toString()),
+          isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
+          merchantName: transaction.merchant_name,
+          name: transaction.name,
+          pending: transaction.pending,
+          date: new Date(transaction.date),
+          paymentChannel: MapPaymentChannel(transaction.payment_channel),
+        } as PlaidTransaction;
+      });
+
+      // Create the Plaid transactions in the database
+      await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
+
+      // Sync the Plaid transactions to Lucra transactions
+      await this.mapPlaidTransactionsToLucraTransactions(userId, transactionsData.added);
+    }
+  }
+
+  private async mapPlaidTransactionsToLucraTransactions(
+    userId: string,
+    plaidTransactions: Transaction[]
+  ) {
+    // Map the fetched transactions to TransactionDto objects
+    const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
+      return new TransactionDto(userId).fromPlaidTransaction(transaction);
+    });
+
+    // Create the Lucra transactions in the database
+    await transactionRepository.createTransactionMany(userId, lucraTransactions);
+  }
+
   public async syncTransaction(
     accessToken: string,
     cursor?: string
@@ -135,6 +201,7 @@ class PlaidRepository {
     const request: TransactionsSyncRequest = {
       access_token: accessToken,
       cursor,
+      count: 500,
       options: {
         include_original_description: true,
         days_requested: daysRequestedDefault,

@@ -117,6 +117,7 @@ model PlaidAccountAccess {
     plaidAccount PlaidAccount[]
 
     @@index([userId], name: "plaid_account_access_user_id_index")
+    @@index([itemId], name: "plaid_account_access_item_id_index")
 }
 
 model PlaidAccount {

@@ -1,7 +1,7 @@
 import { PlaidAccount, PlaidAccountBalance, PlaidTransaction } from '@prisma/client';
 import { Record } from '@fastify/type-provider-typebox';
 import { Decimal } from '@prisma/client/runtime/library';
-import { ItemPublicTokenExchangeResponse, Transaction } from 'plaid';
+import { ItemPublicTokenExchangeResponse } from 'plaid';
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userPreferencesRepository } from '@/data/repositories/userPreferences.repository';
@@ -11,8 +11,6 @@ import { plaidAccountRepository } from '@/data/repositories/plaidAccount.reposit
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
 import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
-import { TransactionDto } from '@/modules/transaction/types/transaction';
-import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { logger } from '@/libs/logger';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
@@ -92,7 +90,11 @@ export class InitializePlaidService {
 
     // Sync transactions
     try {
-      await this.getTransactionHistory(accountIds, exchangeData.access_token);
+      await plaidRepository.syncTransactionHistory(
+        this.userId,
+        accountIds,
+        exchangeData.access_token
+      );
     } catch (error) {
       logger.error('Error syncing transaction history', error);
     }
@@ -162,80 +164,5 @@ export class InitializePlaidService {
     logger.warn('newAccountIds', newAccountIds);
 
     return newAccountIds;
-  }
-
-  private async syncTransactionHistory(
-    accountIds: Record<string, string>,
-    accessToken: string
-  ): Promise<void> {
-    // Flag indicating whether there are more transactions to fetch
-    let hasMore = true;
-    // The cursor to use for fetching transactions
-    let cursor: string | undefined = undefined;
-
-    // Fetch and process transactions until there are no more to fetch
-    while (hasMore) {
-      // Fetch the transactions using the access token and cursor
-      const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
-
-      logger.warn('transactionsData', transactionsData);
-      // Update the flags and cursor
-      hasMore = transactionsData.has_more;
-      cursor = transactionsData.next_cursor;
-
-      // Map the fetched transactions to PlaidTransaction objects
-      const plaidTransactions = transactionsData.added.map((transaction): PlaidTransaction => {
-        return {
-          accountId: accountIds[transaction.account_id],
-          amount: new Decimal(transaction.amount.toString()),
-          isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-          merchantName: transaction.merchant_name,
-          name: transaction.name,
-          pending: transaction.pending,
-          date: new Date(transaction.date),
-          paymentChannel: MapPaymentChannel(transaction.payment_channel),
-        } as PlaidTransaction;
-      });
-
-      // Create the Plaid transactions in the database
-      await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
-
-      // Sync the Plaid transactions to Lucra transactions
-      await this.mapPlaidTransactionsToLucraTransactions(transactionsData.added);
-    }
-  }
-
-  private async mapPlaidTransactionsToLucraTransactions(plaidTransactions: Transaction[]) {
-    // Map the fetched transactions to TransactionDto objects
-    const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
-      return new TransactionDto(this.userId).fromPlaidTransaction(transaction);
-    });
-
-    // Create the Lucra transactions in the database
-    await transactionRepository.createTransactionMany(this.userId, lucraTransactions);
-  }
-
-  private async getTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
-    const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
-
-    logger.warn('transactionsDataCount', transactionsData.transactions.length);
-
-    // Map the fetched transactions to PlaidTransaction objects
-    const plaidTransactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
-      return {
-        accountId: accountIds[transaction.account_id],
-        amount: new Decimal(transaction.amount.toString()),
-        isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-        merchantName: transaction.merchant_name,
-        name: transaction.name,
-        pending: transaction.pending,
-        date: new Date(transaction.date),
-        paymentChannel: MapPaymentChannel(transaction.payment_channel),
-      } as PlaidTransaction;
-    });
-
-    await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
-
-    await this.mapPlaidTransactionsToLucraTransactions(transactionsData.transactions);
   }
 }

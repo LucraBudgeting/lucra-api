@@ -1,7 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { HttpMethods } from '@/utils/HttpMethods';
 import { CreatePlaidLinkToken, SyncAccounts } from '@/modules/plaid/plaid.controller';
-import { webSocketBase } from './_route.constants';
+import { webHookBase } from './_route.constants';
+import { logger } from '@/libs/logger';
+import { HandleWalletTransactionWehook } from '@/modules/plaid/plaid.webhook.controller';
 
 const basePath = '/plaid';
 
@@ -22,10 +24,8 @@ export default async function Plaid(fastify: FastifyInstance, _opts: RouteOption
 
   fastify.route({
     method: HttpMethods.GET,
-    url: `${webSocketBase}${basePath}/sync_transactions`,
-    handler: (_request: FastifyRequest, reply: FastifyReply) => {
-      reply.status(200).send({ message: 'Sync Transactions' });
-    },
+    url: `${webHookBase}${basePath}/wallet_transaction`,
+    handler: HandleWalletTransactionWehook,
     preHandler: [fastify.authPrehandler],
   });
 }
