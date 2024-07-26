@@ -206,7 +206,7 @@ class PlaidRepository {
     await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
 
     // Sync the Plaid transactions to Lucra transactions
-    await this.mapPlaidTransactionsToLucraTransactions(userId, transactionsData.added);
+    await this.mapPlaidTransactionsToLucraTransactions(userId, transactions);
   }
 
   private async mapPlaidTransactionsToLucraTransactions(
