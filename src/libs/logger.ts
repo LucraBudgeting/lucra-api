@@ -34,6 +34,7 @@ const createLoggerWithOverride = (logger: Logger) => {
       logger.warn({ payload: formatArg(arg) }, message);
     },
     info: (message: string, arg?: any) => {
+      console.log(message, arg ? formatArg(arg) : '');
       logger.info({ payload: formatArg(arg) }, message);
     },
     error: (message: string, arg?: any) => {
