@@ -5,7 +5,6 @@ import { userAuthRepository } from '@/data/repositories/userAuth.repository';
 import { userOnboardingStageRepository } from '@/data/repositories/userOnboardingStage.repository';
 import { User } from '@/data/db.client';
 import { FRONTEND_ORIGIN } from '@/config';
-import { ConnectAccountsService } from '../bank/services/connectAccounts.service';
 import { SetupUserBilling } from './onboarding.service';
 import { createAccountBody } from './types';
 
@@ -76,12 +75,13 @@ export async function GetUser(
     .send({ message: 'User found', token: onboardingAccessToken, checkoutUrl });
 }
 
+// DEPRICATED
 export async function SyncAccounts(
   req: FastifyRequest<{ Params: { publicToken: string } }>,
   reply: FastifyReply
 ) {
   const user = req.user as User;
-  await new ConnectAccountsService(user.id).syncAccounts(req.params.publicToken);
+  // await new ConnectAccountsService(user.id).syncAccounts(req.params.publicToken);
   await userOnboardingStageRepository.markBankingAccountConnected(user.id);
 
   return reply.status(HttpStatusCode.Ok).send({ message: 'Accounts Synced' });

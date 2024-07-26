@@ -1,6 +1,6 @@
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
-import { SyncUpdatesAvailableBody } from '@/types/plaid.webhook';
+import { SyncUpdatesAvailableBody } from '@/types/plaid/plaid.webhook';
 
 export async function HandleSyncUpdatesAvailable(payload: SyncUpdatesAvailableBody) {
   const access = await plaidAccountAccessRepository.getAccountAccessByItemId(payload.item_id);

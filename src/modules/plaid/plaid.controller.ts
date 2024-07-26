@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { User } from '@prisma/client';
+import { PlaidLinkOnSuccessMetadata } from '@/types/plaid/plaid.link';
 import { ConnectAccountsService } from '../bank/services/connectAccounts.service';
 import { InitializePlaidService } from './services/initialize.plaid.service';
 
@@ -11,11 +12,14 @@ export async function CreatePlaidLinkToken(request: FastifyRequest, reply: Fasti
 }
 
 export async function SyncAccounts(
-  request: FastifyRequest<{ Params: { publicToken: string } }>,
+  request: FastifyRequest<{
+    Params: { publicToken: string };
+    Body: PlaidLinkOnSuccessMetadata;
+  }>,
   reply: FastifyReply
 ) {
   const user = request.user as User;
-  await new ConnectAccountsService(user.id).syncAccounts(request.params.publicToken);
+  await new ConnectAccountsService(user.id).syncAccounts(request.params.publicToken, request.body);
 
   return reply.send({ message: 'Accounts Synced' });
 }

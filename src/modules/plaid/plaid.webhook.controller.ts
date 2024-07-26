@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '@/libs/logger';
-import { PlaidWebhookBody, SyncUpdatesAvailableBody } from '@/types/plaid.webhook';
+import { PlaidWebhookBody, SyncUpdatesAvailableBody } from '@/types/plaid/plaid.webhook';
 import { HandleSyncUpdatesAvailable } from './services/plaid.webhook.service';
 
 export async function HandleWalletTransactionWehook(

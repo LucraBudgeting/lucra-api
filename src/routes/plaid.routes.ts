@@ -15,7 +15,7 @@ export default async function Plaid(fastify: FastifyInstance, _opts: RouteOption
   });
 
   fastify.route({
-    method: HttpMethods.GET,
+    method: HttpMethods.POST,
     url: `${basePath}/sync_accounts/:publicToken`,
     handler: SyncAccounts,
     preHandler: [fastify.authPrehandler],
