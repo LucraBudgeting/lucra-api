@@ -1,5 +1,5 @@
 import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
-import { BadRequestError } from '@/exceptions/error';
+import { ValidationError } from '@/exceptions/error';
 import { InitializePlaidService } from '@/modules/plaid/services/initialize.plaid.service';
 import { PlaidLinkOnSuccessMetadata } from '@/types/plaid/plaid.link';
 
@@ -35,7 +35,7 @@ export class ConnectAccountsService {
       );
 
     if (doesUserAlreadyHaveInstitution) {
-      throw new BadRequestError('User already has this institution connected');
+      throw new ValidationError('User already has this institution connected');
     }
   }
 }
