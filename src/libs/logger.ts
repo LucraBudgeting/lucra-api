@@ -17,20 +17,30 @@ const loggerOptions: LoggerOptions = {
 
 export const baseLogger = pino(loggerOptions);
 
+const formatArg = (arg: any): any => {
+  if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
+    const formattedObject: any = {};
+    for (const [key, value] of Object.entries(arg)) {
+      formattedObject[key] = formatArg(value);
+    }
+    return formattedObject;
+  }
+  return arg;
+};
+
 const createLoggerWithOverride = (logger: Logger) => {
   return {
-    warn: (message: string, obj?: any) => {
-      logger.warn({ payload: obj }, message);
+    warn: (message: string, arg?: any) => {
+      logger.warn({ payload: formatArg(arg) }, message);
     },
-    // Add other logging levels if needed
-    info: (message: string, obj?: any) => {
-      logger.info({ payload: obj }, message);
+    info: (message: string, arg?: any) => {
+      logger.info({ payload: formatArg(arg) }, message);
     },
-    error: (message: string, obj?: any) => {
-      logger.error({ payload: obj }, message);
+    error: (message: string, arg?: any) => {
+      logger.error({ payload: formatArg(arg) }, message);
     },
-    debug: (message: string, obj?: any) => {
-      logger.debug({ payload: obj }, message);
+    debug: (message: string, arg?: any) => {
+      logger.debug({ payload: formatArg(arg) }, message);
     },
   };
 };
