@@ -13,7 +13,6 @@ export default fastifyPlugin(async (fastify: FastifyInstance, _: unknown) => {
       const payload = (await request.jwtVerify()) as { user: User };
 
       request.user = payload.user;
-      console.warn('User: ', payload.user);
     } catch (error) {
       console.error('authPrehandler Error: ', JSON.stringify(error, null, 4));
       console.error('authPrehandler Error Auth Header: ', request.headers?.authorization);

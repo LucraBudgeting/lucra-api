@@ -9,7 +9,6 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
 import fastifyWs from '@fastify/websocket';
 import pino, { LoggerOptions } from 'pino';
-import nrPinoEnricher from '@newrelic/pino-enricher';
 import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
 import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
 import { schema } from './utils/validateEnv';
@@ -23,12 +22,27 @@ const loggerOptions: LoggerOptions = {
       translateTime: true,
       ignore: 'pid,hostname',
       levelFirst: true,
+      prettifier: true,
+      useLevelLabels: true,
+      levelKey: 'level',
     },
   },
   level: 'warn',
 };
 
-const logger = pino(nrPinoEnricher(loggerOptions));
+const logger = pino(loggerOptions);
+
+console.log = (message, ...optionalParams) => {
+  logger.info(message, ...optionalParams);
+};
+
+console.warn = (message, ...optionalParams) => {
+  logger.warn(message, ...optionalParams);
+};
+
+console.error = (message, ...optionalParams) => {
+  logger.error(message, ...optionalParams);
+};
 
 async function startServer() {
   const app: FastifyInstance<
