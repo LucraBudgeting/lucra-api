@@ -11,6 +11,7 @@ import {
   PlaidApi,
   PlaidEnvironments,
   Products,
+  RemovedTransaction,
   Transaction,
   TransactionsGetRequest,
   TransactionsGetResponse,
@@ -158,27 +159,53 @@ class PlaidRepository {
       // Update the flags and cursor
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;
+      transactionsData.removed;
 
-      // Map the fetched transactions to PlaidTransaction objects
-      const plaidTransactions = transactionsData.added.map((transaction): PlaidTransaction => {
-        return {
-          accountId: accountIds[transaction.account_id],
-          amount: new Decimal(transaction.amount.toString()),
-          isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-          merchantName: transaction.merchant_name,
-          name: transaction.name,
-          pending: transaction.pending,
-          date: new Date(transaction.date),
-          paymentChannel: MapPaymentChannel(transaction.payment_channel),
-        } as PlaidTransaction;
-      });
-
-      // Create the Plaid transactions in the database
-      await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
-
-      // Sync the Plaid transactions to Lucra transactions
-      await this.mapPlaidTransactionsToLucraTransactions(userId, transactionsData.added);
+      await Promise.all([
+        this.syncAddedTransactions(userId, accountIds, transactionsData.added),
+        this.syncModifiedTransactions(userId, accountIds, transactionsData.modified),
+        this.syncRemovedTransactions(userId, accountIds, transactionsData.removed),
+      ]);
     }
+  }
+
+  //TODO - Implement these methods
+  private async syncModifiedTransactions(
+    _userId: string,
+    _accountIds: Record<string, string>,
+    _transactions: Transaction[]
+  ) {}
+
+  private async syncRemovedTransactions(
+    _userId: string,
+    _accountIds: Record<string, string>,
+    _transactions: RemovedTransaction[]
+  ) {}
+
+  private async syncAddedTransactions(
+    userId: string,
+    accountIds: Record<string, string>,
+    transactions: Transaction[]
+  ) {
+    // Map the fetched transactions to PlaidTransaction objects
+    const plaidTransactions = transactions.map((transaction): PlaidTransaction => {
+      return {
+        accountId: accountIds[transaction.account_id],
+        amount: new Decimal(transaction.amount.toString()),
+        isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
+        merchantName: transaction.merchant_name,
+        name: transaction.name,
+        pending: transaction.pending,
+        date: new Date(transaction.date),
+        paymentChannel: MapPaymentChannel(transaction.payment_channel),
+      } as PlaidTransaction;
+    });
+
+    // Create the Plaid transactions in the database
+    await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
+
+    // Sync the Plaid transactions to Lucra transactions
+    await this.mapPlaidTransactionsToLucraTransactions(userId, transactionsData.added);
   }
 
   private async mapPlaidTransactionsToLucraTransactions(
