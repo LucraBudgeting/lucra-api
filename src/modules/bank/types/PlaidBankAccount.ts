@@ -1,6 +1,5 @@
 export interface IPlaidBankAccount {
   id: string;
-  plaidAccountId: string;
   institutionDisplayName: string;
   accessAccountId: string;
   institutionId: string;

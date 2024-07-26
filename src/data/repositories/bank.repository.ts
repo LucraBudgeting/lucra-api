@@ -25,7 +25,6 @@ class BankRepository extends BaseRepository {
     return plaidAccounts.map((account) => {
       const {
         id,
-        accountId,
         institutionDisplayName,
         accessAccountId,
         institutionId,
@@ -37,7 +36,6 @@ class BankRepository extends BaseRepository {
 
       return {
         id,
-        plaidAccountId: accountId,
         institutionDisplayName,
         accessAccountId,
         institutionId,
