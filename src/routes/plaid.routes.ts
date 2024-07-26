@@ -1,9 +1,8 @@
-import { FastifyInstance, FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
+import { FastifyInstance, RouteOptions } from 'fastify';
 import { HttpMethods } from '@/utils/HttpMethods';
 import { CreatePlaidLinkToken, SyncAccounts } from '@/modules/plaid/plaid.controller';
-import { webHookBase } from './_route.constants';
-import { logger } from '@/libs/logger';
 import { HandleWalletTransactionWehook } from '@/modules/plaid/plaid.webhook.controller';
+import { webHookBase } from './_route.constants';
 
 const basePath = '/plaid';
 
