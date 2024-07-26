@@ -152,14 +152,9 @@ class PlaidRepository {
       // Fetch the transactions using the access token and cursor
       const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
 
-      logger.warn('transactionsDataAdded', transactionsData.added.length);
-      logger.warn('transactionsDataModified', transactionsData.modified.length);
-      logger.warn('transactionsDataRemoved', transactionsData.removed.length);
-
       // Update the flags and cursor
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;
-      transactionsData.removed;
 
       await Promise.all([
         this.syncAddedTransactions(userId, accountIds, transactionsData.added),
@@ -173,20 +168,26 @@ class PlaidRepository {
   private async syncModifiedTransactions(
     _userId: string,
     _accountIds: Record<string, string>,
-    _transactions: Transaction[]
-  ) {}
+    transactions: Transaction[]
+  ) {
+    logger.warn('transactionsDataModified', transactions.length);
+  }
 
   private async syncRemovedTransactions(
     _userId: string,
     _accountIds: Record<string, string>,
-    _transactions: RemovedTransaction[]
-  ) {}
+    transactions: RemovedTransaction[]
+  ) {
+    logger.warn('transactionsDataRemoved', transactions.length);
+  }
 
   private async syncAddedTransactions(
     userId: string,
     accountIds: Record<string, string>,
     transactions: Transaction[]
   ) {
+    logger.warn('transactionsDataAdded', transactions.length);
+
     // Map the fetched transactions to PlaidTransaction objects
     const plaidTransactions = transactions.map((transaction): PlaidTransaction => {
       return {
