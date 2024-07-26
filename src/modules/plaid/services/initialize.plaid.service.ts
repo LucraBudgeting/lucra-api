@@ -218,6 +218,8 @@ export class InitializePlaidService {
   private async getTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
     const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
 
+    logger.warn('transactionsDataCount', transactionsData.transactions.length);
+
     // Map the fetched transactions to PlaidTransaction objects
     const plaidTransactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
       return {
