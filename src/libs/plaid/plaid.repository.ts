@@ -146,14 +146,19 @@ class PlaidRepository {
     return response.data;
   }
 
-  public async getHistoricalTransactions(accessToken: string): Promise<TransactionsGetResponse> {
+  public async getHistoricalTransactions(
+    accessToken: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<TransactionsGetResponse> {
     const request: TransactionsGetRequest = {
       access_token: accessToken,
       options: {
         include_original_description: true,
+        count: 500,
       },
-      start_date: getDateTwoYearsAgo(),
-      end_date: getTodaysDate(),
+      start_date: startDate ? startDate : getDateTwoYearsAgo(),
+      end_date: endDate ? endDate : getTodaysDate(),
     };
 
     const response = await this.plaidClient.transactionsGet(request);

@@ -92,7 +92,7 @@ export class InitializePlaidService {
 
     // Sync transactions
     try {
-      await this.syncTransactionHistory(accountIds, exchangeData.access_token);
+      await this.getTransactionHistory(accountIds, exchangeData.access_token);
     } catch (error) {
       logger.error('Error syncing transaction history', error);
     }
@@ -201,11 +201,11 @@ export class InitializePlaidService {
       await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
 
       // Sync the Plaid transactions to Lucra transactions
-      await this.syncPlaidTransactionsToLucraTransactions(transactionsData.added);
+      await this.mapPlaidTransactionsToLucraTransactions(transactionsData.added);
     }
   }
 
-  private async syncPlaidTransactionsToLucraTransactions(plaidTransactions: Transaction[]) {
+  private async mapPlaidTransactionsToLucraTransactions(plaidTransactions: Transaction[]) {
     // Map the fetched transactions to TransactionDto objects
     const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
       return new TransactionDto(this.userId).fromPlaidTransaction(transaction);
@@ -218,7 +218,8 @@ export class InitializePlaidService {
   private async getTransactionHistory(accountIds: Record<string, string>, accessToken: string) {
     const transactionsData = await plaidRepository.getHistoricalTransactions(accessToken);
 
-    const transactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
+    // Map the fetched transactions to PlaidTransaction objects
+    const plaidTransactions = transactionsData.transactions.map((transaction): PlaidTransaction => {
       return {
         accountId: accountIds[transaction.account_id],
         amount: new Decimal(transaction.amount.toString()),
@@ -231,6 +232,8 @@ export class InitializePlaidService {
       } as PlaidTransaction;
     });
 
-    await plaidTransactionRepository.createPlaidTransactionMany(transactions);
+    await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
+
+    await this.mapPlaidTransactionsToLucraTransactions(transactionsData.transactions);
   }
 }
