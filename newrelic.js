@@ -6,6 +6,7 @@ module.exports = {
   application_logging: {
     forwarding: {
       enabled: true,
+      logLevel: process.env.NEW_RELIC_LOG_LEVEL || 'warn',
     },
   },
 
