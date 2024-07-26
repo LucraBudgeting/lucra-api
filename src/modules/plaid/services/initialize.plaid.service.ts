@@ -13,6 +13,7 @@ import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
 import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
+import { logger } from '@/libs/logger';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 import { MapPaymentChannel } from '../mappers/PaymentChannel.mapper';
@@ -79,7 +80,7 @@ export class InitializePlaidService {
       exchangeData.item_id
     );
 
-    console.warn('plaidAccountAccess', plaidAccountAccess.id);
+    logger.warn('plaidAccountAccess', plaidAccountAccess.id);
 
     // Check if the Plaid account access is created
     if (plaidAccountAccess?.accessToken.isNullOrEmpty()) {
@@ -93,7 +94,7 @@ export class InitializePlaidService {
     try {
       await this.syncTransactionHistory(accountIds, exchangeData.access_token);
     } catch (error) {
-      console.error('Error syncing transaction history', error);
+      logger.error('Error syncing transaction history', error);
     }
   }
 
@@ -158,7 +159,7 @@ export class InitializePlaidService {
 
     await plaidAccountBalanceRepository.createPlaidAccountBalanceMany(balances);
 
-    console.warn('newAccountIds', newAccountIds);
+    logger.warn('newAccountIds', newAccountIds);
 
     return newAccountIds;
   }
@@ -177,7 +178,7 @@ export class InitializePlaidService {
       // Fetch the transactions using the access token and cursor
       const transactionsData = await plaidRepository.syncTransaction(accessToken, cursor);
 
-      console.warn('transactionsData', transactionsData);
+      logger.warn('transactionsData', transactionsData);
       // Update the flags and cursor
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;

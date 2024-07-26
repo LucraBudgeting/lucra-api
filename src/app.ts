@@ -8,48 +8,19 @@ import fastifyEnv from '@fastify/env';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
 import fastifyWs from '@fastify/websocket';
-import pino, { LoggerOptions } from 'pino';
 import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
 import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
 import { schema } from './utils/validateEnv';
 import { defaultErrorMessage } from './constants';
 import '@/extensions';
-
-const loggerOptions: LoggerOptions = {
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      translateTime: true,
-      ignore: 'pid,hostname',
-      levelFirst: true,
-      prettifier: true,
-      useLevelLabels: true,
-      levelKey: 'level',
-    },
-  },
-  level: 'warn',
-};
-
-const logger = pino(loggerOptions);
-
-console.log = (message, ...optionalParams) => {
-  logger.info(message, ...optionalParams);
-};
-
-console.warn = (message, ...optionalParams) => {
-  logger.warn(message, ...optionalParams);
-};
-
-console.error = (message, ...optionalParams) => {
-  logger.error(message, ...optionalParams);
-};
+import { baseLogger, logger } from './libs/logger';
 
 async function startServer() {
   const app: FastifyInstance<
     Server,
     IncomingMessage,
     ServerResponse,
-    typeof logger,
+    typeof baseLogger,
     TypeBoxTypeProvider
   > = Fastify({
     schemaErrorFormatter,
@@ -60,7 +31,7 @@ async function startServer() {
       },
       plugins: [],
     },
-    logger,
+    logger: baseLogger,
     trustProxy: true,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
@@ -116,8 +87,8 @@ async function startServer() {
   try {
     await app.listen({ port, host: '0.0.0.0' });
     // await dbClient.$connect();
-    console.warn(`Server running on port ${port}`);
-    console.warn(`Preview: ${API_URL}`);
+    logger.warn(`Server running on port ${port}`);
+    logger.warn(`Preview: ${API_URL}`);
     // schedulePing();
   } catch (err) {
     app.log.error('APP ERROR', err);
