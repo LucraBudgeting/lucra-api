@@ -10,6 +10,8 @@ module.exports = {
     },
   },
 
+  developer_mode: process.env.NODE_ENV === 'local' ? true : false,
+
   /**
    * Array of application names.
    */
