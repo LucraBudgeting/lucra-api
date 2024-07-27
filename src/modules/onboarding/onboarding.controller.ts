@@ -30,6 +30,14 @@ export async function CreateAccount(
 ) {
   const { email, fullName, password } = req.body;
 
+  const userDoesExist = await userRepository.doesUserWithEmailExist(email);
+
+  if (userDoesExist) {
+    return reply
+      .status(HttpStatusCode.Forbidden)
+      .send({ message: 'Account with email already exists' });
+  }
+
   const user = await userRepository.createUser(email, fullName);
 
   if (!user) {
@@ -91,7 +99,7 @@ export async function FinalizeBilling(
   req: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply
 ) {
-  const redirectUrl = `${FRONTEND_ORIGIN}/auth/register?userid=${req.params.userId}&step=4`;
+  const redirectUrl = `${FRONTEND_ORIGIN}/auth/login`;
 
   await userOnboardingStageRepository.markBillingConnected(req.params.userId);
 
