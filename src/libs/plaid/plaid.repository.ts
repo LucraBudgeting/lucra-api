@@ -20,7 +20,7 @@ import {
 } from 'plaid';
 import { PlaidTransaction, User, UserPreferences } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
-import { NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
+import { API_URL, NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
 import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
@@ -29,6 +29,7 @@ import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper
 import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { logger } from '../logger';
+import { webHookBase } from '@/routes/_route.constants';
 
 function getPlaidEnvironment() {
   if (NODE_ENV === 'production' || NODE_ENV === 'development') {
@@ -97,6 +98,7 @@ class PlaidRepository {
             account_subtypes: [CreditAccountSubtype.All],
           },
         },
+        webhook: `${API_URL}/api/${webHookBase}/plaid/wallet_transaction`,
       };
 
       const response = await this.plaidClient.linkTokenCreate(request);
