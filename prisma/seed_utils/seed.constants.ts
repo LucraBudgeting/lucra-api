@@ -2,7 +2,7 @@ import { Country, User, UserAuth, UserStatus } from '@prisma/client';
 import { cryptHashSync } from '../../src/libs/bcrypt';
 import { generateCUID } from './cuid';
 
-const cryptPassword = 'Password98';
+const cryptPassword = 'Password98!';
 const hashPassword = cryptHashSync(cryptPassword);
 
 export const userIdConstants = {

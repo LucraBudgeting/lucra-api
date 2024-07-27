@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 import {
   user1,
   user1Auth,
@@ -7,14 +7,14 @@ import {
   user3,
   user3Auth,
   userIdConstants,
-} from "./seed_utils/seed.constants";
+} from './seed_utils/seed.constants';
 
 const prisma = new PrismaClient();
 
-const forceSeedUpdate = process.env.FORCE_SEED_UPDATE === "true";
+const forceSeedUpdate = process.env.FORCE_SEED_UPDATE === 'true';
 
 async function main() {
-  if (process.env.NODE_ENV == "production") {
+  if (process.env.NODE_ENV == 'production') {
     return;
   }
 
@@ -22,14 +22,14 @@ async function main() {
     (await prisma.$queryRaw`SELECT "migration_name" FROM "_prisma_migrations" ORDER BY "finished_at" DESC LIMIT 1`) as [
       {
         migration_name?: string;
-      }
+      },
     ];
 
   const currentSeedHash =
     (await prisma.$queryRaw`SELECT "hash" FROM "SeedHash" ORDER BY "dateCreated" DESC LIMIT 1`) as [
       {
         hash?: string;
-      }
+      },
     ];
 
   if (forceSeedUpdate) {
@@ -39,7 +39,7 @@ async function main() {
 
   if (currentMigration[0]?.migration_name === currentSeedHash[0]?.hash) {
     console.log(
-      "No Seed Update Needed",
+      'No Seed Update Needed',
       currentMigration[0]?.migration_name,
       currentSeedHash[0]?.hash
     );
@@ -50,7 +50,7 @@ async function main() {
 }
 
 const seed = async (currentMigration?: string) => {
-  console.log("Seeding Data");
+  console.log('Seeding Data');
 
   const userIds = Object.values(userIdConstants);
 
