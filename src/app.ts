@@ -67,8 +67,7 @@ async function startServer() {
   try {
     await app.listen({ port, host: '0.0.0.0' });
     // await dbClient.$connect();
-    logger.warn(`Server running on port ${port}`);
-    logger.warn(`Preview: ${API_URL}`);
+    logger.info(`Server running on port ${port} \n${API_URL}`);
     // schedulePing();
   } catch (err) {
     logger.error('APP ERROR', err);
@@ -82,5 +81,5 @@ async function startServer() {
 export default startServer;
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

@@ -30,14 +30,15 @@ const formatArg = (arg: any): any => {
 
 const createLoggerWithOverride = (logger: Logger) => {
   return {
-    warn: (message: string, arg?: any) => {
-      logger.warn({ payload: formatArg(arg) }, message);
+    warn: (message: string, arg?: any, ...args: any[]) => {
+      logger.warn({ payload: formatArg(arg), ...args }, message);
     },
     info: (message: string, arg?: any) => {
+      console.log(message, arg ? formatArg(arg) : '');
       logger.info({ payload: formatArg(arg) }, message);
     },
-    error: (message: string, arg?: any) => {
-      logger.error({ payload: formatArg(arg) }, message);
+    error: (message: string, arg?: any, ...args: any[]) => {
+      logger.error({ payload: formatArg(arg), ...args }, message);
     },
     debug: (message: string, arg?: any) => {
       logger.debug({ payload: formatArg(arg) }, message);

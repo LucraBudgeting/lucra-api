@@ -2,6 +2,7 @@ import { User } from '@prisma/client';
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import fastifyPlugin from 'fastify-plugin';
 import { ForbiddenError } from '@/exceptions/error';
+import { logger } from '@/libs/logger';
 
 export default fastifyPlugin(async (fastify: FastifyInstance) => {
   const authPrehandler = async (request: FastifyRequest) => {
@@ -14,8 +15,8 @@ export default fastifyPlugin(async (fastify: FastifyInstance) => {
 
       request.user = payload.user;
     } catch (error) {
-      console.error('authPrehandler Error: ', JSON.stringify(error, null, 4));
-      console.error('authPrehandler Error Auth Header: ', request.headers?.authorization);
+      logger.error('authPrehandler Error: ', JSON.stringify(error, null, 4));
+      logger.error('authPrehandler Error Auth Header: ', request.headers?.authorization);
 
       throw new ForbiddenError('Invalid Token');
     }

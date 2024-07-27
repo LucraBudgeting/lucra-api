@@ -18,11 +18,6 @@ export class TransactionService {
     transactionId: string,
     categoryId?: string
   ): Promise<void> {
-    try {
-      await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to associate category with transaction');
-    }
+    await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
   }
 }
