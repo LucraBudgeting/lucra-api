@@ -26,10 +26,14 @@ export class TransactionDto implements ITransactionDto {
   categoryId: string | null = null;
   dateCreated: Date = new Date();
   dateUpdated: Date = new Date();
+  categoryConfidenceLevel: string | null = '';
+  categoryPrimary: string | null = '';
+  categoryDetailed: string | null = '';
 
   constructor(userId: string) {
     this.userId = userId;
   }
+  [key: string]: any;
 
   public fromPlaidTransaction(plaidTransaction: plaidTransaction) {
     this.amount = new Decimal(plaidTransaction.amount);
@@ -39,6 +43,10 @@ export class TransactionDto implements ITransactionDto {
     this.pending = plaidTransaction.pending;
     this.paymentChannel = MapPaymentChannel(plaidTransaction.payment_channel);
     this.isoCurrencyCode = plaidTransaction.iso_currency_code as IsoCurrencyCode;
+    this.categoryConfidenceLevel =
+      plaidTransaction.personal_finance_category?.confidence_level ?? '';
+    this.categoryPrimary = plaidTransaction.personal_finance_category?.primary ?? '';
+    this.categoryDetailed = plaidTransaction.personal_finance_category?.detailed ?? '';
 
     return this;
   }

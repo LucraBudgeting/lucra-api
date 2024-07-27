@@ -28,8 +28,8 @@ import { MapPlaidIsoCode } from '@/modules/plaid/mappers/IsoCurrencyCode.mapper'
 import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper';
 import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
-import { logger } from '../logger';
 import { webHookBase } from '@/routes/_route.constants';
+import { logger } from '../logger';
 
 function getPlaidEnvironment() {
   if (NODE_ENV === 'production' || NODE_ENV === 'development') {
@@ -201,6 +201,9 @@ class PlaidRepository {
         pending: transaction.pending,
         date: new Date(transaction.date),
         paymentChannel: MapPaymentChannel(transaction.payment_channel),
+        categoryConfidenceLevel: transaction.personal_finance_category?.confidence_level,
+        categoryPrimary: transaction.personal_finance_category?.primary,
+        categoryDetailed: transaction.personal_finance_category?.detailed,
       } as PlaidTransaction;
     });
 

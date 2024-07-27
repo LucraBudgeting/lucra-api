@@ -19,6 +19,9 @@ const baseTransaction: ITransactionDto = {
   dateUpdated: new Date(),
   categoryId: null,
   addressId: null,
+  categoryConfidenceLevel: null,
+  categoryDetailed: null,
+  categoryPrimary: null,
 };
 
 describe('applyRulesToTransaction', () => {

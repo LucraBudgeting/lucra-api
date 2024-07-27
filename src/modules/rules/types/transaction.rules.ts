@@ -1,4 +1,3 @@
-import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { ICondition, IConditionGroup } from './condition';
 import { IRule } from './rule';
 
@@ -12,7 +11,7 @@ export interface ITransactionConditionGroup extends IConditionGroup {
 }
 
 export interface ITransactionCondition extends ICondition {
-  field: keyof TransactionDto;
+  field: string;
 }
 
 export interface ITransactionRule extends IRule {

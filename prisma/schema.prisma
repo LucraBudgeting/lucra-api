@@ -162,17 +162,20 @@ model BankInstitution {
 }
 
 model Transaction {
-    id              String          @id @unique @default(cuid())
-    userId          String
-    amount          Decimal
-    date            DateTime        @default(now())
-    isoCurrencyCode IsoCurrencyCode @default(USD)
-    merchantName    String?
-    name            String?
-    pending         Boolean         @default(false)
-    paymentChannel  PaymentChannel  @default(Other)
-    addressId       String?
-    categoryId      String?
+    id                      String          @id @unique @default(cuid())
+    userId                  String
+    amount                  Decimal
+    date                    DateTime        @default(now())
+    isoCurrencyCode         IsoCurrencyCode @default(USD)
+    merchantName            String?
+    name                    String?
+    pending                 Boolean         @default(false)
+    paymentChannel          PaymentChannel  @default(Other)
+    addressId               String?
+    categoryId              String?
+    categoryConfidenceLevel String?
+    categoryPrimary         String?
+    categoryDetailed        String?
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
@@ -204,16 +207,19 @@ model PlaidAccountBalance {
 }
 
 model PlaidTransaction {
-    id              String          @id @unique @default(cuid())
-    accountId       String
-    amount          Decimal
-    date            DateTime        @default(now())
-    isoCurrencyCode IsoCurrencyCode @default(USD)
-    merchantName    String?
-    name            String?
-    pending         Boolean         @default(false)
-    paymentChannel  PaymentChannel  @default(Other)
-    addressId       String?
+    id                      String          @id @unique @default(cuid())
+    accountId               String
+    amount                  Decimal
+    date                    DateTime        @default(now())
+    isoCurrencyCode         IsoCurrencyCode @default(USD)
+    merchantName            String?
+    name                    String?
+    pending                 Boolean         @default(false)
+    paymentChannel          PaymentChannel  @default(Other)
+    addressId               String?
+    categoryConfidenceLevel String?
+    categoryPrimary         String?
+    categoryDetailed        String?
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
