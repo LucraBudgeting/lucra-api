@@ -133,6 +133,11 @@ function evaluateCondition(
   condition: ITransactionCondition
 ): boolean {
   const { field, operator, value } = condition;
+
+  if (!value) {
+    return false;
+  }
+
   let fieldValue = transaction[field];
 
   if (typeof fieldValue === 'string') {

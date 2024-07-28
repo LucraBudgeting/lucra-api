@@ -159,7 +159,7 @@ export class InitializePlaidService {
 
     await plaidAccountBalanceRepository.createPlaidAccountBalanceMany(balances);
 
-    logger.warn('newAccountIds', newAccountIds);
+    logger.warn('newAccountIds and balances', { accountIds: newAccountIds, balances });
 
     return newAccountIds;
   }

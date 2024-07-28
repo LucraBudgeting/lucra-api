@@ -158,6 +158,14 @@ class PlaidRepository {
       hasMore = transactionsData.has_more;
       cursor = transactionsData.next_cursor;
 
+      logger.warn('transactionsData', {
+        hasMore,
+        cursor,
+        addedCount: transactionsData.added.length,
+        modifiedCount: transactionsData.modified.length,
+        removedCount: transactionsData.removed.length,
+      });
+
       await Promise.all([
         this.syncAddedTransactions(userId, accountIds, transactionsData.added),
         this.syncModifiedTransactions(userId, accountIds, transactionsData.modified),
