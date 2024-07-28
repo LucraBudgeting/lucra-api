@@ -15,8 +15,12 @@ export default fastifyPlugin(async (fastify: FastifyInstance) => {
 
       request.user = payload.user;
     } catch (error) {
-      logger.error('authPrehandler Error: ', JSON.stringify(error, null, 4));
-      logger.error('authPrehandler Error Auth Header: ', request.headers?.authorization);
+      const errorPayload = {
+        authHeader: request.headers?.authorization,
+        error: JSON.stringify(error, null, 4),
+        requestUrl: request.url,
+      };
+      logger.error(`authPrehandler Error: `, errorPayload);
 
       throw new ForbiddenError('Invalid Token');
     }
