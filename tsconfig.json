@@ -33,12 +33,6 @@
       "@exceptions/*": ["exceptions/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json",
-    ".env",
-    "src/**/*.feature",
-    "src/**/*.d.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/**/*.feature", "src/**/*.d.ts"],
   "exclude": ["node_modules", "src/http", "src/logs", "src/tests"]
 }

@@ -31,6 +31,23 @@ class TransactionRepository extends BaseRepository {
     });
   }
 
+  async updateTransactionMany(transactions: Transaction[]) {
+    if (transactions.length === 0) {
+      return;
+    }
+
+    const updateTransactions = transactions.map((transaction) => {
+      return this.client.transaction.update({
+        where: {
+          id: transaction.id,
+        },
+        data: transaction,
+      });
+    });
+
+    await this.client.$transaction(updateTransactions);
+  }
+
   async associateCategoryWithTransaction(transactionId: string, categoryId?: string) {
     if (!transactionId) {
       throw new ValidationError('TransactionId is required');

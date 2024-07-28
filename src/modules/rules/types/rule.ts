@@ -9,6 +9,7 @@ export interface IPutRule {
 }
 
 export interface IPutRuleRequest<TCondition> {
+  id?: string;
   name: string;
   rule: TCondition;
 }

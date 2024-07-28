@@ -26,6 +26,7 @@ export class TransactionRuleService {
       parsedCondition: JSON.parse(rule.conditions as string) as ITransactionRuleCondition,
     }));
   }
+
   async createNewRule(
     ruleCondition: IPutRuleRequest<ITransactionRuleCondition>
   ): Promise<ITransactionRule> {
@@ -42,23 +43,28 @@ export class TransactionRuleService {
     };
   }
   async updateRule(
-    ruleId: string,
-    updatedRule: ITransactionRuleCondition
+    updatedRule: IPutRuleRequest<ITransactionRuleCondition>
   ): Promise<ITransactionRule> {
-    const dbUpdatedRule = await ruleRepository.updateRule(this.userId, ruleId, {
+    if (!updatedRule.id) {
+      throw new ValidationError('Rule ID is required');
+    }
+
+    const dbUpdatedRule = await ruleRepository.updateRule(this.userId, updatedRule.id, {
       model: RuleModels.Transaction,
-      conditions: JSON.stringify(updatedRule.conditionGroups),
-      name: '',
+      conditions: JSON.stringify(updatedRule.rule),
+      name: updatedRule.name,
     });
 
     return {
       ...dbUpdatedRule,
-      parsedCondition: updatedRule,
+      parsedCondition: JSON.parse(dbUpdatedRule.conditions as string),
     };
   }
+
   async deleteRule(ruleId: string) {
     await ruleRepository.deleteRule(this.userId, ruleId);
   }
+
   async applyRulesToTransactions(transactions: ITransactionDto[]): Promise<ITransactionDto[]> {
     const rules = await this.getRules();
 
