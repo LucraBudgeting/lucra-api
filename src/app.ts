@@ -7,12 +7,14 @@ import fastifyCors from '@fastify/cors';
 import fastifyEnv from '@fastify/env';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
+import { initPgBoss } from '@/libs/pgBoss/pgBossConfig';
 import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
 import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
 import { schema } from './utils/validateEnv';
 import '@/extensions';
 import { baseLogger, logger } from './libs/logger';
 import { globalErrorHandler } from './utils/globalErrorHandler';
+import '@/libs/pgBoss/jobController';
 
 const port: number = Number(PORT) ?? 3001;
 
@@ -65,6 +67,7 @@ async function startServer() {
 
   // Start listening
   try {
+    await initPgBoss();
     await app.listen({ port, host: '0.0.0.0' });
     // await dbClient.$connect();
     logger.info(`Server running on port ${port} \n${API_URL}`);

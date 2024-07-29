@@ -11,6 +11,7 @@ import { plaidAccountRepository } from '@/data/repositories/plaidAccount.reposit
 import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
 import { logger } from '@/libs/logger';
+import { boss } from '@/libs/pgBoss/pgBossConfig';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 
@@ -88,11 +89,20 @@ export class InitializePlaidService {
 
     // Sync transactions
     try {
-      await plaidRepository.syncTransactionHistory(
-        this.userId,
-        accountIds,
-        exchangeData.access_token
+      await boss.send(
+        'sync-transaction-history',
+        {
+          userId: this.userId,
+          accountIds,
+          accessToken: exchangeData.access_token,
+        },
+        { startAfter: 60 }
       );
+      // await plaidRepository.syncTransactionHistory(
+      //   this.userId,
+      //   accountIds,
+      //   exchangeData.access_token
+      // );
     } catch (error) {
       logger.error('Error syncing transaction history', error);
     }
