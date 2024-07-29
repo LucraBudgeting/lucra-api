@@ -29,8 +29,8 @@ import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper
 import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { webHookBase } from '@/routes/_route.constants';
-import { logger } from '../logger';
 import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
+import { logger } from '../logger';
 
 function getPlaidEnvironment() {
   if (NODE_ENV === 'production' || NODE_ENV === 'development') {
@@ -143,12 +143,13 @@ class PlaidRepository {
   public async syncTransactionHistory(
     userId: string,
     accountIds: Record<string, string>,
-    accessToken: string
+    accessToken: string,
+    lastCursor?: string
   ): Promise<void> {
     // Flag indicating whether there are more transactions to fetch
     let hasMore = true;
     // The cursor to use for fetching transactions
-    let cursor: string | undefined = undefined;
+    let cursor: string | undefined = lastCursor;
 
     // Fetch and process transactions until there are no more to fetch
     while (hasMore) {
