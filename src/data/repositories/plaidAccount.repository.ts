@@ -3,6 +3,18 @@ import { ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
 class PlaidAccountRepository extends BaseRepository {
+  async updateLatestCursors(accountIds: string[], cursor: string): Promise<void> {
+    await this.client.plaidAccount.updateMany({
+      where: {
+        id: {
+          in: accountIds,
+        },
+      },
+      data: {
+        latestTransactionSyncCursor: cursor,
+      },
+    });
+  }
   async createPlaidAccount(account: PlaidAccount): Promise<string> {
     if (account.accessAccountId.isNullOrEmpty()) {
       throw new ValidationError('Access token is required to create plaid account');

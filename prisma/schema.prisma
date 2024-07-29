@@ -121,16 +121,17 @@ model PlaidAccountAccess {
 }
 
 model PlaidAccount {
-    id                      String       @id @unique @default(cuid())
-    accessAccountId         String
-    accountId               String
-    institutionDisplayName  String
-    institutionOfficialName String?
-    institutionId           String?
-    bankInstitutionId       String?
-    type                    AccountTypes @default(Other)
-    subType                 String?
-    mask                    String?      @default("0000")
+    id                          String       @id @unique @default(cuid())
+    accessAccountId             String
+    accountId                   String
+    institutionDisplayName      String
+    institutionOfficialName     String?
+    institutionId               String?
+    bankInstitutionId           String?
+    latestTransactionSyncCursor String?
+    type                        AccountTypes @default(Other)
+    subType                     String?
+    mask                        String?      @default("0000")
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt

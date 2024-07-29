@@ -30,6 +30,7 @@ import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { webHookBase } from '@/routes/_route.constants';
 import { logger } from '../logger';
+import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
 
 function getPlaidEnvironment() {
   if (NODE_ENV === 'production' || NODE_ENV === 'development') {
@@ -171,6 +172,14 @@ class PlaidRepository {
         this.syncModifiedTransactions(userId, accountIds, transactionsData.modified),
         this.syncRemovedTransactions(userId, accountIds, transactionsData.removed),
       ]);
+    }
+
+    if (!hasMore && cursor) {
+      logger.warn('No more transactions to fetch. Saving last cursor', {
+        cursor,
+        accountIds: Object.values(accountIds),
+      });
+      await plaidAccountRepository.updateLatestCursors(Object.values(accountIds), cursor);
     }
   }
 
