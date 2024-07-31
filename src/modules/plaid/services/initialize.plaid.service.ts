@@ -98,6 +98,16 @@ export class InitializePlaidService {
         },
         { startAfter: 60 }
       );
+
+      await boss.send(
+        'sync-transaction-history',
+        {
+          userId: this.userId,
+          accountIds,
+          accessToken: exchangeData.access_token,
+        },
+        { startAfter: 60 * 10 }
+      );
       // await plaidRepository.syncTransactionHistory(
       //   this.userId,
       //   accountIds,
