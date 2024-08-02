@@ -37,8 +37,8 @@ class AccountRepository extends BaseRepository {
     });
 
     if (!accountAccess || accountAccess.length === 0 || !accountAccess[0]?.accessAccountId) {
-      logger.error('No cursors found for account access id', itemId);
-      throw new ValidationError('No cursors found for account access id');
+      logger.error('No cursors found for account item id', { itemId, accountAccess });
+      throw new ValidationError('No cursors found for account item id');
     }
 
     if (accountAccess.length > 1) {
