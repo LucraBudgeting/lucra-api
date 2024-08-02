@@ -89,7 +89,7 @@ export class InitializePlaidService {
 
     // Sync transactions
     try {
-      // 30 seconds, 10 minutes, 24 hours
+      // 10 seconds, 10 minutes, 24 hours
       [10, 60 * 10, 60 * 60 * 24].forEach(async (time) => {
         await boss.send(
           'sync-transaction-history',
