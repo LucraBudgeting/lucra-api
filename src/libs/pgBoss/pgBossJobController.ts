@@ -1,7 +1,7 @@
 import { accountRepository } from '@/data/repositories/account.repository';
 import { plaidRepository } from '../plaid/plaid.repository';
-import { boss } from './pgBossConfig';
 import { logger } from '../logger';
+import { boss } from './pgBossConfig';
 
 boss.work(
   'sync-transaction-history',
