@@ -25,30 +25,45 @@ class AccountRepository extends BaseRepository {
       throw new ValidationError('Account access id is required to get latest cursor');
     }
 
-    const accountAccess = await this.client.account.findMany({
+    const accountAccess = await this.client.accountAccess.findFirst({
       where: {
-        providerAccountId: itemId,
+        providerItemId: itemId,
       },
-      distinct: ['latestTransactionSyncCursor'],
-      select: {
-        latestTransactionSyncCursor: true,
-        accessAccountId: true,
+      include: {
+        account: true,
       },
     });
 
-    if (!accountAccess || accountAccess.length === 0 || !accountAccess[0]?.accessAccountId) {
+    if (!accountAccess || !accountAccess?.accessToken) {
       logger.error('No cursors found for account item id', { itemId, accountAccess });
       throw new ValidationError('No cursors found for account item id');
     }
 
-    if (accountAccess.length > 1) {
-      logger.error('Multiple cursors found for account access id', itemId);
+    const cursors = new Map<string, Account>();
+
+    accountAccess.account.forEach((acc) => {
+      if (!acc.latestTransactionSyncCursor) {
+        return;
+      }
+
+      cursors.set(acc.latestTransactionSyncCursor, acc);
+    });
+
+    const cursorList = Array.from(cursors.keys());
+
+    if (cursorList.length > 1) {
+      logger.error('Multiple cursors found for account access id', {
+        itemId,
+        cursorList,
+        cursors,
+        accountAccess,
+      });
       throw new ValidationError('Multiple cursors found for account access id');
     }
 
     return {
-      cursor: accountAccess[0]?.latestTransactionSyncCursor ?? undefined,
-      accessToken: accountAccess[0]?.accessAccountId,
+      cursor: cursorList[0] ?? undefined,
+      accessToken: accountAccess?.accessToken,
     };
   }
 
