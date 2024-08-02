@@ -9,15 +9,8 @@ export class TransactionService {
   }
 
   async getTransactions(start?: string, end?: string): Promise<ITransactionResponse[]> {
-    let startDate = start ? new Date(start) : new Date();
-    let endDate = end ? new Date(end) : new Date();
-
-    if (!start) {
-      startDate = new Date();
-    }
-    if (!end) {
-      endDate = new Date();
-    }
+    let startDate = start ? new Date(start) : undefined;
+    let endDate = end ? new Date(end) : undefined;
 
     let transactions = await transactionRepository.getUserTransactions(
       this.userId,
