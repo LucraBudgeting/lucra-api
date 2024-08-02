@@ -1,4 +1,4 @@
-import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
+import { accountAccessRepository } from '@/data/repositories/accountAccess.repository';
 import { ValidationError } from '@/exceptions/error';
 import { InitializePlaidService } from '@/modules/plaid/services/initialize.plaid.service';
 import { PlaidLinkOnSuccessMetadata } from '@/types/plaid/plaid.link';
@@ -29,7 +29,7 @@ export class ConnectAccountsService {
     if (!metaData.institution?.institution_id) return;
 
     const doesUserAlreadyHaveInstitution =
-      await plaidAccountAccessRepository.doesUserAlreadyHaveInstitution(
+      await accountAccessRepository.doesUserAlreadyHaveInstitution(
         this.userId,
         metaData.institution?.institution_id
       );

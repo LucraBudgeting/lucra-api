@@ -18,7 +18,7 @@ export class OverwriteRuleService {
   async ApplyRulesToTransactions(): Promise<void> {
     let transactions = await this.transactionService.getTransactions();
     transactions = await this.rulesService.applyRulesToTransactions(transactions);
-
+    transactions = transactions.filter((transaction) => transaction.budgetCategoryId);
     await transactionRepository.updateTransactionMany(transactions);
   }
 }

@@ -1,19 +1,19 @@
-import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
+import { accountAccessRepository } from '@/data/repositories/accountAccess.repository';
 import { logger } from '@/libs/logger';
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
 import { SyncUpdatesAvailableBody } from '@/types/plaid/plaid.webhook';
 
 export async function HandleSyncUpdatesAvailable(payload: SyncUpdatesAvailableBody) {
-  const access = await plaidAccountAccessRepository.getAccountAccessByItemId(payload.item_id);
+  const access = await accountAccessRepository.getAccountAccessByItemId(payload.item_id);
 
   const accountIds: Record<string, string> = {};
 
-  access.plaidAccount.forEach((acc) => {
-    accountIds[acc.accountId] = acc.id;
+  access.account.forEach((acc) => {
+    accountIds[acc.providerAccountId] = acc.id;
   });
 
-  if (access.plaidAccount.length) {
-    const nextCursor = access.plaidAccount[0]?.latestTransactionSyncCursor ?? undefined;
+  if (access.account.length) {
+    const nextCursor = access.account[0]?.latestTransactionSyncCursor ?? undefined;
 
     logger.warn('Webhool Syncing Transactions', {
       nextCursor,

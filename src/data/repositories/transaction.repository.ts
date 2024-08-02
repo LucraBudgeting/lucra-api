@@ -41,7 +41,22 @@ class TransactionRepository extends BaseRepository {
         where: {
           id: transaction.id,
         },
-        data: transaction,
+        data: {
+          accountId: transaction.accountId,
+          amount: transaction.amount,
+          date: transaction.date,
+          isoCurrencyCode: transaction.isoCurrencyCode,
+          merchantName: transaction.merchantName,
+          name: transaction.name,
+          pending: transaction.pending,
+          paymentChannel: transaction.paymentChannel,
+          addressId: transaction.addressId,
+          budgetCategoryId: transaction.budgetCategoryId,
+          categoryConfidenceLevel: transaction.categoryConfidenceLevel,
+          categoryPrimary: transaction.categoryPrimary,
+          categoryDetailed: transaction.categoryDetailed,
+          dateUpdated: new Date(),
+        },
       });
     });
 
@@ -58,7 +73,7 @@ class TransactionRepository extends BaseRepository {
         id: transactionId,
       },
       data: {
-        categoryId: categoryId || null,
+        budgetCategoryId: categoryId || null,
       },
     });
   }

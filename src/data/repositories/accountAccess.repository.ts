@@ -1,7 +1,7 @@
 import { NotFoundError, ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
-class PlaidAccountAccessRepository extends BaseRepository {
+class AccountAccessRepository extends BaseRepository {
   async createPlaidAccountAccess(userId: string, accessToken: string, itemId: string) {
     if (userId.isNullOrEmpty()) {
       throw new ValidationError('User ID is required to create plaid account access');
@@ -10,20 +10,20 @@ class PlaidAccountAccessRepository extends BaseRepository {
       throw new ValidationError('Access token is required to create plaid account access');
     }
 
-    return this.client.plaidAccountAccess.create({
+    return this.client.accountAccess.create({
       data: {
         userId,
         accessToken,
-        itemId,
+        providerItemId: itemId,
       },
     });
   }
 
   async doesUserAlreadyHaveInstitution(userId: string, institutionId: string): Promise<boolean> {
-    const result = await this.client.plaidAccountAccess.findMany({
+    const result = await this.client.accountAccess.findMany({
       where: {
         userId,
-        plaidAccount: {
+        account: {
           some: {
             institutionId,
           },
@@ -35,12 +35,12 @@ class PlaidAccountAccessRepository extends BaseRepository {
   }
 
   async getAccountAccessByItemId(itemId: string) {
-    const access = await this.client.plaidAccountAccess.findFirst({
+    const access = await this.client.accountAccess.findFirst({
       where: {
-        itemId,
+        providerItemId: itemId,
       },
       include: {
-        plaidAccount: true,
+        account: true,
       },
     });
 
@@ -52,4 +52,4 @@ class PlaidAccountAccessRepository extends BaseRepository {
   }
 }
 
-export const plaidAccountAccessRepository = new PlaidAccountAccessRepository();
+export const accountAccessRepository = new AccountAccessRepository();

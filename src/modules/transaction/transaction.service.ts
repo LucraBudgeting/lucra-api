@@ -9,8 +9,12 @@ export class TransactionService {
   }
 
   async getTransactions(): Promise<ITransactionResponse[]> {
-    const transactions = await transactionRepository.getUserTransactions(this.userId);
+    let transactions = await transactionRepository.getUserTransactions(this.userId);
 
+    transactions = transactions.map((transaction) => ({
+      ...transaction,
+      categoryId: transaction.budgetCategoryId,
+    }));
     return transactions;
   }
 

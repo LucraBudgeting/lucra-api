@@ -8,6 +8,7 @@ import { applyRulesToTransaction } from './rules.transaction.service';
 const baseTransaction: ITransactionDto = {
   id: 't87as87hd8',
   userId: 'u87as87hd8',
+  accountId: 'u87as87hd8',
   amount: new Decimal(100),
   date: new Date(),
   isoCurrencyCode: 'USD',
@@ -17,7 +18,7 @@ const baseTransaction: ITransactionDto = {
   paymentChannel: 'Other',
   dateCreated: new Date(),
   dateUpdated: new Date(),
-  categoryId: null,
+  budgetCategoryId: null,
   addressId: null,
   categoryConfidenceLevel: null,
   categoryDetailed: null,

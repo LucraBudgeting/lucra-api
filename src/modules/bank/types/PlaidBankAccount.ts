@@ -1,4 +1,6 @@
-export interface IPlaidBankAccount {
+import { IBankBalance, IBankInstitution } from './bankAccount';
+
+export interface IAccount {
   id: string;
   institutionDisplayName: string;
   accessAccountId: string;
@@ -6,23 +8,6 @@ export interface IPlaidBankAccount {
   type: string;
   subType: string;
   mask: string;
-  plaidAccountBalance?: IPlaidAccountBalance;
-  bankInstitution?: IPlaidBankInstitution;
-}
-
-export interface IPlaidBankInstitution {
-  id: string;
-  name: string;
-  logoUrl: string;
-  primaryColor: string;
-  website: string;
-}
-
-export interface IPlaidAccountBalance {
-  id: string;
-  plaidAccountId: string;
-  currentBalance: number;
-  availableBalance: number;
-  currency: string;
-  plaidLastUpdated: Date;
+  accountBalance?: IBankBalance;
+  bankInstitution?: IBankInstitution;
 }

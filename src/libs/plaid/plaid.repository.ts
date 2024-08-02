@@ -18,18 +18,14 @@ import {
   TransactionsSyncRequest,
   TransactionsSyncResponse,
 } from 'plaid';
-import { PlaidTransaction, User, UserPreferences } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+import { User, UserPreferences } from '@prisma/client';
 import { API_URL, NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
-import { plaidTransactionRepository } from '@/data/repositories/plaidTransaction.repository';
-import { MapPlaidIsoCode } from '@/modules/plaid/mappers/IsoCurrencyCode.mapper';
-import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper';
 import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { webHookBase } from '@/routes/_route.constants';
-import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
+import { accountRepository } from '@/data/repositories/account.repository';
 import { logger } from '../logger';
 
 function getPlaidEnvironment() {
@@ -180,7 +176,7 @@ class PlaidRepository {
         cursor,
         accountIds: Object.values(accountIds),
       });
-      await plaidAccountRepository.updateLatestCursors(Object.values(accountIds), cursor);
+      await accountRepository.updateLatestCursors(Object.values(accountIds), cursor);
     }
   }
 
@@ -209,36 +205,37 @@ class PlaidRepository {
     logger.warn('transactionsDataAdded', transactions.length);
 
     // Map the fetched transactions to PlaidTransaction objects
-    const plaidTransactions = transactions.map((transaction): PlaidTransaction => {
-      return {
-        accountId: accountIds[transaction.account_id],
-        amount: new Decimal(transaction.amount.toString()),
-        isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-        merchantName: transaction.merchant_name,
-        name: transaction.name,
-        pending: transaction.pending,
-        date: new Date(transaction.date),
-        paymentChannel: MapPaymentChannel(transaction.payment_channel),
-        categoryConfidenceLevel: transaction.personal_finance_category?.confidence_level,
-        categoryPrimary: transaction.personal_finance_category?.primary,
-        categoryDetailed: transaction.personal_finance_category?.detailed,
-      } as PlaidTransaction;
-    });
+    // const plaidTransactions = transactions.map((transaction): Transaction => {
+    //   return {
+    //     accountId: accountIds[transaction.account_id],
+    //     amount: new Decimal(transaction.amount.toString()),
+    //     isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
+    //     merchantName: transaction.merchant_name,
+    //     name: transaction.name,
+    //     pending: transaction.pending,
+    //     date: new Date(transaction.date),
+    //     paymentChannel: MapPaymentChannel(transaction.payment_channel),
+    //     categoryConfidenceLevel: transaction.personal_finance_category?.confidence_level,
+    //     categoryPrimary: transaction.personal_finance_category?.primary,
+    //     categoryDetailed: transaction.personal_finance_category?.detailed,
+    //   } as PlaidTransaction;
+    // });
 
     // Create the Plaid transactions in the database
-    await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
+    // await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
 
     // Sync the Plaid transactions to Lucra transactions
-    await this.mapPlaidTransactionsToLucraTransactions(userId, transactions);
+    await this.mapPlaidTransactionsToLucraTransactions(userId, accountIds, transactions);
   }
 
   private async mapPlaidTransactionsToLucraTransactions(
     userId: string,
+    accountIds: Record<string, string>,
     plaidTransactions: Transaction[]
   ) {
     // Map the fetched transactions to TransactionDto objects
     const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
-      return new TransactionDto(userId).fromPlaidTransaction(transaction);
+      return new TransactionDto(userId).fromPlaidTransaction(transaction, accountIds);
     });
 
     // Create the Lucra transactions in the database

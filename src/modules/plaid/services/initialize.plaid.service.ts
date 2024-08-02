@@ -1,19 +1,19 @@
-import { PlaidAccount, PlaidAccountBalance } from '@prisma/client';
 import { Record } from '@fastify/type-provider-typebox';
 import { Decimal } from '@prisma/client/runtime/library';
 import { ItemPublicTokenExchangeResponse } from 'plaid';
-import { plaidAccountAccessRepository } from '@/data/repositories/plaidAccountAccess.repository';
+import { Account, AccountBalance } from '@prisma/client';
 import { userRepository } from '@/data/repositories/user.repository';
 import { userPreferencesRepository } from '@/data/repositories/userPreferences.repository';
 import { BadRequestError, ServiceUnavailableError, ValidationError } from '@/exceptions/error';
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
-import { plaidAccountRepository } from '@/data/repositories/plaidAccount.repository';
-import { plaidAccountBalanceRepository } from '@/data/repositories/plaidAccountBalance.repository';
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
 import { logger } from '@/libs/logger';
 import { boss } from '@/libs/pgBoss/pgBossConfig';
-import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
+import { accountAccessRepository } from '@/data/repositories/accountAccess.repository';
+import { accountRepository } from '@/data/repositories/account.repository';
+import { accountBalanceRepository } from '@/data/repositories/accountBalance.repository';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
+import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 
 export class InitializePlaidService {
   private userId: string;
@@ -71,7 +71,7 @@ export class InitializePlaidService {
     }
 
     // Create a Plaid account access
-    const plaidAccountAccess = await plaidAccountAccessRepository.createPlaidAccountAccess(
+    const plaidAccountAccess = await accountAccessRepository.createPlaidAccountAccess(
       this.userId,
       exchangeData.access_token,
       exchangeData.item_id
@@ -131,7 +131,7 @@ export class InitializePlaidService {
     }
 
     const doesUserAlreadyHaveInstitution =
-      await plaidAccountAccessRepository.doesUserAlreadyHaveInstitution(this.userId, institutionId);
+      await accountAccessRepository.doesUserAlreadyHaveInstitution(this.userId, institutionId);
 
     if (doesUserAlreadyHaveInstitution) {
       throw new BadRequestError('User already has institution');
@@ -150,34 +150,34 @@ export class InitializePlaidService {
       newInstitutionId = details.id;
     }
 
-    const plaidAccounts = accountDetails.accounts.map((account): PlaidAccount => {
+    const plaidAccounts = accountDetails.accounts.map((account): Account => {
       return {
-        bankInstitutionId: newInstitutionId,
+        bankInstitutionId: newInstitutionId ?? 'Unknown',
         accessAccountId: accountAccessId,
-        accountId: account.account_id,
+        providerAccountId: account.account_id,
         mask: account.mask,
         type: MapPlaidAccountType(account.type),
         subType: account.subtype,
         institutionId: accountDetails.item.institution_id ?? 'Unknown',
         institutionDisplayName: account.official_name ?? 'Unknown',
         institutionOfficialName: account.official_name ?? 'Unknown',
-      } as PlaidAccount;
+      } as Account;
     });
 
-    const newAccountIds = await plaidAccountRepository.createPlaidAccountMany(plaidAccounts);
+    const newAccountIds = await accountRepository.createPlaidAccountMany(plaidAccounts);
 
-    const balances = accountDetails.accounts.map((account): PlaidAccountBalance => {
+    const balances = accountDetails.accounts.map((account): AccountBalance => {
       return {
         accountId: newAccountIds[account.account_id],
         available: new Decimal(account.balances.available?.toString() ?? '0'),
         current: new Decimal(account.balances.current?.toString() ?? '0'),
         limit: new Decimal(account.balances.limit?.toString() ?? '0'),
         isoCurrency: MapPlaidIsoCode(account.balances.iso_currency_code),
-        plaidLastUpdated: new Date(),
-      } as PlaidAccountBalance;
+        lastUpdated: new Date(),
+      } as AccountBalance;
     });
 
-    await plaidAccountBalanceRepository.createPlaidAccountBalanceMany(balances);
+    await accountBalanceRepository.createPlaidAccountBalanceMany(balances);
 
     logger.warn('newAccountIds and balances', { accountIds: newAccountIds, balances });
 

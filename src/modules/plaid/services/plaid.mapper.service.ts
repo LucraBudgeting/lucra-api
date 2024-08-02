@@ -1,7 +1,7 @@
-import { IPlaidBankAccount } from '@/modules/bank/types/PlaidBankAccount';
+import { IAccount } from '@/modules/bank/types/PlaidBankAccount';
 import { IBankAccountResponse, bankAccountType } from '@/modules/bank/types/bankAccount';
 
-export function mapPlaidAccounts(plaidAccounts: IPlaidBankAccount[]): IBankAccountResponse[] {
+export function mapPlaidAccounts(plaidAccounts: IAccount[]): IBankAccountResponse[] {
   // Map each Plaid bank account to a bank account object
   return plaidAccounts.map((account) => {
     // Create a new bank account object
@@ -13,13 +13,13 @@ export function mapPlaidAccounts(plaidAccounts: IPlaidBankAccount[]): IBankAccou
       accountName: account.institutionDisplayName, // Set the account name to the institution display name
       mask: account.mask ?? '0000', // Set the mask of the bank account
       balance: {
-        currentBalance: account.plaidAccountBalance?.currentBalance ?? 0, // Set the current balance
-        availableBalance: account.plaidAccountBalance?.availableBalance ?? 0, // Set the available balance
-        currency: account.plaidAccountBalance?.currency ?? 'USD', // Set the currency
-        lastUpdated: account.plaidAccountBalance?.plaidLastUpdated ?? new Date(), // Set the last updated date
+        currentBalance: account.accountBalance?.currentBalance ?? 0, // Set the current balance
+        availableBalance: account.accountBalance?.availableBalance ?? 0, // Set the available balance
+        currency: account.accountBalance?.currency ?? 'USD', // Set the currency
+        lastUpdated: account.accountBalance?.lastUpdated ?? new Date(), // Set the last updated date
       },
       institution: {
-        displayName: account.bankInstitution?.name, // Set the display name of the institution
+        displayName: account.bankInstitution?.displayName, // Set the display name of the institution
         logoUrl: account.bankInstitution?.logoUrl, // Set the logo URL of the institution
         primaryColor: account.bankInstitution?.primaryColor, // Set the primary color of the institution
         website: account.bankInstitution?.website, // Set the website of the institution
