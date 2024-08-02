@@ -36,31 +36,16 @@ class TransactionRepository extends BaseRepository {
       return;
     }
 
-    const updateTransactions = transactions.map((transaction) => {
+    const updatedTransactions = transactions.map((transaction) => {
       return this.client.transaction.update({
         where: {
           id: transaction.id,
         },
-        data: {
-          accountId: transaction.accountId,
-          amount: transaction.amount,
-          date: transaction.date,
-          isoCurrencyCode: transaction.isoCurrencyCode,
-          merchantName: transaction.merchantName,
-          name: transaction.name,
-          pending: transaction.pending,
-          paymentChannel: transaction.paymentChannel,
-          addressId: transaction.addressId,
-          budgetCategoryId: transaction.budgetCategoryId,
-          categoryConfidenceLevel: transaction.categoryConfidenceLevel,
-          categoryPrimary: transaction.categoryPrimary,
-          categoryDetailed: transaction.categoryDetailed,
-          dateUpdated: new Date(),
-        },
+        data: { ...transaction },
       });
     });
 
-    await this.client.$transaction(updateTransactions);
+    await this.client.$transaction(updatedTransactions);
   }
 
   async associateCategoryWithTransaction(transactionId: string, categoryId?: string) {

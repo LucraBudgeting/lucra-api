@@ -108,11 +108,16 @@ export class InitializePlaidService {
         },
         { startAfter: 60 * 10 }
       );
-      // await plaidRepository.syncTransactionHistory(
-      //   this.userId,
-      //   accountIds,
-      //   exchangeData.access_token
-      // );
+
+      await boss.send(
+        'sync-transaction-history',
+        {
+          userId: this.userId,
+          accountIds,
+          accessToken: exchangeData.access_token,
+        },
+        { startAfter: 60 * 60 * 24 }
+      );
     } catch (error) {
       logger.error('Error syncing transaction history', error);
     }
