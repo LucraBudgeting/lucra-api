@@ -1,1 +1,1 @@
-export const webHookBase = '/webhook';
+export const webHookBase = 'webhook';

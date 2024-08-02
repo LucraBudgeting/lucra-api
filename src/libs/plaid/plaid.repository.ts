@@ -95,7 +95,7 @@ class PlaidRepository {
             account_subtypes: [CreditAccountSubtype.All],
           },
         },
-        webhook: `${API_URL}/api${webHookBase}/plaid/wallet_transaction`,
+        webhook: `${API_URL}/api/${webHookBase}/plaid/wallet_transaction`,
       };
 
       const response = await this.plaidClient.linkTokenCreate(request);
