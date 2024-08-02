@@ -3,11 +3,15 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { isStringFalsey } from '@/utils/isStringFalsey';
 import { TransactionService } from './transaction.service';
 
-export async function GetTransactions(req: FastifyRequest, reply: FastifyReply) {
+export async function GetTransactions(
+  req: FastifyRequest<{ Querystring: { start?: string; end?: string }; user: User }>,
+  reply: FastifyReply
+) {
+  const { start, end } = req.query;
   const user = req.user as User;
 
   const transactionService = new TransactionService(user.id);
-  const transactions = await transactionService.getTransactions();
+  const transactions = await transactionService.getTransactions(start, end);
 
   return reply.send({ message: 'Transactions Fetched', transactions });
 }

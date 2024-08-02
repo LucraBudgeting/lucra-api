@@ -8,8 +8,22 @@ export class TransactionService {
     this.userId = userId;
   }
 
-  async getTransactions(): Promise<ITransactionResponse[]> {
-    let transactions = await transactionRepository.getUserTransactions(this.userId);
+  async getTransactions(start?: string, end?: string): Promise<ITransactionResponse[]> {
+    let startDate = start ? new Date(start) : new Date();
+    let endDate = end ? new Date(end) : new Date();
+
+    if (!start) {
+      startDate = new Date();
+    }
+    if (!end) {
+      endDate = new Date();
+    }
+
+    let transactions = await transactionRepository.getUserTransactions(
+      this.userId,
+      startDate,
+      endDate
+    );
 
     transactions = transactions.map((transaction) => ({
       ...transaction,

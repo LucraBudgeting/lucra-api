@@ -1,5 +1,6 @@
 import { Account } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
+import { logger } from '@/libs/logger';
 import { BaseRepository } from './base.repository';
 
 class AccountRepository extends BaseRepository {
@@ -15,6 +16,42 @@ class AccountRepository extends BaseRepository {
       },
     });
   }
+
+  async getLatestCursorFromAccountItemId(
+    itemId: string
+  ): Promise<{ cursor: string | undefined; accessToken: string }> {
+    if (!itemId) {
+      logger.error('Account access id is required to get latest cursor');
+      throw new ValidationError('Account access id is required to get latest cursor');
+    }
+
+    const accountAccess = await this.client.account.findMany({
+      where: {
+        providerAccountId: itemId,
+      },
+      distinct: ['latestTransactionSyncCursor'],
+      select: {
+        latestTransactionSyncCursor: true,
+        accessAccountId: true,
+      },
+    });
+
+    if (!accountAccess || accountAccess.length === 0 || !accountAccess[0]?.accessAccountId) {
+      logger.error('No cursors found for account access id', itemId);
+      throw new ValidationError('No cursors found for account access id');
+    }
+
+    if (accountAccess.length > 1) {
+      logger.error('Multiple cursors found for account access id', itemId);
+      throw new ValidationError('Multiple cursors found for account access id');
+    }
+
+    return {
+      cursor: accountAccess[0]?.latestTransactionSyncCursor ?? undefined,
+      accessToken: accountAccess[0]?.accessAccountId,
+    };
+  }
+
   async createPlaidAccount(account: Account): Promise<string> {
     if (account.accessAccountId.isNullOrEmpty()) {
       throw new ValidationError('Access token is required to create plaid account');

@@ -89,35 +89,18 @@ export class InitializePlaidService {
 
     // Sync transactions
     try {
-      await boss.send(
-        'sync-transaction-history',
-        {
-          userId: this.userId,
-          accountIds,
-          accessToken: exchangeData.access_token,
-        },
-        { startAfter: 60 }
-      );
-
-      await boss.send(
-        'sync-transaction-history',
-        {
-          userId: this.userId,
-          accountIds,
-          accessToken: exchangeData.access_token,
-        },
-        { startAfter: 60 * 10 }
-      );
-
-      await boss.send(
-        'sync-transaction-history',
-        {
-          userId: this.userId,
-          accountIds,
-          accessToken: exchangeData.access_token,
-        },
-        { startAfter: 60 * 60 * 24 }
-      );
+      // 30 seconds, 10 minutes, 24 hours
+      [30, 60 * 10, 60 * 60 * 24].forEach(async (time) => {
+        await boss.send(
+          'sync-transaction-history',
+          {
+            userId: this.userId,
+            accountIds,
+            itemId: exchangeData.item_id,
+          },
+          { startAfter: time }
+        );
+      });
     } catch (error) {
       logger.error('Error syncing transaction history', error);
     }
