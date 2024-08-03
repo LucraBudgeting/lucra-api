@@ -54,7 +54,7 @@ class TransactionRepository extends BaseRepository {
         where: {
           id: transaction.id,
         },
-        data: { ...transaction },
+        data: transaction,
       });
     });
 
