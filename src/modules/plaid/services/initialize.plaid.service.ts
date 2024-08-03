@@ -8,10 +8,10 @@ import { BadRequestError, ServiceUnavailableError, ValidationError } from '@/exc
 import { plaidRepository } from '@/libs/plaid/plaid.repository';
 import { bankInstitutionRepository } from '@/data/repositories/bankInstitution.repository';
 import { logger } from '@/libs/logger';
-import { boss } from '@/libs/pgBoss/pgBossConfig';
 import { accountAccessRepository } from '@/data/repositories/accountAccess.repository';
 import { accountRepository } from '@/data/repositories/account.repository';
 import { accountBalanceRepository } from '@/data/repositories/accountBalance.repository';
+import { initialSyncPlaidTransactionQueue, syncPlaidTransactionHistoryQueue } from '@/libs/queue';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
 
@@ -83,22 +83,10 @@ export class InitializePlaidService {
     accountIds: Record<string, string>,
     itemId: string
   ): Promise<void> {
-    const jobName = 'sync-transaction-history';
     try {
-      // 10 seconds, 10 minutes, 24 hours
-      [10, 60 * 10, 60 * 60 * 24].forEach(async (time) => {
-        await boss.send(
-          jobName,
-          {
-            userId: this.userId,
-            accountIds,
-            itemId: itemId,
-          },
-          { startAfter: time }
-        );
-      });
+      await initialSyncPlaidTransactionQueue(this.userId, accountIds, itemId);
     } catch (error) {
-      logger.error(`Error creating ${jobName} job`, error);
+      logger.error(`Error creating ${syncPlaidTransactionHistoryQueue} job`, error);
     }
   }
 
