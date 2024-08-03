@@ -137,7 +137,7 @@ export class InitializePlaidService {
       } as Account;
     });
 
-    const newAccountIds = await accountRepository.createPlaidAccountMany(plaidAccounts);
+    const newAccountIds = await accountRepository.createAccountMany(plaidAccounts);
 
     const balances = accountDetails.accounts.map((account): AccountBalance => {
       return {

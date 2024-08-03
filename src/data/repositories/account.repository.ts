@@ -67,22 +67,7 @@ class AccountRepository extends BaseRepository {
     };
   }
 
-  async createPlaidAccount(account: Account): Promise<string> {
-    if (account.accessAccountId.isNullOrEmpty()) {
-      throw new ValidationError('Access token is required to create plaid account');
-    }
-
-    return await this.client.account
-      .create({
-        data: account,
-        select: {
-          id: true,
-        },
-      })
-      .then((acc) => acc.id);
-  }
-
-  async createPlaidAccountMany(accounts: Account[]): Promise<Record<string, string>> {
+  async createAccountMany(accounts: Account[]): Promise<Record<string, string>> {
     if (accounts.length === 0) {
       return {};
     }

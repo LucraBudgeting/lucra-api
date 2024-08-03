@@ -1,4 +1,4 @@
-import { IAccount } from '@/modules/bank/types/PlaidBankAccount';
+import { IAccount } from '@/modules/bank/types/bankAccount';
 import { BaseRepository } from './base.repository';
 
 class BankRepository extends BaseRepository {
@@ -48,7 +48,7 @@ class BankRepository extends BaseRepository {
           currentBalance: accountBalance[0]?.current.toNumber(),
           availableBalance: accountBalance[0]?.available.toNumber(),
           currency: accountBalance[0]?.isoCurrency,
-          plaidLastUpdated: accountBalance[0]?.lastUpdated,
+          lastUpdated: accountBalance[0]?.lastUpdated,
         },
         bankInstitution: {
           id: bankInstitution?.id,
@@ -57,7 +57,7 @@ class BankRepository extends BaseRepository {
           primaryColor: bankInstitution?.primaryColor,
           website: bankInstitution?.website,
         },
-      } as unknown as IAccount;
+      } as IAccount;
     });
   }
 }
