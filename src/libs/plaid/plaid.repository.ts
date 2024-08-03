@@ -204,27 +204,6 @@ class PlaidRepository {
   ) {
     logger.warn('transactionsDataAdded', transactions.length);
 
-    // Map the fetched transactions to PlaidTransaction objects
-    // const plaidTransactions = transactions.map((transaction): Transaction => {
-    //   return {
-    //     accountId: accountIds[transaction.account_id],
-    //     amount: new Decimal(transaction.amount.toString()),
-    //     isoCurrencyCode: MapPlaidIsoCode(transaction.iso_currency_code),
-    //     merchantName: transaction.merchant_name,
-    //     name: transaction.name,
-    //     pending: transaction.pending,
-    //     date: new Date(transaction.date),
-    //     paymentChannel: MapPaymentChannel(transaction.payment_channel),
-    //     categoryConfidenceLevel: transaction.personal_finance_category?.confidence_level,
-    //     categoryPrimary: transaction.personal_finance_category?.primary,
-    //     categoryDetailed: transaction.personal_finance_category?.detailed,
-    //   } as PlaidTransaction;
-    // });
-
-    // Create the Plaid transactions in the database
-    // await plaidTransactionRepository.createPlaidTransactionMany(plaidTransactions);
-
-    // Sync the Plaid transactions to Lucra transactions
     await this.mapPlaidTransactionsToLucraTransactions(userId, accountIds, transactions);
   }
 
@@ -233,12 +212,10 @@ class PlaidRepository {
     accountIds: Record<string, string>,
     plaidTransactions: Transaction[]
   ) {
-    // Map the fetched transactions to TransactionDto objects
     const lucraTransactions = plaidTransactions.map((transaction): TransactionDto => {
       return new TransactionDto(userId).fromPlaidTransaction(transaction, accountIds);
     });
 
-    // Create the Lucra transactions in the database
     await transactionRepository.createTransactionMany(userId, lucraTransactions);
   }
 
