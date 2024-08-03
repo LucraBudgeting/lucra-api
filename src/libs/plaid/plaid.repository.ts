@@ -19,7 +19,7 @@ import {
   TransactionsSyncResponse,
 } from 'plaid';
 import { User, UserPreferences } from '@prisma/client';
-import { API_URL, NODE_ENV, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
+import { API_URL, IS_PRODUCTION, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
 import { TransactionDto } from '@/modules/transaction/types/transaction';
@@ -29,7 +29,7 @@ import { accountRepository } from '@/data/repositories/account.repository';
 import { logger } from '../logger';
 
 function getPlaidEnvironment() {
-  if (NODE_ENV === 'production' || NODE_ENV === 'development') {
+  if (IS_PRODUCTION) {
     return PlaidEnvironments.production;
   }
 
