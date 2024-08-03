@@ -22,24 +22,19 @@ export class InitializePlaidService {
   }
 
   async createLinkToken(): Promise<string> {
-    // Check if the user ID is valid
     if (this.userId.isNullOrEmpty()) {
       throw new ValidationError('User ID is required to create link token');
     }
 
-    // Get user preferences and user data
     const userPreferences = await userPreferencesRepository.getUserPreferences(this.userId);
     const user = await userRepository.findUserById(this.userId);
 
-    // Check if the user exists
     if (!user) {
       throw new BadRequestError('User not found');
     }
 
-    // Create the Link token
     const linkToken = await plaidRepository.createLinkToken(user, userPreferences);
 
-    // Check if the Link token is created
     if (!linkToken) {
       throw new ServiceUnavailableError('Link token not created');
     }
@@ -48,20 +43,16 @@ export class InitializePlaidService {
   }
 
   async exchangePublicToken(publicToken: string): Promise<ItemPublicTokenExchangeResponse> {
-    // Check if the public token is valid
     if (publicToken.isNullOrEmpty()) {
       throw new ValidationError('Public token is required to exchange public token');
     }
 
-    // Exchange the public token for an access token
     const exchangeData = await plaidRepository.exchangePublicToken(publicToken);
 
-    // Return the access token
     return exchangeData;
   }
 
   async syncAccountsAndTransactions(exchangeData: ItemPublicTokenExchangeResponse): Promise<void> {
-    // Check if the access token and item ID are valid
     if (exchangeData.access_token.isNullOrEmpty()) {
       throw new ServiceUnavailableError('Public token could not be exchanged');
     }
@@ -70,43 +61,48 @@ export class InitializePlaidService {
       throw new ServiceUnavailableError('Item ID could not be found');
     }
 
-    // Create a Plaid account access
-    const plaidAccountAccess = await accountAccessRepository.createPlaidAccountAccess(
+    const accountAccess = await accountAccessRepository.createPlaidAccountAccess(
       this.userId,
       exchangeData.access_token,
       exchangeData.item_id
     );
 
-    logger.warn('plaidAccountAccess', plaidAccountAccess.id);
-
-    // Check if the Plaid account access is created
-    if (plaidAccountAccess?.accessToken.isNullOrEmpty()) {
+    if (accountAccess?.accessToken.isNullOrEmpty()) {
       throw new ServiceUnavailableError('Plaid account access could not be created');
     }
 
-    // Sync accounts
-    const accountIds = await this.syncAccounts(exchangeData.access_token, plaidAccountAccess.id);
+    const accountIds = await this.syncAccountsAndBalances(
+      exchangeData.access_token,
+      accountAccess.id
+    );
 
-    // Sync transactions
+    await this.syncTransactions(accountIds, exchangeData.item_id);
+  }
+
+  private async syncTransactions(
+    accountIds: Record<string, string>,
+    itemId: string
+  ): Promise<void> {
+    const jobName = 'sync-transaction-history';
     try {
       // 10 seconds, 10 minutes, 24 hours
       [10, 60 * 10, 60 * 60 * 24].forEach(async (time) => {
         await boss.send(
-          'sync-transaction-history',
+          jobName,
           {
             userId: this.userId,
             accountIds,
-            itemId: exchangeData.item_id,
+            itemId: itemId,
           },
           { startAfter: time }
         );
       });
     } catch (error) {
-      logger.error('Error syncing transaction history', error);
+      logger.error(`Error creating ${jobName} job`, error);
     }
   }
 
-  private async syncAccounts(
+  private async syncAccountsAndBalances(
     accessToken: string,
     accountAccessId: string
   ): Promise<Record<string, string>> {
@@ -125,18 +121,7 @@ export class InitializePlaidService {
       throw new BadRequestError('User already has institution');
     }
 
-    const institutionDetails = await plaidRepository.getInstitutionDetails(
-      accountDetails.item.institution_id
-    );
-
-    let newInstitutionId: string | undefined = undefined;
-
-    // If institution details are available, create a new bank institution from the details
-    if (institutionDetails) {
-      const details =
-        await bankInstitutionRepository.createBankInstitutionFromPlaid(institutionDetails);
-      newInstitutionId = details.id;
-    }
+    const newInstitutionId = await this.getInstitutionId(institutionId);
 
     const plaidAccounts = accountDetails.accounts.map((account): Account => {
       return {
@@ -167,8 +152,28 @@ export class InitializePlaidService {
 
     await accountBalanceRepository.createPlaidAccountBalanceMany(balances);
 
-    logger.warn('newAccountIds and balances', { accountIds: newAccountIds, balances });
-
     return newAccountIds;
+  }
+
+  private async getInstitutionId(plaidInstitutionId: string): Promise<string | undefined> {
+    let newInstitutionId: string | undefined = undefined;
+
+    const existingInstitution =
+      await bankInstitutionRepository.getInstitutionById(plaidInstitutionId);
+
+    if (existingInstitution) {
+      newInstitutionId = existingInstitution.id;
+    } else {
+      const institutionDetails = await plaidRepository.getInstitutionDetails(plaidInstitutionId);
+
+      // If institution details are available, create a new bank institution from the details
+      if (institutionDetails) {
+        const details =
+          await bankInstitutionRepository.createBankInstitutionFromPlaid(institutionDetails);
+        newInstitutionId = details.id;
+      }
+    }
+
+    return newInstitutionId;
   }
 }
