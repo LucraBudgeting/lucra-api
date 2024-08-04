@@ -9,8 +9,12 @@ const boss = new PgBoss({
 boss.on('error', (error) => logger.error('pgBoss Error', error));
 
 async function initPgBoss() {
-  await boss.start();
-  logger.info('pg-boss started');
+  try {
+    await boss.start();
+    logger.info('pg-boss started');
+  } catch (error) {
+    logger.error('pg-boss failed to start', error);
+  }
 }
 
 export { boss, initPgBoss };

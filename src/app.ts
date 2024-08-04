@@ -8,12 +8,13 @@ import fastifyEnv from '@fastify/env';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyJwt from '@fastify/jwt';
 import { initPgBoss } from '@/libs/pgBoss';
-import { schemaErrorFormatter } from './utils/schemaErrorFormatter';
-import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from './config';
-import { schema } from './utils/validateEnv';
+import '@/libs/pgBoss/pgBossJobController';
+import { schemaErrorFormatter } from '@/utils/schemaErrorFormatter';
+import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from '@/config';
+import { schema } from '@/utils/validateEnv';
 import '@/extensions';
-import { baseLogger, logger } from './libs/logger';
-import { globalErrorHandler } from './utils/globalErrorHandler';
+import { baseLogger, logger } from '@/libs/logger';
+import { globalErrorHandler } from '@/utils/globalErrorHandler';
 
 const port: number = Number(PORT) ?? 3001;
 

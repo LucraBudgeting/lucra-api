@@ -10,10 +10,15 @@ export async function initialSyncPlaidTransactionQueue(
   accountIds: Record<string, string>,
   itemId: string
 ) {
-  // 10 seconds, 10 minutes, 24 hours
-  [10, 60 * 10, 60 * 60 * 24].forEach(async (time) => {
-    await syncPlaidTransactionQueue(userId, accountIds, itemId, time);
-  });
+  try {
+    // 10 seconds, 10 minutes, 24 hours
+    const syncTimes = [10, 60 * 10, 60 * 60 * 24];
+    for (const time of syncTimes) {
+      await syncPlaidTransactionQueue(userId, accountIds, itemId, time);
+    }
+  } catch (error) {
+    logger.error(`${syncPlaidTransactionHistoryQueue}`, { error });
+  }
 }
 
 export async function syncPlaidTransactionQueue(
@@ -22,7 +27,7 @@ export async function syncPlaidTransactionQueue(
   itemId: string,
   startAfter: number
 ) {
-  return boss.publish(
+  await boss.send(
     syncPlaidTransactionHistoryQueue,
     {
       userId: userId,
@@ -38,6 +43,7 @@ export type syncPlaidTransactionJobPayload = {
   accountIds: Record<string, string>;
   itemId: string;
 };
+
 export async function syncPlaidTransactionJob(payload: syncPlaidTransactionJobPayload) {
   const { userId, accountIds, itemId } = payload;
   const { cursor, accessToken } = await accountRepository.getLatestCursorFromAccountItemId(itemId);
