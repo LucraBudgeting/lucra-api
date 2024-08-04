@@ -6,6 +6,7 @@ import { MapPaymentChannel } from '@/modules/plaid/mappers/PaymentChannel.mapper
 export interface ITransactionRequest extends Transaction {}
 export interface ITransactionResponse extends Transaction {
   id: string;
+  categoryId?: string;
 }
 
 export interface ITransactionDto extends Transaction {
@@ -15,6 +16,7 @@ export interface ITransactionDto extends Transaction {
 export class TransactionDto implements ITransactionDto {
   id: string = undefined as unknown as string;
   userId: string = '';
+  accountId: string = '';
   amount: Decimal = new Decimal(0);
   date: Date = new Date();
   isoCurrencyCode = IsoCurrencyCode.USD;
@@ -23,7 +25,7 @@ export class TransactionDto implements ITransactionDto {
   pending: boolean = false;
   paymentChannel: PaymentChannel = PaymentChannel.Other;
   addressId: string | null = null;
-  categoryId: string | null = null;
+  budgetCategoryId: string | null = null;
   dateCreated: Date = new Date();
   dateUpdated: Date = new Date();
   categoryConfidenceLevel: string | null = '';
@@ -33,9 +35,14 @@ export class TransactionDto implements ITransactionDto {
   constructor(userId: string) {
     this.userId = userId;
   }
+
   [key: string]: any;
 
-  public fromPlaidTransaction(plaidTransaction: plaidTransaction) {
+  public fromPlaidTransaction(
+    plaidTransaction: plaidTransaction,
+    accountIds: Record<string, string>
+  ) {
+    this.accountId = accountIds[plaidTransaction.account_id] ?? '';
     this.amount = new Decimal(plaidTransaction.amount);
     this.date = new Date(plaidTransaction.date);
     this.merchantName = plaidTransaction.merchant_name ?? null;

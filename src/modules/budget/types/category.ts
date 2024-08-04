@@ -13,5 +13,7 @@ interface ICategory {
   };
   label: string;
   amount: number;
-  budgetType: 'debit' | 'credit';
+  budgetType: budgetCategoryType;
 }
+
+export type budgetCategoryType = 'debit' | 'credit' | 'transfer';

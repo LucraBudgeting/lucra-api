@@ -14,6 +14,16 @@ class BankInstitutionRepository extends BaseRepository {
       },
     });
   }
+
+  async getInstitutionById(institutionId?: string | null): Promise<BankInstitution | null> {
+    if (!institutionId) return null;
+
+    return await this.client.bankInstitution.findFirst({
+      where: {
+        institutionId,
+      },
+    });
+  }
 }
 
 export const bankInstitutionRepository = new BankInstitutionRepository();

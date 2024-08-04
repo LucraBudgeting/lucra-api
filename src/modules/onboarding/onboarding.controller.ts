@@ -5,6 +5,7 @@ import { userAuthRepository } from '@/data/repositories/userAuth.repository';
 import { userOnboardingStageRepository } from '@/data/repositories/userOnboardingStage.repository';
 import { User } from '@/data/db.client';
 import { FRONTEND_ORIGIN } from '@/config';
+import { userBillingRepository } from '@/data/repositories/userBilling.repository';
 import { SetupUserBilling } from './onboarding.service';
 import { createAccountBody } from './types';
 
@@ -55,7 +56,9 @@ export async function CreateAccount(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
-  const checkoutUrl = await SetupUserBilling(user);
+  const { checkoutUrl, customerId } = await SetupUserBilling(user);
+
+  await userBillingRepository.createStripeBilling(user.id, customerId);
 
   await userOnboardingStageRepository.createUser(user.id);
 

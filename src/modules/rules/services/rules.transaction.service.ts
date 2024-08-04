@@ -81,7 +81,7 @@ export class TransactionRuleService {
 
         transaction = applyRulesToTransaction(transaction, rule.parsedCondition);
 
-        if (transaction.categoryId !== null) {
+        if (transaction.budgetCategoryId !== null) {
           isTransactionUpdated = true;
         }
       }
@@ -104,7 +104,7 @@ export function applyRulesToTransaction(
   }
 
   if (isValidCondition) {
-    transaction.categoryId = rule.categoryId;
+    transaction.budgetCategoryId = rule.categoryId;
     return transaction;
   }
 

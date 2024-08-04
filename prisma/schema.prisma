@@ -29,15 +29,15 @@ model User {
     dateUpdated DateTime @default(now()) @updatedAt
 
     address             Address?              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    userBilling         UserBilling?
     userAuth            UserAuth[]
     userSession         UserSession[]
-    transactionCategory TransactionCategory[]
     userPreferences     UserPreferences[]
-    plaidAccountAccess  PlaidAccountAccess[]
     userOnboardingStage UserOnboardingStage[]
-    BudgetCategory      BudgetCategory[]
-    Transaction         Transaction[]
-    Rule                Rule[]
+    budgetCategory      BudgetCategory[]
+    transaction         Transaction[]
+    rule                Rule[]
+    accountAccess       AccountAccess[]
 }
 
 model UserAuth {
@@ -63,6 +63,25 @@ model UserPreferences {
     dateUpdated DateTime @default(now()) @updatedAt
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserBilling {
+    id               String          @id @unique @default(cuid())
+    userId           String          @unique
+    billingPlatform  BillingPlatform
+    appleReceipt     String? // Apple App Store specific
+    googleOrderId    String? // Google Play Store specific
+    stripeCustomerId String? // Stripe specific
+    amount           Float
+    currency         String
+    status           BillingStatus   @default(PENDING)
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([billingPlatform])
 }
 
 model UserOnboardingStage {
@@ -104,47 +123,95 @@ model UserSessionAccess {
     @@index([sessionId], name: "user_session_access_session_id_index")
 }
 
-model PlaidAccountAccess {
-    id          String @id @unique @default(cuid())
-    userId      String
-    accessToken String
-    itemId      String
+model AccountAccess {
+    id             String          @id @unique @default(cuid())
+    userId         String
+    accessToken    String
+    provider       FinancialVendor @default(Plaid)
+    providerItemId String
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-    plaidAccount PlaidAccount[]
+    user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    account Account[]
 
-    @@index([userId], name: "plaid_account_access_user_id_index")
-    @@index([itemId], name: "plaid_account_access_item_id_index")
+    @@index([userId], name: "account_access_user_id_index")
+    @@index([providerItemId], name: "account_access_provider_item_id_index")
 }
 
-model PlaidAccount {
+model Account {
     id                          String       @id @unique @default(cuid())
     accessAccountId             String
-    accountId                   String
+    providerAccountId           String
     institutionDisplayName      String
     institutionOfficialName     String?
     institutionId               String?
-    bankInstitutionId           String?
     latestTransactionSyncCursor String?
     type                        AccountTypes @default(Other)
     subType                     String?
     mask                        String?      @default("0000")
+    bankInstitutionId           String?
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    accessToken     PlaidAccountAccess @relation(fields: [accessAccountId], references: [id], onDelete: Cascade)
-    bankInstitution BankInstitution?   @relation(fields: [bankInstitutionId], references: [id], onDelete: Cascade)
+    accessToken     AccountAccess    @relation(fields: [accessAccountId], references: [id], onDelete: Cascade)
+    bankInstitution BankInstitution? @relation(fields: [bankInstitutionId], references: [id])
 
-    plaidAccountBalance PlaidAccountBalance[]
-    plaidTransaction    PlaidTransaction[]
+    accountBalance AccountBalance[]
+    transaction    Transaction[]
 
-    @@index([bankInstitutionId], name: "plaid_account_bank_institution_id_index")
-    @@index([accountId], name: "plaid_account_account_id_index")
-    @@index([accessAccountId], name: "plaid_account_access_account_id_index") // Added index
+    @@index([accessAccountId], name: "account_access_account_id_index")
+    @@index([providerAccountId], name: "account_provider_account_id_index")
+}
+
+model Transaction {
+    id                      String          @id @unique @default(cuid())
+    userId                  String
+    accountId               String
+    amount                  Decimal
+    date                    DateTime        @default(now())
+    isoCurrencyCode         IsoCurrencyCode @default(USD)
+    merchantName            String?
+    name                    String?
+    pending                 Boolean         @default(false)
+    paymentChannel          PaymentChannel  @default(Other)
+    addressId               String?
+    budgetCategoryId        String?
+    categoryConfidenceLevel String?
+    categoryPrimary         String?
+    categoryDetailed        String?
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    account  Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    address  Address?        @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    category BudgetCategory? @relation(fields: [budgetCategoryId], references: [id], onDelete: SetNull)
+
+    @@index([userId], name: "transaction_user_id_index")
+    @@index([accountId], name: "transaction_account_id_index")
+    @@index([budgetCategoryId], name: "transaction_category_id_index")
+    @@index([date], name: "transaction_date_index")
+}
+
+model AccountBalance {
+    id          String          @id @unique @default(cuid())
+    accountId   String
+    available   Decimal
+    current     Decimal
+    limit       Decimal?
+    isoCurrency IsoCurrencyCode @default(USD)
+    lastUpdated DateTime
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+    @@index([accountId], name: "account_balance_account_id_index")
 }
 
 model BankInstitution {
@@ -159,77 +226,7 @@ model BankInstitution {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    plaidAccount PlaidAccount[]
-}
-
-model Transaction {
-    id                      String          @id @unique @default(cuid())
-    userId                  String
-    amount                  Decimal
-    date                    DateTime        @default(now())
-    isoCurrencyCode         IsoCurrencyCode @default(USD)
-    merchantName            String?
-    name                    String?
-    pending                 Boolean         @default(false)
-    paymentChannel          PaymentChannel  @default(Other)
-    addressId               String?
-    categoryId              String?
-    categoryConfidenceLevel String?
-    categoryPrimary         String?
-    categoryDetailed        String?
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-    address  Address?        @relation(fields: [addressId], references: [id], onDelete: Cascade)
-    category BudgetCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-    @@index([userId], name: "transaction_user_id_index")
-    @@index([categoryId], name: "transaction_category_id_index")
-    @@index([date], name: "transaction_date_index")
-}
-
-model PlaidAccountBalance {
-    id               String          @id @unique @default(cuid())
-    accountId        String
-    available        Decimal
-    current          Decimal
-    limit            Decimal?
-    isoCurrency      IsoCurrencyCode @default(USD)
-    plaidLastUpdated DateTime
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    account PlaidAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-    @@index([accountId], name: "plaid_account_balance_account_id_index")
-}
-
-model PlaidTransaction {
-    id                      String          @id @unique @default(cuid())
-    accountId               String
-    amount                  Decimal
-    date                    DateTime        @default(now())
-    isoCurrencyCode         IsoCurrencyCode @default(USD)
-    merchantName            String?
-    name                    String?
-    pending                 Boolean         @default(false)
-    paymentChannel          PaymentChannel  @default(Other)
-    addressId               String?
-    categoryConfidenceLevel String?
-    categoryPrimary         String?
-    categoryDetailed        String?
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    account                             PlaidAccount                          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-    address                             Address?                              @relation(fields: [addressId], references: [id], onDelete: Cascade)
-    plaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
-
-    @@index([accountId], name: "plaid_transaction_account_id_index")
+    account Account[]
 }
 
 model BudgetCategory {
@@ -242,6 +239,7 @@ model BudgetCategory {
     budgetType      BudgetCategoryType @default(Debit)
     amount          Decimal            @default(0)
     isActive        Boolean            @default(true)
+    categoryStatus  CategoryStatus     @default(Active)
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
@@ -250,35 +248,6 @@ model BudgetCategory {
     Transaction Transaction[]
 
     @@index([userId], name: "budget_category_user_id_index")
-}
-
-model TransactionCategory {
-    id            String                 @id @unique @default(cuid())
-    userId        String                 @unique
-    name          String
-    createdSource CategoryCreationSource @default(UserCreated)
-    status        CategoryStatus         @default(Ignore)
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    user                                User                                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-    plaidTransactionTransactionCategory PlaidTransactionTransactionCategory[]
-}
-
-model PlaidTransactionTransactionCategory {
-    id                    String @id @unique @default(cuid())
-    plaidTransactionId    String
-    transactionCategoryId String
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    transactionId PlaidTransaction    @relation(fields: [plaidTransactionId], references: [id], onDelete: Cascade)
-    categoryId    TransactionCategory @relation(fields: [transactionCategoryId], references: [id], onDelete: Cascade)
-
-    @@index([plaidTransactionId], name: "plaid_transaction_category_plaid_transaction_id_index")
-    @@index([transactionCategoryId], name: "plaid_transaction_category_transaction_category_id_index")
 }
 
 model Address {
@@ -294,9 +263,8 @@ model Address {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    user             User[]
-    plaidTransaction PlaidTransaction[]
-    Transaction      Transaction[]
+    user        User[]
+    Transaction Transaction[]
 }
 
 model Rule {
@@ -336,11 +304,6 @@ enum Country {
     Canada
 }
 
-enum CategoryCreationSource {
-    UserCreated
-    PlaidCreated
-}
-
 enum CategoryStatus {
     Ignore
     Active
@@ -355,6 +318,7 @@ enum BudgetFrequency {
 enum BudgetCategoryType {
     Debit
     Credit
+    Transfer
 }
 
 enum IsoCurrencyCode {
@@ -379,4 +343,20 @@ enum AccountTypes {
 
 enum Language {
     English
+}
+
+enum FinancialVendor {
+    Plaid
+}
+
+enum BillingPlatform {
+    APPLE
+    GOOGLE
+    STRIPE
+}
+
+enum BillingStatus {
+    PENDING
+    COMPLETED
+    FAILED
 }

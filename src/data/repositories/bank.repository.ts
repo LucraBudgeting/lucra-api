@@ -1,9 +1,9 @@
-import { IPlaidBankAccount } from '@/modules/bank/types/PlaidBankAccount';
+import { IAccount } from '@/modules/bank/types/bankAccount';
 import { BaseRepository } from './base.repository';
 
 class BankRepository extends BaseRepository {
-  async getPlaidBankAccounts(userId: string): Promise<IPlaidBankAccount[]> {
-    const plaidAccounts = await this.client.plaidAccount.findMany({
+  async getPlaidBankAccounts(userId: string): Promise<IAccount[]> {
+    const accounts = await this.client.account.findMany({
       where: {
         accessToken: {
           userId: userId,
@@ -12,9 +12,9 @@ class BankRepository extends BaseRepository {
       include: {
         accessToken: false,
         bankInstitution: true,
-        plaidAccountBalance: {
+        accountBalance: {
           orderBy: {
-            plaidLastUpdated: 'desc',
+            lastUpdated: 'desc',
           },
           take: 1,
         },
@@ -22,7 +22,7 @@ class BankRepository extends BaseRepository {
     });
 
     // Map each account to a Plaid bank account object and return the result.
-    return plaidAccounts.map((account) => {
+    return accounts.map((account) => {
       const {
         id,
         institutionDisplayName,
@@ -30,7 +30,7 @@ class BankRepository extends BaseRepository {
         institutionId,
         type,
         subType,
-        plaidAccountBalance,
+        accountBalance,
         bankInstitution,
       } = account;
 
@@ -42,13 +42,13 @@ class BankRepository extends BaseRepository {
         type,
         subType,
         mask: account.mask,
-        plaidAccountBalance: {
-          id: plaidAccountBalance[0]?.id,
-          plaidAccountId: plaidAccountBalance[0]?.accountId,
-          currentBalance: plaidAccountBalance[0]?.current.toNumber(),
-          availableBalance: plaidAccountBalance[0]?.available.toNumber(),
-          currency: plaidAccountBalance[0]?.isoCurrency,
-          plaidLastUpdated: plaidAccountBalance[0]?.plaidLastUpdated,
+        accountBalance: {
+          id: accountBalance[0]?.id,
+          plaidAccountId: accountBalance[0]?.accountId,
+          currentBalance: accountBalance[0]?.current.toNumber(),
+          availableBalance: accountBalance[0]?.available.toNumber(),
+          currency: accountBalance[0]?.isoCurrency,
+          lastUpdated: accountBalance[0]?.lastUpdated,
         },
         bankInstitution: {
           id: bankInstitution?.id,
@@ -57,7 +57,7 @@ class BankRepository extends BaseRepository {
           primaryColor: bankInstitution?.primaryColor,
           website: bankInstitution?.website,
         },
-      } as IPlaidBankAccount;
+      } as IAccount;
     });
   }
 }

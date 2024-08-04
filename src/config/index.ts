@@ -18,4 +18,7 @@ export const {
   NEW_RELIC_LICENSE_KEY,
 } = process.env;
 
-export const IS_PRODUCTION = NODE_ENV === 'production' || NODE_ENV === 'development';
+export const IS_PRODUCTION = NODE_ENV === 'production';
+export const IS_DEVELOPMENT = NODE_ENV === 'development';
+export const IS_LOCAL = NODE_ENV === 'local';
+export const IS_HOSTED = IS_PRODUCTION || IS_DEVELOPMENT;

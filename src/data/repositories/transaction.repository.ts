@@ -4,10 +4,23 @@ import { TransactionRuleService } from '@/modules/rules/services/rules.transacti
 import { BaseRepository } from './base.repository';
 
 class TransactionRepository extends BaseRepository {
-  async getUserTransactions(userId: string) {
+  async getUserTransactions(userId: string, start?: Date, end?: Date) {
+    if (!start) {
+      start = new Date();
+      start.setMonth(new Date().getMonth() - 1);
+    }
+
+    if (!end) {
+      end = new Date();
+    }
+
     const transactions = await this.client.transaction.findMany({
       where: {
         userId,
+        date: {
+          gte: start,
+          lte: end,
+        },
       },
       orderBy: {
         date: 'desc',
@@ -36,7 +49,7 @@ class TransactionRepository extends BaseRepository {
       return;
     }
 
-    const updateTransactions = transactions.map((transaction) => {
+    const updatedTransactions = transactions.map((transaction) => {
       return this.client.transaction.update({
         where: {
           id: transaction.id,
@@ -45,7 +58,7 @@ class TransactionRepository extends BaseRepository {
       });
     });
 
-    await this.client.$transaction(updateTransactions);
+    await this.client.$transaction(updatedTransactions);
   }
 
   async associateCategoryWithTransaction(transactionId: string, categoryId?: string) {
@@ -58,7 +71,7 @@ class TransactionRepository extends BaseRepository {
         id: transactionId,
       },
       data: {
-        categoryId: categoryId || null,
+        budgetCategoryId: categoryId || null,
       },
     });
   }
