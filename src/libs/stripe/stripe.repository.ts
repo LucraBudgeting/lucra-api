@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
 import { API_URL, FRONTEND_ORIGIN, STRIPE_PRICE_ID } from '@/config';
+import { userBillingRepository } from '@/data/repositories/userBilling.repository';
 import { CreateStripeCustomer } from './stripe.types';
 import { stripe } from './stripe';
 
@@ -31,6 +32,16 @@ export class StripeRepository {
   public async getBillingPortalUrl(customerId: string) {
     const billingSession = await this.createCustomBillingPortal(customerId);
     return billingSession.url;
+  }
+
+  public async deleteCustomerByUserId(userId: string) {
+    const userBilling = await userBillingRepository.getUserBillingByUserId(userId);
+
+    if (!userBilling || !userBilling.stripeCustomerId) {
+      return;
+    }
+
+    await stripe.customers.del(userBilling.stripeCustomerId);
   }
 
   private async onboardingCheckout(customerId: string) {

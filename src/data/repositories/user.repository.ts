@@ -64,11 +64,25 @@ class UserRepository extends BaseRepository {
       throw new ValidationError('Cannot Create User: Full Name is null or empty');
     }
 
-    return this.client.user.create({
+    const newUser = await this.client.user.create({
       data: {
         email,
         name: fullName,
         status: UserStatus.Onboarding_UnPaid,
+      },
+    });
+
+    return newUser;
+  }
+
+  async deleteUserById(userId: string): Promise<void> {
+    if (userId.isNullOrEmpty()) {
+      throw new ValidationError('Cannot Delete User By Id: Id is null or empty');
+    }
+
+    await this.client.user.delete({
+      where: {
+        id: userId,
       },
     });
   }
