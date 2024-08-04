@@ -3,7 +3,7 @@ import {
   syncPlaidTransactionJob,
   syncPlaidTransactionJobPayload,
 } from '@/libs/queue';
-import { boss } from './pgBossConfig';
+import { boss } from '@/libs/pgBoss';
 
 boss.work(
   syncPlaidTransactionHistoryQueue,

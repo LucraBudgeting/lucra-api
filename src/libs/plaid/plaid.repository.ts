@@ -172,7 +172,7 @@ class PlaidRepository {
     }
 
     if (!hasMore && cursor) {
-      logger.warn('No more transactions to fetch. Saving last cursor', {
+      logger.info('No more transactions to fetch. Saving last cursor', {
         cursor,
         accountIds: Object.values(accountIds),
       });
