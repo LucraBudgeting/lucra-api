@@ -76,14 +76,16 @@ export class InitializePlaidService {
       accountAccess.id
     );
 
-    await this.syncTransactions(accountIds, exchangeData.item_id);
+    await this.syncTransactions(accountIds, exchangeData.item_id, exchangeData.access_token);
   }
 
   private async syncTransactions(
     accountIds: Record<string, string>,
-    itemId: string
+    itemId: string,
+    accessToken: string
   ): Promise<void> {
     try {
+      await plaidRepository.syncTransactionHistory(this.userId, accountIds, accessToken);
       await initialSyncPlaidTransactionQueue(this.userId, accountIds, itemId);
     } catch (error) {
       logger.error(`Error creating ${syncPlaidTransactionHistoryQueue} job`, error);
