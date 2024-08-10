@@ -1,6 +1,6 @@
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { NotFoundError } from '@/exceptions/error';
-import { ITransactionResponse } from './types/transaction';
+import { ITransactionPatchDto, ITransactionResponse } from './types/transaction';
 
 export class TransactionService {
   private userId: string;
@@ -44,5 +44,9 @@ export class TransactionService {
     categoryId?: string
   ): Promise<void> {
     await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
+  }
+
+  async patchTransaction(transactionId: string, patch: ITransactionPatchDto): Promise<void> {
+    await transactionRepository.patchTransaction(transactionId, patch);
   }
 }

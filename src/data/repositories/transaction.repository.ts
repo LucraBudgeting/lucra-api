@@ -1,6 +1,7 @@
 import { Transaction } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
 import { TransactionRuleService } from '@/modules/rules/services/rules.transaction.service';
+import { ITransactionPatchDto } from '@/modules/transaction/types/transaction';
 import { BaseRepository } from './base.repository';
 
 class TransactionRepository extends BaseRepository {
@@ -80,6 +81,21 @@ class TransactionRepository extends BaseRepository {
       },
       data: {
         budgetCategoryId: categoryId || null,
+      },
+    });
+  }
+  async patchTransaction(transactionId: string, patch: Partial<ITransactionPatchDto>) {
+    if (!transactionId) {
+      throw new ValidationError('TransactionId is required');
+    }
+
+    await this.client.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        budgetCategoryId: patch.categoryId,
+        isExcludedFromBudget: patch.excludeFromBudget,
       },
     });
   }

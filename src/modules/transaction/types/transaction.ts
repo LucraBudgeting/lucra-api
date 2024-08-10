@@ -23,6 +23,7 @@ export class TransactionDto implements ITransactionDto {
   merchantName: string | null = null;
   name: string | null = null;
   pending: boolean = false;
+  isExcludedFromBudget: boolean = false;
   paymentChannel: PaymentChannel = PaymentChannel.Other;
   addressId: string | null = null;
   budgetCategoryId: string | null = null;
@@ -57,4 +58,9 @@ export class TransactionDto implements ITransactionDto {
 
     return this;
   }
+}
+
+export interface ITransactionPatchDto {
+  categoryId?: string;
+  excludeFromBudget?: boolean;
 }

@@ -34,6 +34,25 @@ export async function GetTransaction(
   return reply.send({ message: 'Transaction Fetched', transaction });
 }
 
+export async function PatchTransaction(
+  req: FastifyRequest<{
+    Params: { id: string };
+    Body: {
+      categoryId: string;
+      excludeFromBudget: boolean;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  const user = req.user as User;
+  const { id } = req.params;
+  const { categoryId, excludeFromBudget } = req.body;
+  const transactionService = new TransactionService(user.id);
+  await transactionService.patchTransaction(id, { categoryId, excludeFromBudget });
+
+  return reply.send({ message: 'Transaction updated' });
+}
+
 export async function AssociateCategoryToTransaction(
   req: FastifyRequest<{ Params: { id: string; categoryId?: string } }>,
   reply: FastifyReply

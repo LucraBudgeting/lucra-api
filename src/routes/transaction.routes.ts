@@ -4,6 +4,7 @@ import {
   AssociateCategoryToTransaction,
   GetTransaction,
   GetTransactions,
+  PatchTransaction,
 } from '@/modules/transaction/transaction.controller';
 
 const basePath = '/transaction';
@@ -20,6 +21,13 @@ export default async function Transaction(fastify: FastifyInstance, _opts: Route
     method: HttpMethods.GET,
     url: `${basePath}/:id`,
     handler: GetTransaction,
+    preHandler: [fastify.authPrehandler],
+  });
+
+  fastify.route({
+    method: HttpMethods.PATCH,
+    url: `${basePath}/:id`,
+    handler: PatchTransaction,
     preHandler: [fastify.authPrehandler],
   });
 
