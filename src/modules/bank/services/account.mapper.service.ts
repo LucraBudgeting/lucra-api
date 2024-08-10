@@ -7,7 +7,7 @@ export function mapAccountsToResponse(accounts: IAccount[]): IBankAccountRespons
       linkSource: 'plaid',
       type: mapAccountType(account.type),
       subType: account.subType,
-      accountName: account.institutionDisplayName,
+      accountName: account.accountName,
       mask: account.mask ?? '0000',
       balance: {
         currentBalance: account.accountBalance?.currentBalance ?? 0,

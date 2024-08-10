@@ -9,6 +9,7 @@ export class StripeRepository {
 
   public setUser(user: User) {
     this.user = user;
+    return this;
   }
 
   public async createCustomer(payload: CreateStripeCustomer) {
@@ -22,15 +23,16 @@ export class StripeRepository {
     });
   }
 
-  private async createCustomBillingPortal(customerId: string) {
+  private async createCustomBillingPortal(customerId: string, returnUrl?: string) {
+    returnUrl = returnUrl || `${FRONTEND_ORIGIN}/dashboard`;
     return await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${FRONTEND_ORIGIN}/dashboard`,
+      return_url: returnUrl,
     });
   }
 
-  public async getBillingPortalUrl(customerId: string) {
-    const billingSession = await this.createCustomBillingPortal(customerId);
+  public async getBillingPortalUrl(customerId: string, returnUrl?: string) {
+    const billingSession = await this.createCustomBillingPortal(customerId, returnUrl);
     return billingSession.url;
   }
 

@@ -144,7 +144,7 @@ model Account {
     id                          String       @id @unique @default(cuid())
     accessAccountId             String
     providerAccountId           String
-    institutionDisplayName      String
+    institutionDisplayName      String // account name
     institutionOfficialName     String?
     institutionId               String?
     latestTransactionSyncCursor String?
@@ -176,6 +176,7 @@ model Transaction {
     merchantName            String?
     name                    String?
     pending                 Boolean         @default(false)
+    isExcludedFromBudget    Boolean         @default(false)
     paymentChannel          PaymentChannel  @default(Other)
     addressId               String?
     budgetCategoryId        String?

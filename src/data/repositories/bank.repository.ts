@@ -2,7 +2,7 @@ import { IAccount } from '@/modules/bank/types/bankAccount';
 import { BaseRepository } from './base.repository';
 
 class BankRepository extends BaseRepository {
-  async getPlaidBankAccounts(userId: string): Promise<IAccount[]> {
+  async getBankAccounts(userId: string): Promise<IAccount[]> {
     const accounts = await this.client.account.findMany({
       where: {
         accessToken: {
@@ -36,7 +36,7 @@ class BankRepository extends BaseRepository {
 
       return {
         id,
-        institutionDisplayName,
+        accountName: institutionDisplayName,
         accessAccountId,
         institutionId,
         type,

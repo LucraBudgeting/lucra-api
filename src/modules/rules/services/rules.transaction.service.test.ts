@@ -23,6 +23,7 @@ const baseTransaction: ITransactionDto = {
   categoryConfidenceLevel: null,
   categoryDetailed: null,
   categoryPrimary: null,
+  isExcludedFromBudget: false,
 };
 
 describe('applyRulesToTransaction', () => {
