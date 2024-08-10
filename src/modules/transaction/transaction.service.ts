@@ -1,4 +1,5 @@
 import { transactionRepository } from '@/data/repositories/transaction.repository';
+import { NotFoundError } from '@/exceptions/error';
 import { ITransactionResponse } from './types/transaction';
 
 export class TransactionService {
@@ -23,6 +24,19 @@ export class TransactionService {
       categoryId: transaction.budgetCategoryId,
     }));
     return transactions;
+  }
+
+  async getTransaction(transactionId: string): Promise<ITransactionResponse> {
+    const transaction = await transactionRepository.getTransaction(transactionId);
+
+    if (transaction === null) {
+      throw new NotFoundError(`Transaction not found: ${transactionId}`);
+    }
+
+    return {
+      ...transaction,
+      categoryId: transaction.budgetCategoryId ?? '',
+    };
   }
 
   async associateCategoryWithTransaction(

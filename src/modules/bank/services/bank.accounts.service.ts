@@ -1,6 +1,5 @@
 import { bankAccountRepository } from '@/data/repositories/bank.repository';
-import { IBankAccountResponse } from '../types/bankAccount';
-import { mapAccountsToResponse } from './account.mapper.service';
+import { IAccount } from '../types/bankAccount';
 
 export class BankAccountService {
   private userId: string;
@@ -9,9 +8,9 @@ export class BankAccountService {
     this.userId = userId;
   }
 
-  async getBankAccounts(): Promise<IBankAccountResponse[]> {
-    const plaidAccounts = await bankAccountRepository.getPlaidBankAccounts(this.userId);
+  async getBankAccounts(): Promise<IAccount[]> {
+    return await bankAccountRepository.getBankAccounts(this.userId);
 
-    return mapAccountsToResponse(plaidAccounts);
+    // return mapAccountsToResponse(bankAccounts);
   }
 }

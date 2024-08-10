@@ -30,6 +30,14 @@ class TransactionRepository extends BaseRepository {
     return transactions;
   }
 
+  async getTransaction(transactionId: string) {
+    return this.client.transaction.findUnique({
+      where: {
+        id: transactionId,
+      },
+    });
+  }
+
   async createTransactionMany(userId: string, transactions: Transaction[]) {
     if (transactions.length === 0) {
       return;

@@ -2,6 +2,7 @@ import { FastifyInstance, RouteOptions } from 'fastify';
 import { HttpMethods } from '@/utils/HttpMethods';
 import {
   AssociateCategoryToTransaction,
+  GetTransaction,
   GetTransactions,
 } from '@/modules/transaction/transaction.controller';
 
@@ -12,6 +13,13 @@ export default async function Transaction(fastify: FastifyInstance, _opts: Route
     method: HttpMethods.GET,
     url: `${basePath}`,
     handler: GetTransactions,
+    preHandler: [fastify.authPrehandler],
+  });
+
+  fastify.route({
+    method: HttpMethods.GET,
+    url: `${basePath}/:id`,
+    handler: GetTransaction,
     preHandler: [fastify.authPrehandler],
   });
 

@@ -144,7 +144,7 @@ model Account {
     id                          String       @id @unique @default(cuid())
     accessAccountId             String
     providerAccountId           String
-    institutionDisplayName      String
+    institutionDisplayName      String // account name
     institutionOfficialName     String?
     institutionId               String?
     latestTransactionSyncCursor String?

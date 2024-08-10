@@ -29,7 +29,7 @@ export interface IBankInstitution {
 
 export interface IAccount {
   id: string;
-  institutionDisplayName: string;
+  accountName: string;
   accessAccountId: string;
   institutionId: string;
   type: string;
