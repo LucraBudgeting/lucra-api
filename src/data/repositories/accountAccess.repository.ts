@@ -1,3 +1,4 @@
+import { AccountAccess } from '@prisma/client';
 import { NotFoundError, ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
@@ -47,6 +48,19 @@ class AccountAccessRepository extends BaseRepository {
     if (!access) {
       throw new NotFoundError(`Plaid Account Access not found: ${itemId}`);
     }
+
+    return access;
+  }
+
+  async getAccountAccessByUserId(userId: string): Promise<AccountAccess[]> {
+    const access = await this.client.accountAccess.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        account: true,
+      },
+    });
 
     return access;
   }
