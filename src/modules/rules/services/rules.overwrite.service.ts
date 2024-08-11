@@ -13,7 +13,9 @@ export class OverwriteRuleService {
   async ApplyAutoToRules(): Promise<void> {}
 
   async ApplyRulesToTransactions(): Promise<void> {
-    let transactions = await transactionRepository.getUserTransactions(this.userId);
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+    let transactions = await transactionRepository.getUserTransactions(this.userId, twoYearsAgo);
     transactions = await this.rulesService.applyRulesToTransactions(transactions);
     transactions = transactions.filter((transaction) => transaction.budgetCategoryId);
     await transactionRepository.updateTransactionMany(transactions);
