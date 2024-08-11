@@ -25,6 +25,20 @@ export async function GetCategories(req: FastifyRequest, reply: FastifyReply) {
   return reply.send({ message: 'Categories Fetched', categories });
 }
 
+export async function DeleteCategory(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const user = req.user as User;
+
+  const categoryService = new CategoryService(user.id);
+
+  await categoryService.deleteCategory(req.params.id);
+  const categories = await categoryService.getCategories();
+
+  return reply.send({ message: 'Category deleted', categories });
+}
+
 export async function UpdateCategory(
   req: FastifyRequest<{ Body: ICategoryRequest }>,
   reply: FastifyReply

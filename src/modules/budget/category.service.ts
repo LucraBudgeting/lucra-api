@@ -24,6 +24,27 @@ export class CategoryService {
     };
   }
 
+  async getOrCreateTransferCategory(): Promise<ICategoryResponse> {
+    const transferCategory = await budgetCategoryRepository.getOrCreateTransferCategory(
+      this.userId
+    );
+
+    return {
+      id: transferCategory.id,
+      avatar: {
+        backgroundColor: transferCategory.color,
+        emoji: transferCategory.emoji,
+      },
+      label: transferCategory.label,
+      amount: parseInt(transferCategory.amount.toString(), 10),
+      budgetType: mapBudgetTypeToString(transferCategory.budgetType),
+    };
+  }
+
+  async deleteCategory(categoryId: string): Promise<void> {
+    await budgetCategoryRepository.deleteCategory(this.userId, categoryId);
+  }
+
   async getCategories(): Promise<ICategoryResponse[]> {
     const categories = await budgetCategoryRepository.getCategories(this.userId);
 

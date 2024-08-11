@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { TransactionService } from '../transaction/transaction.service';
 import { AuthCheckByUserId, LoginUserByEmail, LoginUserByUsername } from './authentication.service';
 
 export async function AuthLogin(
@@ -30,6 +31,9 @@ export async function AuthLogin(
 export async function AuthCheck(req: FastifyRequest, reply: FastifyReply) {
   const user = req.user as User;
   const freshUser = await AuthCheckByUserId(user.id);
+
+  const transactionService = new TransactionService(user.id);
+  await transactionService.triggerLatestSync();
 
   const accessToken = await reply.jwtSign({ user: freshUser });
 

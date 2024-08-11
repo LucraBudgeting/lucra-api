@@ -25,7 +25,7 @@ export async function syncPlaidTransactionQueue(
   userId: string,
   accountIds: Record<string, string>,
   itemId: string,
-  startAfter: number
+  startAfter: number = 0
 ) {
   await boss.send(
     syncPlaidTransactionHistoryQueue,
@@ -51,4 +51,5 @@ export async function syncPlaidTransactionJob(payload: syncPlaidTransactionJobPa
     logger.warn('Syncing Transactions', { cursor, itemId });
   }
   await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
+  await accountRepository.updateLastSyncDate(Object.values(accountIds));
 }

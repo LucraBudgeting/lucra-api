@@ -1,7 +1,8 @@
-import { Account } from '@prisma/client';
+import { Account, AccountAccess } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
 import { logger } from '@/libs/logger';
 import { BaseRepository } from './base.repository';
+import { accountAccessRepository } from './accountAccess.repository';
 
 class AccountRepository extends BaseRepository {
   async updateLatestCursors(accountIds: string[], cursor: string): Promise<void> {
@@ -13,8 +14,50 @@ class AccountRepository extends BaseRepository {
       },
       data: {
         latestTransactionSyncCursor: cursor,
+        lastSyncDate: new Date(),
       },
     });
+  }
+
+  async updateLastSyncDate(accountIds: string[]): Promise<void> {
+    await this.client.account.updateMany({
+      where: {
+        id: {
+          in: accountIds,
+        },
+      },
+      data: {
+        lastSyncDate: new Date(),
+      },
+    });
+  }
+
+  async getAccountsThatHaveLastSyncedBeforeToday(
+    userId: string
+  ): Promise<{ accounts: Account[]; access: AccountAccess[] }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const accountAccess = await accountAccessRepository.getAccountAccessByUserId(userId);
+    const accounts = await this.client.account.findMany({
+      where: {
+        accessAccountId: {
+          in: accountAccess.map((acc) => acc.id),
+        },
+        OR: [
+          {
+            lastSyncDate: {
+              lt: today.toISOString(),
+            },
+          },
+          {
+            lastSyncDate: null,
+          },
+        ],
+      },
+    });
+
+    return { accounts, access: accountAccess };
   }
 
   async getLatestCursorFromAccountItemId(

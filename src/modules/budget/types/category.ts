@@ -16,4 +16,6 @@ interface ICategory {
   budgetType: budgetCategoryType;
 }
 
+export const transferCategory = 'transfer';
+
 export type budgetCategoryType = 'debit' | 'credit' | 'transfer';
