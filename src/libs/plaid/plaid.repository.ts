@@ -204,6 +204,10 @@ class PlaidRepository {
   ) {
     logger.warn('transactionsDataAdded', transactions.length);
 
+    transactions = transactions.filter(
+      (transaction) => transaction.amount !== 0 && transaction.pending === false
+    );
+
     await this.mapPlaidTransactionsToLucraTransactions(userId, accountIds, transactions);
   }
 
