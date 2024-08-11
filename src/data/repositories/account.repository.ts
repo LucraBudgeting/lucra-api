@@ -35,6 +35,9 @@ class AccountRepository extends BaseRepository {
   async getAccountsThatHaveLastSyncedBeforeToday(
     userId: string
   ): Promise<{ accounts: Account[]; access: AccountAccess[] }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const accountAccess = await accountAccessRepository.getAccountAccessByUserId(userId);
     const accounts = await this.client.account.findMany({
       where: {
@@ -44,7 +47,7 @@ class AccountRepository extends BaseRepository {
         OR: [
           {
             lastSyncDate: {
-              lt: new Date().toISOString(),
+              lt: today.toISOString(),
             },
           },
           {

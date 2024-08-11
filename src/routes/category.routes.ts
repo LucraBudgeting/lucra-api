@@ -2,6 +2,7 @@ import { FastifyInstance, RouteOptions } from 'fastify';
 import { HttpMethods } from '@/utils/HttpMethods';
 import {
   CreateCategory,
+  DeleteCategory,
   GetCategories,
   UpdateCategory,
 } from '@/modules/budget/category.controller';
@@ -13,6 +14,13 @@ export default async function Category(fastify: FastifyInstance, _opts: RouteOpt
     method: HttpMethods.GET,
     url: `${basePath}`,
     handler: GetCategories,
+    preHandler: [fastify.authPrehandler],
+  });
+
+  fastify.route({
+    method: HttpMethods.DELETE,
+    url: `${basePath}/:id`,
+    handler: DeleteCategory,
     preHandler: [fastify.authPrehandler],
   });
 

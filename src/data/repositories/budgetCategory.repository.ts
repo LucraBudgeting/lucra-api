@@ -18,6 +18,15 @@ class BudgetCategoryRepository extends BaseRepository {
     });
   }
 
+  async deleteCategory(userId: string, categoryId: string) {
+    return await this.client.budgetCategory.deleteMany({
+      where: {
+        userId,
+        id: categoryId,
+      },
+    });
+  }
+
   async getCategories(userId: string) {
     return await this.client.budgetCategory.findMany({
       where: {
