@@ -3,6 +3,8 @@ import { transactionRepository } from '@/data/repositories/transaction.repositor
 import { NotFoundError } from '@/exceptions/error';
 import { accountRepository } from '@/data/repositories/account.repository';
 import { syncPlaidTransactionQueue } from '@/libs/queue';
+import { transferCategory } from '../budget/types/category';
+import { CategoryService } from '../budget/category.service';
 import { ITransactionPatchDto, ITransactionResponse } from './types/transaction';
 
 export class TransactionService {
@@ -46,6 +48,12 @@ export class TransactionService {
     transactionId: string,
     categoryId?: string
   ): Promise<void> {
+    if (categoryId === transferCategory) {
+      const categoryService = new CategoryService(this.userId);
+      const transferCategory = await categoryService.getOrCreateTransferCategory();
+      categoryId = transferCategory.id;
+    }
+
     await transactionRepository.associateCategoryWithTransaction(transactionId, categoryId);
   }
 

@@ -1,4 +1,4 @@
-import { BudgetCategory } from '@prisma/client';
+import { BudgetCategory, BudgetCategoryType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { ICategoryRequest } from '@/modules/budget/types/category';
 import { mapStringToBudgetType } from '../enumHelpers/BudgetCategoryType';
@@ -23,6 +23,30 @@ class BudgetCategoryRepository extends BaseRepository {
       where: {
         userId,
         id: categoryId,
+      },
+    });
+  }
+
+  async getOrCreateTransferCategory(userId: string) {
+    const transferCategory = await this.client.budgetCategory.findFirst({
+      where: {
+        userId,
+        label: 'Transfer',
+      },
+    });
+
+    if (transferCategory) {
+      return transferCategory;
+    }
+
+    return await this.client.budgetCategory.create({
+      data: {
+        userId,
+        label: 'Transfer',
+        emoji: '🔀',
+        color: '#000000',
+        amount: new Decimal(0),
+        budgetType: BudgetCategoryType.Transfer,
       },
     });
   }
