@@ -18,7 +18,8 @@ import {
   TransactionsSyncRequest,
   TransactionsSyncResponse,
 } from 'plaid';
-import { User, UserPreferences } from '@prisma/client';
+import { AccountBalance, User, UserPreferences } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 import { API_URL, IS_PRODUCTION, PLAID_CLIENT_ID, PLAID_SECRET } from '@/config';
 import { ServiceUnavailableError } from '@/exceptions/error';
 import { getBankImageUrl } from '@/utils/bankNameLogoMapper';
@@ -26,6 +27,8 @@ import { TransactionDto } from '@/modules/transaction/types/transaction';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { webHookBase } from '@/routes/_route.constants';
 import { accountRepository } from '@/data/repositories/account.repository';
+import { MapPlaidIsoCode } from '@/modules/plaid/mappers/IsoCurrencyCode.mapper';
+import { accountBalanceRepository } from '@/data/repositories/accountBalance.repository';
 import { logger } from '../logger';
 
 function getPlaidEnvironment() {
@@ -268,6 +271,26 @@ class PlaidRepository {
     });
 
     return response.data;
+  }
+
+  public async syncAccountsAndBalances(
+    accessToken: string,
+    accountIds: Record<string, string>
+  ): Promise<void> {
+    const accounts = await this.getAccounts(accessToken);
+
+    const balances = accounts.accounts.map((account): AccountBalance => {
+      return {
+        accountId: accountIds[account.account_id],
+        available: new Decimal(account.balances.available?.toString() ?? '0'),
+        current: new Decimal(account.balances.current?.toString() ?? '0'),
+        limit: new Decimal(account.balances.limit?.toString() ?? '0'),
+        isoCurrency: MapPlaidIsoCode(account.balances.iso_currency_code),
+        lastUpdated: new Date(),
+      } as AccountBalance;
+    });
+
+    await accountBalanceRepository.createPlaidAccountBalanceMany(balances);
   }
 }
 

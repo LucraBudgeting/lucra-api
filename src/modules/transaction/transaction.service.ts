@@ -2,7 +2,7 @@ import { AccountAccess } from '@prisma/client';
 import { transactionRepository } from '@/data/repositories/transaction.repository';
 import { NotFoundError } from '@/exceptions/error';
 import { accountRepository } from '@/data/repositories/account.repository';
-import { syncPlaidTransactionQueue } from '@/libs/queue';
+import { syncLatestAccountDetails } from '@/libs/queue';
 import { transferCategory } from '../budget/types/category';
 import { CategoryService } from '../budget/category.service';
 import { ITransactionPatchDto, ITransactionResponse } from './types/transaction';
@@ -87,7 +87,7 @@ export class TransactionService {
         accountIds[account.providerAccountId] = account.id;
       });
 
-      await syncPlaidTransactionQueue(this.userId, accountIds, providerItemId);
+      await syncLatestAccountDetails(this.userId, accountIds, providerItemId);
     }
   }
 }

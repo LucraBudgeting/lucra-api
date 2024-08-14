@@ -4,6 +4,7 @@ import { logger } from '../logger';
 import { plaidRepository } from '../plaid/plaid.repository';
 
 export const syncPlaidTransactionHistoryQueue = 'sync-plaid-transaction-history';
+export const syncPlaidAccountBalances = 'sync-plaid-account-balances';
 
 export async function initialSyncPlaidTransactionQueue(
   userId: string,
@@ -19,6 +20,15 @@ export async function initialSyncPlaidTransactionQueue(
   } catch (error) {
     logger.error(`${syncPlaidTransactionHistoryQueue}`, { error });
   }
+}
+
+export async function syncLatestAccountDetails(
+  userId: string,
+  accountIds: Record<string, string>, // providerAccountId: accountId
+  itemId: string
+) {
+  await syncPlaidAccountBalancesQueue(userId, accountIds, itemId);
+  await syncPlaidTransactionQueue(userId, accountIds, itemId);
 }
 
 export async function syncPlaidTransactionQueue(
@@ -38,13 +48,21 @@ export async function syncPlaidTransactionQueue(
   );
 }
 
-export type syncPlaidTransactionJobPayload = {
+export async function syncPlaidAccountBalancesQueue(
+  userId: string,
+  accountIds: Record<string, string>,
+  itemId: string
+) {
+  await boss.send(syncPlaidAccountBalances, { userId, itemId, accountIds });
+}
+
+export type syncPlaidDataJobPayload = {
   userId: string;
   accountIds: Record<string, string>;
   itemId: string;
 };
 
-export async function syncPlaidTransactionJob(payload: syncPlaidTransactionJobPayload) {
+export async function syncPlaidTransactionJob(payload: syncPlaidDataJobPayload) {
   const { userId, accountIds, itemId } = payload;
   const { cursor, accessToken } = await accountRepository.getLatestCursorFromAccountItemId(itemId);
   if (cursor) {
@@ -52,4 +70,17 @@ export async function syncPlaidTransactionJob(payload: syncPlaidTransactionJobPa
   }
   await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
   await accountRepository.updateLastSyncDate(Object.values(accountIds));
+}
+
+export async function syncPlaidAccountBalancesJob(payload: {
+  userId: string;
+  itemId: string;
+  accountIds: Record<string, string>;
+}) {
+  const { itemId } = payload;
+  const { accessToken } = await accountRepository.getLatestCursorFromAccountItemId(itemId);
+  if (accessToken) {
+    logger.warn('Syncing Account Details', { itemId });
+  }
+  // await plaidRepository.syncAccountBalances(userId, accessToken);
 }
