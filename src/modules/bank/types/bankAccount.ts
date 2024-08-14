@@ -16,6 +16,7 @@ interface IBankAccount {
 export interface IBankBalance {
   currentBalance: number;
   availableBalance: number;
+  limit: number;
   currency: string;
   lastUpdated: Date;
 }

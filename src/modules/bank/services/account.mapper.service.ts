@@ -12,6 +12,7 @@ export function mapAccountsToResponse(accounts: IAccount[]): IBankAccountRespons
       balance: {
         currentBalance: account.accountBalance?.currentBalance ?? 0,
         availableBalance: account.accountBalance?.availableBalance ?? 0,
+        limit: account.accountBalance?.limit ?? 0,
         currency: account.accountBalance?.currency ?? 'USD',
         lastUpdated: account.accountBalance?.lastUpdated ?? new Date(),
       },

@@ -47,6 +47,7 @@ class BankRepository extends BaseRepository {
           plaidAccountId: accountBalance[0]?.accountId,
           currentBalance: accountBalance[0]?.current.toNumber(),
           availableBalance: accountBalance[0]?.available.toNumber(),
+          limit: accountBalance[0]?.limit?.toNumber() ?? 0,
           currency: accountBalance[0]?.isoCurrency,
           lastUpdated: accountBalance[0]?.lastUpdated,
         },
