@@ -68,7 +68,7 @@ export async function syncPlaidTransactionJob(payload: syncPlaidDataJobPayload) 
     const { cursor, accessToken } =
       await accountRepository.getLatestCursorFromAccountItemId(itemId);
     if (cursor) {
-      logger.warn('Syncing Transactions', { cursor, itemId });
+      logger.warn('Syncing Transactions', { payload });
     }
     await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
     await accountRepository.updateTransactionLastSyncDate(Object.values(accountIds));
@@ -83,10 +83,10 @@ export async function syncPlaidAccountBalancesJob(payload: {
   accountIds: Record<string, string>;
 }) {
   try {
-    const { itemId, accountIds, userId } = payload;
+    const { itemId, accountIds } = payload;
     const accessToken = await accountRepository.getAccessTokenFromItemId(itemId);
     if (accessToken) {
-      logger.warn('Syncing Account Details', { itemId, userId });
+      logger.warn('Syncing Account Details', { payload });
     }
     await plaidRepository.syncAccountsAndBalances(accessToken, accountIds);
     await accountRepository.updateBalanceLastSyncDate(Object.values(accountIds));
