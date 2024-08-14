@@ -62,9 +62,8 @@ export class TransactionService {
   }
 
   async triggerLatestSync(): Promise<void> {
-    const accountsBeforeToday = await accountRepository.getAccountsThatHaveLastSyncedBeforeToday(
-      this.userId
-    );
+    const accountsBeforeToday =
+      await accountRepository.getAccountsThatHaveLastTransactionSyncedBeforeToday(this.userId);
 
     if (accountsBeforeToday.accounts.length == 0) {
       return;

@@ -148,7 +148,8 @@ model Account {
     institutionOfficialName     String?
     institutionId               String?
     latestTransactionSyncCursor String?
-    lastSyncDate                DateTime?
+    transactionLastSyncDate     DateTime?
+    balanceLastSyncDate         DateTime?
     type                        AccountTypes @default(Other)
     subType                     String?
     mask                        String?      @default("0000")

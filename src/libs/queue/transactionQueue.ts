@@ -63,13 +63,18 @@ export type syncPlaidDataJobPayload = {
 };
 
 export async function syncPlaidTransactionJob(payload: syncPlaidDataJobPayload) {
-  const { userId, accountIds, itemId } = payload;
-  const { cursor, accessToken } = await accountRepository.getLatestCursorFromAccountItemId(itemId);
-  if (cursor) {
-    logger.warn('Syncing Transactions', { cursor, itemId });
+  try {
+    const { userId, accountIds, itemId } = payload;
+    const { cursor, accessToken } =
+      await accountRepository.getLatestCursorFromAccountItemId(itemId);
+    if (cursor) {
+      logger.warn('Syncing Transactions', { cursor, itemId });
+    }
+    await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
+    await accountRepository.updateTransactionLastSyncDate(Object.values(accountIds));
+  } catch (error) {
+    logger.error('Error syncing transactions', { error, payload });
   }
-  await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
-  await accountRepository.updateLastSyncDate(Object.values(accountIds));
 }
 
 export async function syncPlaidAccountBalancesJob(payload: {
@@ -77,10 +82,15 @@ export async function syncPlaidAccountBalancesJob(payload: {
   itemId: string;
   accountIds: Record<string, string>;
 }) {
-  const { itemId } = payload;
-  const { accessToken } = await accountRepository.getLatestCursorFromAccountItemId(itemId);
-  if (accessToken) {
-    logger.warn('Syncing Account Details', { itemId });
+  try {
+    const { itemId, accountIds, userId } = payload;
+    const accessToken = await accountRepository.getAccessTokenFromItemId(itemId);
+    if (accessToken) {
+      logger.warn('Syncing Account Details', { itemId, userId });
+    }
+    await plaidRepository.syncAccountsAndBalances(accessToken, accountIds);
+    await accountRepository.updateBalanceLastSyncDate(Object.values(accountIds));
+  } catch (error) {
+    logger.error('Error syncing account balances', { error, payload });
   }
-  // await plaidRepository.syncAccountBalances(userId, accessToken);
 }

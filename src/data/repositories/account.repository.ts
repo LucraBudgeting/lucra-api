@@ -14,12 +14,12 @@ class AccountRepository extends BaseRepository {
       },
       data: {
         latestTransactionSyncCursor: cursor,
-        lastSyncDate: new Date(),
+        transactionLastSyncDate: new Date(),
       },
     });
   }
 
-  async updateLastSyncDate(accountIds: string[]): Promise<void> {
+  async updateTransactionLastSyncDate(accountIds: string[]): Promise<void> {
     await this.client.account.updateMany({
       where: {
         id: {
@@ -27,12 +27,25 @@ class AccountRepository extends BaseRepository {
         },
       },
       data: {
-        lastSyncDate: new Date(),
+        transactionLastSyncDate: new Date(),
       },
     });
   }
 
-  async getAccountsThatHaveLastSyncedBeforeToday(
+  async updateBalanceLastSyncDate(accountIds: string[]): Promise<void> {
+    await this.client.account.updateMany({
+      where: {
+        id: {
+          in: accountIds,
+        },
+      },
+      data: {
+        balanceLastSyncDate: new Date(),
+      },
+    });
+  }
+
+  async getAccountsThatHaveLastTransactionSyncedBeforeToday(
     userId: string
   ): Promise<{ accounts: Account[]; access: AccountAccess[] }> {
     const today = new Date();
@@ -46,18 +59,38 @@ class AccountRepository extends BaseRepository {
         },
         OR: [
           {
-            lastSyncDate: {
+            transactionLastSyncDate: {
               lt: today.toISOString(),
             },
           },
           {
-            lastSyncDate: null,
+            transactionLastSyncDate: null,
           },
         ],
       },
     });
 
     return { accounts, access: accountAccess };
+  }
+
+  async getAccessTokenFromItemId(itemId: string): Promise<string> {
+    if (!itemId) {
+      logger.error('Account access id is required to get access token');
+      throw new ValidationError('Account access id is required to get access token');
+    }
+
+    const accountAccess = await this.client.accountAccess.findFirst({
+      where: {
+        providerItemId: itemId,
+      },
+    });
+
+    if (!accountAccess || !accountAccess?.accessToken) {
+      logger.error('No access token found for account item id', { itemId, accountAccess });
+      throw new ValidationError('No access token found for account item id');
+    }
+
+    return accountAccess.accessToken;
   }
 
   async getLatestCursorFromAccountItemId(
