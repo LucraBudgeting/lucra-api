@@ -14,20 +14,35 @@ export class TransactionService {
     this.userId = userId;
   }
 
-  async getTransactions(start?: string, end?: string): Promise<ITransactionResponse[]> {
+  async getTransactions(
+    start?: string,
+    end?: string,
+    accountId?: string
+  ): Promise<ITransactionResponse[]> {
     const startDate = start ? new Date(start) : undefined;
     const endDate = end ? new Date(end) : undefined;
 
-    let transactions = await transactionRepository.getUserTransactions(
-      this.userId,
-      startDate,
-      endDate
-    );
+    let transactions = [];
+    if (accountId) {
+      transactions = await transactionRepository.getAccountTransactions(
+        this.userId,
+        accountId,
+        startDate,
+        endDate
+      );
+    } else {
+      transactions = await transactionRepository.getUserTransactions(
+        this.userId,
+        startDate,
+        endDate
+      );
+    }
 
     transactions = transactions.map((transaction) => ({
       ...transaction,
-      categoryId: transaction.budgetCategoryId,
-    }));
+      categoryId: transaction.budgetCategoryId ?? '',
+    })) as ITransactionResponse[];
+
     return transactions;
   }
 

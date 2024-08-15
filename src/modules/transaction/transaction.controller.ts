@@ -5,14 +5,17 @@ import { ValidationError } from '@/exceptions/error';
 import { TransactionService } from './transaction.service';
 
 export async function GetTransactions(
-  req: FastifyRequest<{ Querystring: { start?: string; end?: string }; user: User }>,
+  req: FastifyRequest<{
+    Querystring: { start?: string; end?: string; accountId?: string };
+    user: User;
+  }>,
   reply: FastifyReply
 ) {
-  const { start, end } = req.query;
+  const { start, end, accountId } = req.query;
   const user = req.user as User;
 
   const transactionService = new TransactionService(user.id);
-  const transactions = await transactionService.getTransactions(start, end);
+  const transactions = await transactionService.getTransactions(start, end, accountId);
 
   return reply.send({ message: 'Transactions Fetched', transactions });
 }

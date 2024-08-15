@@ -31,6 +31,33 @@ class TransactionRepository extends BaseRepository {
     return transactions;
   }
 
+  async getAccountTransactions(userId: string, accountId: string, start?: Date, end?: Date) {
+    if (!start) {
+      start = new Date();
+      start.setMonth(new Date().getMonth() - 1);
+    }
+
+    if (!end) {
+      end = new Date();
+    }
+
+    const transactions = await this.client.transaction.findMany({
+      where: {
+        userId,
+        accountId,
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+
+    return transactions;
+  }
+
   async getTransaction(transactionId: string) {
     return this.client.transaction.findUnique({
       where: {
