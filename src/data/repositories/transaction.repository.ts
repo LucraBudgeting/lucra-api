@@ -15,6 +15,12 @@ class TransactionRepository extends BaseRepository {
       end = new Date();
     }
 
+    // Normalize start to the beginning of the day
+    start.setUTCHours(0, 0, 0, 0);
+
+    // Normalize end to the end of the day
+    end.setUTCHours(23, 59, 59, 999);
+
     const transactions = await this.client.transaction.findMany({
       where: {
         userId,
