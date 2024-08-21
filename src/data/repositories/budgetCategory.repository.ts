@@ -56,6 +56,9 @@ class BudgetCategoryRepository extends BaseRepository {
       where: {
         userId,
       },
+      orderBy: {
+        dateCreated: 'asc',
+      },
     });
   }
 
