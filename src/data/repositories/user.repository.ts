@@ -1,6 +1,7 @@
 import { User, UserStatus } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
+import { UserAgent } from '@/utils/userAgent';
 
 type UserResponse = User | null;
 
@@ -73,6 +74,21 @@ class UserRepository extends BaseRepository {
     });
 
     return newUser;
+  }
+
+  async recordUserSession(userId: string, userAgent: UserAgent): Promise<void> {
+    if (!userId) {
+      throw new ValidationError('Cannot Record User Session: Id is null or empty');
+    }
+
+    await this.client.userSession.create({
+      data: {
+        userId,
+        deviceType: userAgent.deviceType,
+        operatingSystem: userAgent.operatingSystem,
+        sessionIpAddress: userAgent.sessionIpAddress,
+      },
+    });
   }
 
   async deleteUserById(userId: string): Promise<void> {

@@ -1,7 +1,13 @@
 import { User } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { TransactionService } from '../transaction/transaction.service';
-import { AuthCheckByUserId, LoginUserByEmail, LoginUserByUsername } from './authentication.service';
+import {
+  AuthCheckByUserId,
+  LoginUserByEmail,
+  LoginUserByUsername,
+  recordUserLoginSession,
+} from './authentication.service';
+import { getUserAgentFromRequest } from '@/utils/userAgent';
 
 export async function AuthLogin(
   req: FastifyRequest<{
@@ -24,6 +30,9 @@ export async function AuthLogin(
   }
 
   const accessToken = await reply.jwtSign({ user });
+
+  const userAgent = getUserAgentFromRequest(req);
+  await recordUserLoginSession(user.id, userAgent);
 
   return reply.send({ message: 'Successful Login', user, accessToken });
 }

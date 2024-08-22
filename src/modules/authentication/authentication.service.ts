@@ -3,6 +3,7 @@ import { userRepository } from '@/data/repositories/user.repository';
 import { userAuthRepository } from '@/data/repositories/userAuth.repository';
 import { BadRequestError, NotFoundError } from '@/exceptions/error';
 import { stringMatchesHash } from '@/libs/bcrypt';
+import { UserAgent } from '@/utils/userAgent';
 
 export async function LoginUserByUsername(username: string, password: string) {
   const user = await userRepository.findUserByUsername(username);
@@ -26,6 +27,10 @@ export async function LoginUserByEmail(email: string, password: string): Promise
   await validateAuthFromUser(user, password);
 
   return user;
+}
+
+export async function recordUserLoginSession(userId: string, userAgent: UserAgent) {
+  await userRepository.recordUserSession(userId, userAgent);
 }
 
 async function validateAuthFromUser(user: User, password: string): Promise<void> {

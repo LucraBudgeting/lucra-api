@@ -98,19 +98,8 @@ model UserOnboardingStage {
 }
 
 model UserSession {
-    id     String @id @unique @default(cuid())
-    userId String @unique
-
-    dateCreated DateTime @default(now())
-    dateUpdated DateTime @default(now()) @updatedAt
-
-    user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userSessionAccess UserSessionAccess[]
-}
-
-model UserSessionAccess {
     id               String @id @unique @default(cuid())
-    sessionId        String
+    userId           String
     deviceType       String
     operatingSystem  String
     sessionIpAddress String
@@ -118,9 +107,7 @@ model UserSessionAccess {
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
 
-    userSession UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-    @@index([sessionId], name: "user_session_access_session_id_index")
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AccountAccess {
