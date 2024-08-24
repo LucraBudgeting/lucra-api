@@ -39,6 +39,7 @@ model User {
     rule                Rule[]
     accountAccess       AccountAccess[]
     UserGuideProgress   UserGuideProgress[]
+    UserFeedback        UserFeedback[]
 }
 
 model UserAuth {
@@ -298,6 +299,17 @@ model Rule {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId], name: "transaction_rule_user_id_index")
+}
+
+model UserFeedback {
+    id       String @id @unique @default(cuid())
+    userId   String
+    feedback String
+
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @default(now()) @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // If a full DB reset needs to happen, you will need to delete the stored data types
