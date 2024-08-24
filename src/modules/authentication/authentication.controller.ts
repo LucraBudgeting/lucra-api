@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { getUserAgentFromRequest } from '@/utils/userAgent';
 import { TransactionService } from '../transaction/transaction.service';
 import {
   AuthCheckByUserId,
@@ -7,7 +8,6 @@ import {
   LoginUserByUsername,
   recordUserLoginSession,
 } from './authentication.service';
-import { getUserAgentFromRequest } from '@/utils/userAgent';
 
 export async function AuthLogin(
   req: FastifyRequest<{

@@ -1,7 +1,7 @@
 import { User, UserStatus } from '@prisma/client';
 import { ValidationError } from '@/exceptions/error';
-import { BaseRepository } from './base.repository';
 import { UserAgent } from '@/utils/userAgent';
+import { BaseRepository } from './base.repository';
 
 type UserResponse = User | null;
 

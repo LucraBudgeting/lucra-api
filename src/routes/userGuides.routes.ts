@@ -1,6 +1,6 @@
+import { FastifyInstance, RouteOptions } from 'fastify';
 import { CompleteGuide, GetGuides } from '@/modules/userGuide/userGuide.controller';
 import { HttpMethods } from '@/utils/HttpMethods';
-import { FastifyInstance, RouteOptions } from 'fastify';
 
 const basePath = '/userGuides';
 
