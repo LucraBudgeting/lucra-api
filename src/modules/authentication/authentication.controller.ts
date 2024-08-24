@@ -42,9 +42,9 @@ export async function AuthCheck(req: FastifyRequest, reply: FastifyReply) {
   const freshUser = await AuthCheckByUserId(user.id);
 
   const transactionService = new TransactionService(user.id);
-  await transactionService.triggerLatestSync();
+  const doesNeedSync = await transactionService.triggerLatestSync();
 
   const accessToken = await reply.jwtSign({ user: freshUser });
 
-  return reply.send({ message: 'Check', accessToken, user: freshUser });
+  return reply.send({ message: 'Check', accessToken, user: freshUser, doesNeedSync });
 }

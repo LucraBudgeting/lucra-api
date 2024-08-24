@@ -76,12 +76,12 @@ export class TransactionService {
     await transactionRepository.patchTransaction(transactionId, patch);
   }
 
-  async triggerLatestSync(): Promise<void> {
+  async triggerLatestSync(): Promise<boolean> {
     const accountsBeforeToday =
       await accountRepository.getAccountsThatHaveLastTransactionSyncedBeforeToday(this.userId);
 
     if (accountsBeforeToday.accounts.length == 0) {
-      return;
+      return false;
     }
 
     for (let i = 0; i < accountsBeforeToday.access.length; i++) {
@@ -103,5 +103,6 @@ export class TransactionService {
 
       await syncLatestAccountDetails(this.userId, accountIds, providerItemId);
     }
+    return true;
   }
 }
