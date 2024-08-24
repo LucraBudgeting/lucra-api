@@ -5,7 +5,7 @@ export interface UserAgent {
   deviceType: string;
   operatingSystem: string;
   sessionIpAddress: string;
-  sessionType: SessionType;
+  sessionType?: SessionType;
 }
 
 export function getUserAgentFromRequest(request: FastifyRequest): UserAgent {

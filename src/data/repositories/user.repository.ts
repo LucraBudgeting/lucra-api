@@ -87,6 +87,7 @@ class UserRepository extends BaseRepository {
         deviceType: userAgent.deviceType,
         operatingSystem: userAgent.operatingSystem,
         sessionIpAddress: userAgent.sessionIpAddress,
+        sessionType: userAgent.sessionType,
       },
     });
   }
