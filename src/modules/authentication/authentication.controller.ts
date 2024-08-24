@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { SessionType, User } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { getUserAgentFromRequest } from '@/utils/userAgent';
 import { TransactionService } from '../transaction/transaction.service';
@@ -32,6 +32,7 @@ export async function AuthLogin(
   const accessToken = await reply.jwtSign({ user });
 
   const userAgent = getUserAgentFromRequest(req);
+  userAgent.sessionType = SessionType.LOGIN;
   await recordUserLoginSession(user.id, userAgent);
 
   return reply.send({ message: 'Successful Login', user, accessToken });
@@ -43,6 +44,10 @@ export async function AuthCheck(req: FastifyRequest, reply: FastifyReply) {
 
   const transactionService = new TransactionService(user.id);
   const doesNeedSync = await transactionService.triggerLatestSync();
+
+  const userAgent = getUserAgentFromRequest(req);
+  userAgent.sessionType = SessionType.CHECK;
+  await recordUserLoginSession(user.id, userAgent);
 
   const accessToken = await reply.jwtSign({ user: freshUser });
 

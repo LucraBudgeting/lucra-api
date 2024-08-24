@@ -1,9 +1,11 @@
+import { SessionType } from '@/data/db.client';
 import { FastifyRequest } from 'fastify';
 
 export interface UserAgent {
   deviceType: string;
   operatingSystem: string;
   sessionIpAddress: string;
+  sessionType: SessionType;
 }
 
 export function getUserAgentFromRequest(request: FastifyRequest): UserAgent {

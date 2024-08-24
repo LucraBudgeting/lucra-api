@@ -99,11 +99,12 @@ model UserOnboardingStage {
 }
 
 model UserSession {
-    id               String @id @unique @default(cuid())
+    id               String      @id @unique @default(cuid())
     userId           String
     deviceType       String
     operatingSystem  String
     sessionIpAddress String
+    sessionType      SessionType @default(LOGIN)
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt
@@ -374,4 +375,10 @@ enum BillingStatus {
     PENDING
     COMPLETED
     FAILED
+}
+
+enum SessionType {
+    LOGIN
+    CHECK
+    LOGOUT
 }
