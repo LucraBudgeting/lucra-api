@@ -6,6 +6,7 @@ import { userOnboardingStageRepository } from '@/data/repositories/userOnboardin
 import { User } from '@/data/db.client';
 import { FRONTEND_ORIGIN } from '@/config';
 import { userBillingRepository } from '@/data/repositories/userBilling.repository';
+import { CategoryService } from '../budget/category.service';
 import { SetupUserBilling } from './onboarding.service';
 import { createAccountBody } from './types';
 
@@ -61,6 +62,9 @@ export async function CreateAccount(
   await userBillingRepository.createStripeBilling(user.id, customerId);
 
   await userOnboardingStageRepository.createUser(user.id);
+
+  const categoryService = new CategoryService(user.id);
+  await categoryService.getOrCreateTransferCategory();
 
   return reply
     .status(HttpStatusCode.Ok)
