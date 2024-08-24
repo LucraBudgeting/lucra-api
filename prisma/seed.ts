@@ -8,12 +8,15 @@ import {
   user3Auth,
   userIdConstants,
 } from './seed_utils/seed.constants';
+import userGuideSeed from './seed_utils/userGuide.seed';
 
 const prisma = new PrismaClient();
 
 const forceSeedUpdate = process.env.FORCE_SEED_UPDATE === 'true';
 
 async function main() {
+  await userGuideSeed();
+
   if (process.env.NODE_ENV == 'production') {
     return;
   }

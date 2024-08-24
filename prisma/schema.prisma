@@ -38,6 +38,7 @@ model User {
     transaction         Transaction[]
     rule                Rule[]
     accountAccess       AccountAccess[]
+    UserGuideProgress   UserGuideProgress[]
 }
 
 model UserAuth {
@@ -238,6 +239,30 @@ model BudgetCategory {
     Transaction Transaction[]
 
     @@index([userId], name: "budget_category_user_id_index")
+}
+
+model Guide {
+    id        String              @id @unique @default(cuid())
+    key       String
+    title     String
+    createdAt DateTime            @default(now())
+    updatedAt DateTime            @updatedAt
+    progress  UserGuideProgress[]
+}
+
+model UserGuideProgress {
+    id          String    @id @unique @default(cuid())
+    userId      String
+    guideId     String
+    completed   Boolean   @default(false)
+    progress    Float     @default(0.0) // Value from 0.0 to 1.0 indicating completion progress
+    startedAt   DateTime  @default(now())
+    completedAt DateTime?
+
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    guide Guide @relation(fields: [guideId], references: [id])
+
+    @@unique([userId, guideId])
 }
 
 model Address {
