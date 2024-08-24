@@ -13,7 +13,7 @@ export default async function UserGuides(fastify: FastifyInstance, _opts: RouteO
   });
 
   fastify.route({
-    method: HttpMethods.POST,
+    method: HttpMethods.PUT,
     url: `${basePath}/:id`,
     handler: CompleteGuide,
     preHandler: [fastify.authPrehandler],
