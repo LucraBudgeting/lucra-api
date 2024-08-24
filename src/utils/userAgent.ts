@@ -1,5 +1,5 @@
-import { SessionType } from '@/data/db.client';
 import { FastifyRequest } from 'fastify';
+import { SessionType } from '@/data/db.client';
 
 export interface UserAgent {
   deviceType: string;
