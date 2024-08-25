@@ -67,6 +67,7 @@ export async function CreateAccount(
 
   const categoryService = new CategoryService(user.id);
   await categoryService.getOrCreateTransferCategory();
+  await categoryService.createBlueprintCategories();
 
   return reply
     .status(HttpStatusCode.Ok)

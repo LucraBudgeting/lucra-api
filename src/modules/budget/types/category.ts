@@ -6,7 +6,7 @@ export interface ICategoryResponse extends ICategory {
   id: string;
 }
 
-interface ICategory {
+export interface ICategory {
   avatar: {
     backgroundColor: string | null;
     emoji: string;

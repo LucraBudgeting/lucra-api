@@ -1,6 +1,7 @@
 import { budgetCategoryRepository } from '@/data/repositories/budgetCategory.repository';
 import { mapBudgetTypeToString } from '@/data/enumHelpers/BudgetCategoryType';
 import { ICategoryRequest, ICategoryResponse } from './types/category';
+import { blueprintCategories } from './blueprintCategories';
 
 export class CategoryService {
   private userId: string;
@@ -22,6 +23,14 @@ export class CategoryService {
       amount: parseInt(category.amount.toString(), 10),
       budgetType: mapBudgetTypeToString(category.budgetType),
     };
+  }
+
+  async createBlueprintCategories(): Promise<void> {
+    await Promise.all(
+      blueprintCategories.map((category) =>
+        budgetCategoryRepository.createCategory(this.userId, category)
+      )
+    );
   }
 
   async getOrCreateTransferCategory(): Promise<ICategoryResponse> {
