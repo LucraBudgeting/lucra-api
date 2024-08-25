@@ -57,9 +57,11 @@ export async function CreateAccount(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
-  const { checkoutUrl, customerId } = await SetupUserBilling(user);
+  // const { checkoutUrl, customerId } = await SetupUserBilling(user);
 
-  await userBillingRepository.createStripeBilling(user.id, customerId);
+  // await userBillingRepository.createStripeBilling(user.id, customerId);
+
+  await userBillingRepository.createBetaUserBilling(user.id);
 
   await userOnboardingStageRepository.createUser(user.id);
 
@@ -68,7 +70,7 @@ export async function CreateAccount(
 
   return reply
     .status(HttpStatusCode.Ok)
-    .send({ message: 'Account created', token: onboardingAccessToken, checkoutUrl });
+    .send({ message: 'Account created', token: onboardingAccessToken });
 }
 
 export async function GetUser(

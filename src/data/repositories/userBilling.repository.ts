@@ -1,4 +1,4 @@
-import { BillingPlatform } from '@prisma/client';
+import { BillingPlatform, BillingStatus } from '@prisma/client';
 import { NotFoundError } from '@/exceptions/error';
 import { BaseRepository } from './base.repository';
 
@@ -10,6 +10,18 @@ class UserBillingRepository extends BaseRepository {
         billingPlatform: BillingPlatform.STRIPE,
         stripeCustomerId: customerId,
         amount: 0,
+        currency: 'USD',
+      },
+    });
+  }
+
+  public async createBetaUserBilling(userId: string) {
+    await this.client.userBilling.create({
+      data: {
+        userId: userId,
+        billingPlatform: BillingPlatform.BETA,
+        amount: 0,
+        status: BillingStatus.COMPLETED,
         currency: 'USD',
       },
     });
