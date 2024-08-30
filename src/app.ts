@@ -10,7 +10,7 @@ import fastifyJwt from '@fastify/jwt';
 import { initPgBoss } from '@/libs/pgBoss';
 import '@/libs/pgBoss/pgBossJobController';
 import { schemaErrorFormatter } from '@/utils/schemaErrorFormatter';
-import { API_URL, CREDENTIALS, PORT, SECRET_KEY } from '@/config';
+import { CREDENTIALS, PORT, SECRET_KEY } from '@/config';
 import { schema } from '@/utils/validateEnv';
 import '@/extensions';
 import { baseLogger, logger } from '@/libs/logger';
