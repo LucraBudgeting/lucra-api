@@ -11,6 +11,8 @@ class UserRepository extends BaseRepository {
       throw new ValidationError('Cannot Find User By Email: Invalid email address');
     }
 
+    email = email.toLowerCase();
+
     return this.client.user.findFirst({
       where: {
         email,
@@ -22,6 +24,8 @@ class UserRepository extends BaseRepository {
     if (!email.isValidEmail()) {
       throw new ValidationError('Cannot Find User By Email: Invalid email address');
     }
+
+    email = email.toLowerCase();
 
     const user = await this.client.user.findFirst({
       where: {
@@ -64,6 +68,8 @@ class UserRepository extends BaseRepository {
     if (fullName.isNullOrEmpty()) {
       throw new ValidationError('Cannot Create User: Full Name is null or empty');
     }
+
+    email = email.toLowerCase();
 
     const newUser = await this.client.user.create({
       data: {

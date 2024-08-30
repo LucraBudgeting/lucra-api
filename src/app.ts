@@ -15,6 +15,7 @@ import { schema } from '@/utils/validateEnv';
 import '@/extensions';
 import { baseLogger, logger } from '@/libs/logger';
 import { globalErrorHandler } from '@/utils/globalErrorHandler';
+import { getNetworkAddress } from './utils/network';
 
 const port: number = Number(PORT) ?? 3001;
 
@@ -69,9 +70,11 @@ async function startServer() {
   try {
     await initPgBoss();
     await app.listen({ port, host: '0.0.0.0' });
-    // await dbClient.$connect();
-    logger.info(`Server running on port ${port} \n${API_URL}`);
-    // schedulePing();
+
+    const networkAddress = getNetworkAddress();
+    logger.info(
+      `Server running on port ${port} \nLocal: http://localhost:${port} \nNetwork: http://${networkAddress}:${port}`
+    );
   } catch (err) {
     logger.error('APP ERROR', err);
     // dbClient.$disconnect();
