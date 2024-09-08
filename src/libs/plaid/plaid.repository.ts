@@ -171,7 +171,9 @@ class PlaidRepository {
         this.syncAddedTransactions(userId, accountIds, transactionsData.added),
         this.syncModifiedTransactions(userId, accountIds, transactionsData.modified),
         this.syncRemovedTransactions(userId, accountIds, transactionsData.removed),
-      ]);
+      ]).catch((error) => {
+        logger.error('Error syncing transactions', { error });
+      });
     }
 
     if (!hasMore && cursor) {
