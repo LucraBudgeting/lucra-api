@@ -73,7 +73,7 @@ export async function syncPlaidTransactionJob(payload: syncPlaidDataJobPayload) 
     await plaidRepository.syncTransactionHistory(userId, accountIds, accessToken, cursor);
     await accountRepository.updateTransactionLastSyncDate(Object.values(accountIds));
   } catch (error) {
-    logger.error('Error syncing transactions', { error, payload });
+    logger.error('Error syncPlaidTransactionJob', { error, payload });
   }
 }
 

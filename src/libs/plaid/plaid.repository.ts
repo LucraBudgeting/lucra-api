@@ -242,9 +242,13 @@ class PlaidRepository {
       },
     };
 
-    const response = await this.plaidClient.transactionsSync(request);
+    try {
+      const response = await this.plaidClient.transactionsSync(request);
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      throw new ServiceUnavailableError(error as string);
+    }
   }
 
   public async getHistoricalTransactions(
