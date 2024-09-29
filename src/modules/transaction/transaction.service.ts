@@ -76,6 +76,13 @@ export class TransactionService {
     await transactionRepository.patchTransaction(transactionId, patch);
   }
 
+  async excludeTransactionFromBudget(
+    transactionId: string,
+    excludeFromBudget: boolean
+  ): Promise<void> {
+    await transactionRepository.excludeTransactionFromBudget(transactionId, excludeFromBudget);
+  }
+
   async triggerLatestSync(): Promise<boolean> {
     const accountsBeforeToday =
       await accountRepository.getAccountsThatHaveLastTransactionSyncedBeforeToday(this.userId);

@@ -132,6 +132,21 @@ class TransactionRepository extends BaseRepository {
       },
     });
   }
+
+  async excludeTransactionFromBudget(transactionId: string, excludeFromBudget: boolean) {
+    if (!transactionId) {
+      throw new ValidationError('TransactionId is required');
+    }
+
+    await this.client.transaction.update({
+      where: {
+        id: transactionId,
+      },
+      data: {
+        isExcludedFromBudget: excludeFromBudget,
+      },
+    });
+  }
 }
 
 export const transactionRepository = new TransactionRepository();

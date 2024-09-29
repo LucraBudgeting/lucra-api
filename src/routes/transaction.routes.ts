@@ -32,6 +32,13 @@ export default async function Transaction(fastify: FastifyInstance, _opts: Route
   });
 
   fastify.route({
+    method: HttpMethods.PATCH,
+    url: `${basePath}/:id/exclude?value=:excludeFromBudget`,
+    handler: AssociateCategoryToTransaction,
+    preHandler: [fastify.authPrehandler],
+  });
+
+  fastify.route({
     method: HttpMethods.PUT,
     url: `${basePath}/:id/category/:categoryId`,
     handler: AssociateCategoryToTransaction,

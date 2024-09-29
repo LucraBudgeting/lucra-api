@@ -56,6 +56,19 @@ export async function PatchTransaction(
   return reply.send({ message: 'Transaction updated' });
 }
 
+export async function ExcludeTransactionFromBudget(
+  req: FastifyRequest<{ Params: { id: string }; Querystring: { excludeFromBudget: boolean } }>,
+  reply: FastifyReply
+) {
+  const user = req.user as User;
+  const { id } = req.params;
+  const { excludeFromBudget } = req.query;
+  const transactionService = new TransactionService(user.id);
+  await transactionService.excludeTransactionFromBudget(id, excludeFromBudget);
+
+  return reply.send({ message: 'Transaction excluded from budget' });
+}
+
 export async function AssociateCategoryToTransaction(
   req: FastifyRequest<{ Params: { id: string; categoryId?: string } }>,
   reply: FastifyReply
