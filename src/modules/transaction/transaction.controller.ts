@@ -2,8 +2,8 @@ import { User } from '@prisma/client';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { isStringFalsey } from '@/utils/isStringFalsey';
 import { ValidationError } from '@/exceptions/error';
-import { TransactionService } from './transaction.service';
 import { stringToBool } from '@/utils/stringToBool';
+import { TransactionService } from './transaction.service';
 
 export async function GetTransactions(
   req: FastifyRequest<{
