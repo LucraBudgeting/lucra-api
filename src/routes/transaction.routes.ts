@@ -27,7 +27,7 @@ export default async function Transaction(fastify: FastifyInstance, _opts: Route
 
   fastify.route({
     method: HttpMethods.PATCH,
-    url: `${basePath}/:id/exclude?value=:excludeFromBudget`,
+    url: `${basePath}/:id/exclude/:exclude`,
     handler: ExcludeTransactionFromBudget,
     preHandler: [fastify.authPrehandler],
   });

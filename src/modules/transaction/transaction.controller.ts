@@ -3,6 +3,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { isStringFalsey } from '@/utils/isStringFalsey';
 import { ValidationError } from '@/exceptions/error';
 import { TransactionService } from './transaction.service';
+import { stringToBool } from '@/utils/stringToBool';
 
 export async function GetTransactions(
   req: FastifyRequest<{
@@ -57,14 +58,13 @@ export async function PatchTransaction(
 }
 
 export async function ExcludeTransactionFromBudget(
-  req: FastifyRequest<{ Params: { id: string }; Querystring: { excludeFromBudget: boolean } }>,
+  req: FastifyRequest<{ Params: { id: string; exclude: string } }>,
   reply: FastifyReply
 ) {
   const user = req.user as User;
-  const { id } = req.params;
-  const { excludeFromBudget } = req.query;
+  const { id, exclude } = req.params;
   const transactionService = new TransactionService(user.id);
-  await transactionService.excludeTransactionFromBudget(id, excludeFromBudget);
+  await transactionService.excludeTransactionFromBudget(id, stringToBool(exclude));
 
   return reply.send({ message: 'Transaction excluded from budget' });
 }
