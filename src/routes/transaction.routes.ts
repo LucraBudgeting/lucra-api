@@ -5,6 +5,7 @@ import {
   GetTransaction,
   GetTransactions,
   PatchTransaction,
+  ExcludeTransactionFromBudget,
 } from '@/modules/transaction/transaction.controller';
 
 const basePath = '/transaction';
@@ -34,7 +35,7 @@ export default async function Transaction(fastify: FastifyInstance, _opts: Route
   fastify.route({
     method: HttpMethods.PATCH,
     url: `${basePath}/:id/exclude?value=:excludeFromBudget`,
-    handler: AssociateCategoryToTransaction,
+    handler: ExcludeTransactionFromBudget,
     preHandler: [fastify.authPrehandler],
   });
 
