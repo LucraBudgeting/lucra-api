@@ -2,6 +2,8 @@ import { RuleModels } from '@prisma/client';
 import { ITransactionDto } from '@/modules/transaction/types/transaction';
 import { ValidationError } from '@/exceptions/error';
 import { ruleRepository } from '@/data/repositories/rule.repository';
+import { TransactionService } from '@/modules/transaction/transaction.service';
+import { logger } from '@/libs/logger';
 import {
   ITransactionCondition,
   ITransactionConditionGroup,
@@ -41,6 +43,78 @@ export class TransactionRuleService {
       ...rule,
       parsedCondition: JSON.parse(rule.conditions as string),
     };
+  }
+
+  async addMerchantToRule(transactionId: string, categoryId: string) {
+    const transactionService = new TransactionService(this.userId);
+    const userRules = await this.getRules();
+    const transaction = await transactionService.getTransaction(transactionId);
+    if (transaction.name === null) {
+      logger.info('Merchant name is null');
+      return;
+    }
+    if (this.doesExistingRuleContainMerchantName(transaction.name, userRules)) {
+      logger.info('Merchant already exists in rule');
+      return;
+    }
+    const categoryRule = this.getRuleThatContainsCategoryId(categoryId, userRules);
+    if (!categoryRule) {
+      await this.createNewMerchantRule(categoryId, transaction.name);
+    } else {
+      await this.updateMerchantRule(categoryRule, transaction.name);
+    }
+  }
+  async updateMerchantRule(existingRule: ITransactionRule, name: string) {
+    const updatedRule = {
+      ...existingRule,
+      rule: {
+        ...existingRule.parsedCondition,
+      },
+    } as IPutRuleRequest<ITransactionRuleCondition>;
+    updatedRule.rule.conditionGroups[0]?.conditions.push({
+      field: 'name',
+      operator: conditionOperator.equals,
+      value: name,
+    } as ITransactionCondition);
+    await this.updateRule(updatedRule);
+  }
+  async createNewMerchantRule(categoryId: string, name: string) {
+    const newRule = {
+      name: 'Merchant Rule',
+      rule: {
+        categoryId: categoryId,
+        conditionGroups: [
+          {
+            type: conditionType.or,
+            conditions: [
+              {
+                field: 'name',
+                operator: conditionOperator.equals,
+                value: name,
+              },
+            ],
+          },
+        ],
+      },
+    } as IPutRuleRequest<ITransactionRuleCondition>;
+    await this.createNewRule(newRule);
+  }
+
+  getRuleThatContainsCategoryId(
+    categoryId: string,
+    rules: ITransactionRule[]
+  ): ITransactionRule | undefined {
+    return rules.find((rule) => rule.parsedCondition.categoryId === categoryId);
+  }
+  doesExistingRuleContainMerchantName(merchantName: string, rules: ITransactionRule[]): boolean {
+    return rules.some((rule) => {
+      const { conditionGroups } = rule.parsedCondition;
+      return conditionGroups.some((group) =>
+        group.conditions.some((condition) => {
+          return condition.field === 'merchantName' && condition.value === merchantName;
+        })
+      );
+    });
   }
   async updateRule(
     updatedRule: IPutRuleRequest<ITransactionRuleCondition>

@@ -5,6 +5,7 @@ import {
   DeleteTransactionRule,
   GetTransactionRules,
   UpdateTransactionRule,
+  AddMerchantToRule,
 } from '@/modules/rules/rules.transaction.controller';
 import { HttpMethods } from '@/utils/HttpMethods';
 
@@ -50,6 +51,13 @@ export default async function TransactionRules(fastify: FastifyInstance, _opts: 
     method: HttpMethods.PUT,
     url: `${basePath}/overwrite/apply-rules`,
     handler: ApplyRulesToTransactions,
+    preHandler: [fastify.authPrehandler],
+  });
+
+  fastify.route({
+    method: HttpMethods.PUT,
+    url: `${basePath}/merchant/:transactionId/:categoryId`,
+    handler: AddMerchantToRule,
     preHandler: [fastify.authPrehandler],
   });
 }
