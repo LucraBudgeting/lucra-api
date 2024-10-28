@@ -49,15 +49,19 @@ export class TransactionRuleService {
     const transactionService = new TransactionService(this.userId);
     const userRules = await this.getRules();
     const transaction = await transactionService.getTransaction(transactionId);
+
     if (transaction.name === null) {
       logger.info('Merchant name is null');
       return;
     }
+
     if (this.doesExistingRuleContainMerchantName(transaction.name, userRules)) {
       logger.info('Merchant already exists in rule');
       return;
     }
+
     const categoryRule = this.getRuleThatContainsCategoryId(categoryId, userRules);
+
     if (!categoryRule) {
       await this.createNewMerchantRule(categoryId, transaction.name);
     } else {
