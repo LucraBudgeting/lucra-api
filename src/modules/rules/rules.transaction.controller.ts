@@ -66,11 +66,11 @@ export async function ApplyRulesToTransactions(req: FastifyRequest, reply: Fasti
 }
 
 export async function AddMerchantToRule(
-  req: FastifyRequest<{ Params: { merchantId: string; transactionId: string } }>,
+  req: FastifyRequest<{ Params: { categoryId: string; transactionId: string } }>,
   reply: FastifyReply
 ) {
   const user = req.user as User;
   const ruleService = new TransactionRuleService(user.id);
-  await ruleService.addMerchantToRule(req.params.transactionId, req.params.merchantId);
+  await ruleService.addMerchantToRule(req.params.transactionId, req.params.categoryId);
   return reply.send({ message: 'Merchant Added to Rule' });
 }
