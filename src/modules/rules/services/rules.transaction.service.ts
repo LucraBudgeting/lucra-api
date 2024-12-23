@@ -69,6 +69,8 @@ export class TransactionRuleService {
     }
   }
   async updateMerchantRule(existingRule: ITransactionRule, name: string) {
+    const normalizedName = name.toLowerCase();
+
     const updatedRule = {
       ...existingRule,
       rule: {
@@ -78,11 +80,13 @@ export class TransactionRuleService {
     updatedRule.rule.conditionGroups[0]?.conditions.push({
       field: 'name',
       operator: conditionOperator.equals,
-      value: name,
+      value: normalizedName,
     } as ITransactionCondition);
     await this.updateRule(updatedRule);
   }
   async createNewMerchantRule(categoryId: string, name: string) {
+    const normalizedName = name.toLowerCase();
+
     const newRule = {
       name: 'Merchant Rule',
       rule: {
@@ -94,7 +98,7 @@ export class TransactionRuleService {
               {
                 field: 'name',
                 operator: conditionOperator.equals,
-                value: name,
+                value: normalizedName,
               },
             ],
           },

@@ -20,7 +20,7 @@ export default fastifyPlugin(async (fastify: FastifyInstance) => {
         error: JSON.stringify(error, null, 4),
         requestUrl: request.url,
       };
-      logger.error(`authPrehandler Error: `, errorPayload);
+      logger.warn(`authPrehandler Error: `, errorPayload);
 
       throw new ForbiddenError('Invalid Token');
     }
