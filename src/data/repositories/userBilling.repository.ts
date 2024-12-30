@@ -49,18 +49,6 @@ class UserBillingRepository extends BaseRepository {
         } else {
           throw new NotFoundError('Stripe customer id not found');
         }
-      case BillingPlatform.APPLE:
-        if (userBilling.appleReceipt) {
-          return userBilling.appleReceipt;
-        } else {
-          throw new NotFoundError('Stripe customer id not found');
-        }
-      case BillingPlatform.GOOGLE:
-        if (userBilling.googleOrderId) {
-          return userBilling.googleOrderId;
-        } else {
-          throw new NotFoundError('Stripe customer id not found');
-        }
       default:
         throw new Error('Unsupported billing platform');
     }

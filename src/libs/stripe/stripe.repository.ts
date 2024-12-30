@@ -12,13 +12,14 @@ export class StripeRepository {
     return this;
   }
 
-  public async createCustomer(payload: CreateStripeCustomer) {
+  public async createCustomer(payload: CreateStripeCustomer, metadata?: Record<string, string>) {
     return await stripe.customers.create({
       email: payload.email,
       name: payload.name,
       phone: payload.phone,
       metadata: {
         userId: payload.userId,
+        ...metadata,
       },
     });
   }

@@ -7,7 +7,7 @@ import { User } from '@/data/db.client';
 import { FRONTEND_ORIGIN } from '@/config';
 import { userBillingRepository } from '@/data/repositories/userBilling.repository';
 import { CategoryService } from '../budget/category.service';
-import { SetupUserBilling } from './onboarding.service';
+import { SetupBetaUserBilling } from './onboarding.service';
 import { createAccountBody } from './types';
 
 export async function DoesEmailAlreadyExist(
@@ -57,11 +57,9 @@ export async function CreateAccount(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
-  // const { checkoutUrl, customerId } = await SetupUserBilling(user);
+  const { customerId } = await SetupBetaUserBilling(user);
 
-  // await userBillingRepository.createStripeBilling(user.id, customerId);
-
-  await userBillingRepository.createBetaUserBilling(user.id);
+  await userBillingRepository.createStripeBilling(user.id, customerId);
 
   await userOnboardingStageRepository.createUser(user.id);
 
@@ -86,7 +84,7 @@ export async function GetUser(
   }
 
   const onboardingAccessToken = await reply.jwtSign({ user });
-  const checkoutUrl = await SetupUserBilling(user);
+  const checkoutUrl = await SetupBetaUserBilling(user);
 
   return reply
     .status(HttpStatusCode.Ok)

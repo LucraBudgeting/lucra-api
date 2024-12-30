@@ -69,7 +69,7 @@ export class TransactionRuleService {
     }
   }
   async updateMerchantRule(existingRule: ITransactionRule, name: string) {
-    const normalizedName = name.toLowerCase();
+    const normalizedName = name.toLowerCase().trim();
 
     const updatedRule = {
       ...existingRule,
@@ -85,7 +85,7 @@ export class TransactionRuleService {
     await this.updateRule(updatedRule);
   }
   async createNewMerchantRule(categoryId: string, name: string) {
-    const normalizedName = name.toLowerCase();
+    const normalizedName = name.toLowerCase().trim();
 
     const newRule = {
       name: 'Merchant Rule',

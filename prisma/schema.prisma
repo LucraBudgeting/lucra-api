@@ -71,8 +71,6 @@ model UserBilling {
     id               String          @id @unique @default(cuid())
     userId           String          @unique
     billingPlatform  BillingPlatform
-    appleReceipt     String? // Apple App Store specific
-    googleOrderId    String? // Google Play Store specific
     stripeCustomerId String? // Stripe specific
     amount           Float
     currency         String
