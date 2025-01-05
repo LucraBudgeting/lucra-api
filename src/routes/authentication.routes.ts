@@ -3,6 +3,7 @@ import {
   AuthCheck,
   AuthLogin,
   AuthDeleteAllUserData,
+  AuthLogout,
 } from '@/modules/authentication/authentication.controller';
 import { HttpMethods } from '@/utils/HttpMethods';
 
@@ -13,6 +14,13 @@ export default async function Authentication(fastify: FastifyInstance, _opts: Ro
     method: HttpMethods.POST,
     url: `${basePath}/login`,
     handler: AuthLogin,
+  });
+
+  fastify.route({
+    method: HttpMethods.DELETE,
+    url: `${basePath}/logout`,
+    handler: AuthLogout,
+    preHandler: [fastify.authPrehandler],
   });
 
   fastify.route({

@@ -39,6 +39,10 @@ export async function AuthLogin(
   return reply.send({ message: 'Successful Login', user, accessToken });
 }
 
+export async function AuthLogout(_req: FastifyRequest, reply: FastifyReply) {
+  return reply.status(200).send({ message: 'Logout' });
+}
+
 export async function AuthCheck(req: FastifyRequest, reply: FastifyReply) {
   const user = req.user as User;
   const freshUser = await AuthCheckByUserId(user.id);
