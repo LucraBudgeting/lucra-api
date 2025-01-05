@@ -114,9 +114,9 @@ model UserSession {
 model AccountAccess {
     id             String          @id @unique @default(cuid())
     userId         String
-    accessToken    String
+    accessToken    String // bank account access token
     provider       FinancialVendor @default(Plaid)
-    providerItemId String
+    providerItemId String // bank
 
     dateCreated DateTime @default(now())
     dateUpdated DateTime @default(now()) @updatedAt

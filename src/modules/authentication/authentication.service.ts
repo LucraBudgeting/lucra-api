@@ -4,6 +4,7 @@ import { userAuthRepository } from '@/data/repositories/userAuth.repository';
 import { BadRequestError, NotFoundError } from '@/exceptions/error';
 import { stringMatchesHash } from '@/libs/bcrypt';
 import { UserAgent } from '@/utils/userAgent';
+import { BankAccountService } from '../bank/services/bank.accounts.service';
 
 export async function LoginUserByUsername(username: string, password: string) {
   const user = await userRepository.findUserByUsername(username);
@@ -56,4 +57,10 @@ async function doesPasswordMatch(password: string, hashedPassword: string | null
 export async function AuthCheckByUserId(userId: string) {
   const user = await userRepository.findUserById(userId);
   return user;
+}
+
+export async function DeleteAllUserData(userId: string) {
+  const bankAccountService = new BankAccountService(userId);
+  await bankAccountService.deleteBankAccounts();
+  await userRepository.deleteUserById(userId);
 }

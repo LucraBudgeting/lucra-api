@@ -298,6 +298,15 @@ class PlaidRepository {
 
     await accountBalanceRepository.createPlaidAccountBalanceMany(balances);
   }
+
+  public async deleteAccountAccess(accessToken: string): Promise<void> {
+    try {
+      await this.plaidClient.itemRemove({ access_token: accessToken });
+    } catch (error) {
+      // @ts-expect-error error is not typed
+      logger.error('Error deleting account sync:', error?.response?.data || error?.message);
+    }
+  }
 }
 
 export const plaidRepository = new PlaidRepository();

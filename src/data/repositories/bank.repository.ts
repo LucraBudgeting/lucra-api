@@ -61,6 +61,14 @@ class BankRepository extends BaseRepository {
       } as IAccount;
     });
   }
+
+  async deleteBankAccount(accountId: string): Promise<void> {
+    await this.client.account.delete({
+      where: {
+        id: accountId,
+      },
+    });
+  }
 }
 
 export const bankAccountRepository = new BankRepository();
