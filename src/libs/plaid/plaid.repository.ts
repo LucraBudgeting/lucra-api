@@ -73,10 +73,10 @@ class PlaidRepository {
   public async createLinkToken(
     user: User,
     preferences: UserPreferences | null,
-    options?: { mode?: 'add' | 'update'; itemId?: string; accessToken?: string }
+    options?: { mode?: 'add' | 'update'; accessToken?: string }
   ) {
     try {
-      const { mode = 'add', itemId, accessToken } = options || {};
+      const { mode = 'add', accessToken } = options || {};
       const request: LinkTokenCreateRequest = {
         user: {
           client_user_id: user.id,
@@ -104,13 +104,11 @@ class PlaidRepository {
         },
       };
       if (mode === 'update') {
-        if (itemId) {
-          // Plaid requires access_token for update mode, but some SDKs accept item_id
-          // We'll use accessToken if provided, else itemId
+        if (accessToken) {
+          // Plaid requires access_token for update mode
           (request as any).access_token = accessToken;
-          (request as any).item_id = itemId;
         } else {
-          throw new ServiceUnavailableError('itemId is required for update mode');
+          throw new ServiceUnavailableError('accessToken is required for update mode');
         }
       }
       const response = await this.plaidClient.linkTokenCreate(request);
