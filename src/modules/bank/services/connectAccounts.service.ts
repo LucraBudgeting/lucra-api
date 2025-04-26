@@ -12,11 +12,25 @@ export class ConnectAccountsService {
     this.plaidService = new InitializePlaidService(this.userId);
   }
 
-  async syncAccounts(publicToken: string, metaData: PlaidLinkOnSuccessMetadata): Promise<void> {
+  async syncAccounts(
+    publicToken: string,
+    metaData: PlaidLinkOnSuccessMetadata & { update?: boolean }
+  ): Promise<void> {
     await this.validateInitialSyncMetaData(metaData);
 
     const exchangeData = await this.plaidService.exchangePublicToken(publicToken);
-    await this.plaidService.syncAccountsAndTransactions(exchangeData);
+
+    if (metaData.update && exchangeData.item_id) {
+      // Update the AccountAccess record with the new accessToken and itemId
+      await accountAccessRepository.updatePlaidAccountAccessByItemId(exchangeData.item_id, {
+        accessToken: exchangeData.access_token,
+        providerItemId: exchangeData.item_id,
+      });
+      // Resync historical transactions
+      await this.plaidService.syncAccountsAndTransactions(exchangeData);
+    } else {
+      await this.plaidService.syncAccountsAndTransactions(exchangeData);
+    }
   }
 
   private async validateInitialSyncMetaData(metaData: PlaidLinkOnSuccessMetadata): Promise<void> {

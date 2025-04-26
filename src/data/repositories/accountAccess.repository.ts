@@ -64,6 +64,20 @@ class AccountAccessRepository extends BaseRepository {
 
     return access;
   }
+
+  async updatePlaidAccountAccessByItemId(itemId: string, updateData: Partial<AccountAccess>) {
+    if (!itemId) {
+      throw new ValidationError('itemId is required to update plaid account access');
+    }
+    const access = await this.client.accountAccess.findFirst({ where: { providerItemId: itemId } });
+    if (!access) {
+      throw new NotFoundError(`Plaid Account Access not found: ${itemId}`);
+    }
+    return this.client.accountAccess.update({
+      where: { id: access.id },
+      data: updateData,
+    });
+  }
 }
 
 export const accountAccessRepository = new AccountAccessRepository();
