@@ -21,7 +21,11 @@ export class InitializePlaidService {
     this.userId = userId;
   }
 
-  async createLinkToken(): Promise<string> {
+  async createLinkToken(
+    mode: 'add' | 'update' = 'add',
+    itemId?: string,
+    accessToken?: string
+  ): Promise<string> {
     if (this.userId.isNullOrEmpty()) {
       throw new ValidationError('User ID is required to create link token');
     }
@@ -33,7 +37,11 @@ export class InitializePlaidService {
       throw new BadRequestError('User not found');
     }
 
-    const linkToken = await plaidRepository.createLinkToken(user, userPreferences);
+    const linkToken = await plaidRepository.createLinkToken(user, userPreferences, {
+      mode,
+      itemId,
+      accessToken,
+    });
 
     if (!linkToken) {
       throw new ServiceUnavailableError('Link token not created');

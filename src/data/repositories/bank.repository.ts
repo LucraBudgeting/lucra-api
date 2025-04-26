@@ -10,7 +10,7 @@ class BankRepository extends BaseRepository {
         },
       },
       include: {
-        accessToken: false,
+        accessToken: true,
         bankInstitution: true,
         accountBalance: {
           orderBy: {
@@ -32,6 +32,7 @@ class BankRepository extends BaseRepository {
         subType,
         accountBalance,
         bankInstitution,
+        accessToken,
       } = account;
 
       return {
@@ -58,7 +59,8 @@ class BankRepository extends BaseRepository {
           primaryColor: bankInstitution?.primaryColor,
           website: bankInstitution?.website,
         },
-      } as IAccount;
+        itemId: accessToken?.providerItemId,
+      } as IAccount & { itemId?: string };
     });
   }
 

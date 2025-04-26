@@ -70,8 +70,13 @@ class PlaidRepository {
     this.plaidClient = new PlaidApi(config);
   }
 
-  public async createLinkToken(user: User, preferences: UserPreferences | null) {
+  public async createLinkToken(
+    user: User,
+    preferences: UserPreferences | null,
+    options?: { mode?: 'add' | 'update'; itemId?: string; accessToken?: string }
+  ) {
     try {
+      const { mode = 'add', itemId, accessToken } = options || {};
       const request: LinkTokenCreateRequest = {
         user: {
           client_user_id: user.id,
@@ -80,10 +85,9 @@ class PlaidRepository {
         },
         client_name: clientName,
         products: [Products.Transactions],
-        // optional_products: [Products.Investments],
-        // TODO - https://plaid.com/docs/api/tokens/#link-token-create-request-webhook
         country_codes: [CountryCode.Us],
         language: preferences?.language ?? 'en',
+        webhook: `${API_URL}/api/${webHookBase}/plaid/wallet_transaction`,
         update: {
           account_selection_enabled: true,
         },
@@ -98,11 +102,18 @@ class PlaidRepository {
             account_subtypes: [CreditAccountSubtype.All],
           },
         },
-        webhook: `${API_URL}/api/${webHookBase}/plaid/wallet_transaction`,
       };
-
+      if (mode === 'update') {
+        if (itemId) {
+          // Plaid requires access_token for update mode, but some SDKs accept item_id
+          // We'll use accessToken if provided, else itemId
+          (request as any).access_token = accessToken;
+          (request as any).item_id = itemId;
+        } else {
+          throw new ServiceUnavailableError('itemId is required for update mode');
+        }
+      }
       const response = await this.plaidClient.linkTokenCreate(request);
-
       const linkToken = response.data.link_token;
       return linkToken;
     } catch (error) {
