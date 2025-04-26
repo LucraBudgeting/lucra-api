@@ -16,7 +16,10 @@ export class ConnectAccountsService {
     publicToken: string,
     metaData: PlaidLinkOnSuccessMetadata & { update?: boolean }
   ): Promise<void> {
-    await this.validateInitialSyncMetaData(metaData);
+    // Only validate for new connections, not updates
+    if (!metaData.update) {
+      await this.validateInitialSyncMetaData(metaData);
+    }
 
     const exchangeData = await this.plaidService.exchangePublicToken(publicToken);
 
@@ -26,11 +29,8 @@ export class ConnectAccountsService {
         accessToken: exchangeData.access_token,
         providerItemId: exchangeData.item_id,
       });
-      // Resync historical transactions
-      await this.plaidService.syncAccountsAndTransactions(exchangeData);
-    } else {
-      await this.plaidService.syncAccountsAndTransactions(exchangeData);
     }
+    await this.plaidService.syncAccountsAndTransactions(exchangeData);
   }
 
   private async validateInitialSyncMetaData(metaData: PlaidLinkOnSuccessMetadata): Promise<void> {

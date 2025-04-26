@@ -116,13 +116,6 @@ export class InitializePlaidService {
       throw new ServiceUnavailableError('Institution ID could not be found');
     }
 
-    const doesUserAlreadyHaveInstitution =
-      await accountAccessRepository.doesUserAlreadyHaveInstitution(this.userId, institutionId);
-
-    if (doesUserAlreadyHaveInstitution) {
-      throw new BadRequestError('User already has institution');
-    }
-
     const newInstitutionId = await this.getInstitutionId(institutionId);
 
     const plaidAccounts = accountDetails.accounts.map((account): Account => {
