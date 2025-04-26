@@ -171,6 +171,32 @@ class AccountRepository extends BaseRepository {
 
     return accountIds;
   }
+
+  async updateOrCreateAccountsMany(accounts: Account[]): Promise<Record<string, string>> {
+    if (accounts.length === 0) {
+      return {};
+    }
+    const accountIds: Record<string, string> = {};
+    for (const account of accounts) {
+      const existing = await this.client.account.findFirst({
+        where: {
+          providerAccountId: account.providerAccountId,
+          accessAccountId: account.accessAccountId,
+        },
+      });
+      if (existing) {
+        await this.client.account.update({
+          where: { id: existing.id },
+          data: account,
+        });
+        accountIds[account.providerAccountId] = existing.id;
+      } else {
+        const created = await this.client.account.create({ data: account });
+        accountIds[account.providerAccountId] = created.id;
+      }
+    }
+    return accountIds;
+  }
 }
 
 export const accountRepository = new AccountRepository();

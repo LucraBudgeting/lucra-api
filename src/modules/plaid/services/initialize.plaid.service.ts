@@ -14,6 +14,7 @@ import { accountBalanceRepository } from '@/data/repositories/accountBalance.rep
 import { initialSyncPlaidTransactionQueue, syncPlaidTransactionHistoryQueue } from '@/libs/queue';
 import { MapPlaidIsoCode } from '../mappers/IsoCurrencyCode.mapper';
 import { MapPlaidAccountType } from '../mappers/AccountTypes.mapper';
+import { syncPlaidTransactionJob } from '@/libs/queue/transactionQueue';
 
 export class InitializePlaidService {
   private userId: string;
@@ -132,7 +133,7 @@ export class InitializePlaidService {
       } as Account;
     });
 
-    const newAccountIds = await accountRepository.createAccountMany(plaidAccounts);
+    const newAccountIds = await accountRepository.updateOrCreateAccountsMany(plaidAccounts);
 
     const balances = accountDetails.accounts.map((account): AccountBalance => {
       return {
@@ -170,5 +171,29 @@ export class InitializePlaidService {
     }
 
     return newInstitutionId;
+  }
+
+  async syncTransactionsOnly(exchangeData: ItemPublicTokenExchangeResponse): Promise<void> {
+    if (exchangeData.access_token.isNullOrEmpty()) {
+      throw new ServiceUnavailableError('Public token could not be exchanged');
+    }
+    if (exchangeData.item_id.isNullOrEmpty()) {
+      throw new ServiceUnavailableError('Item ID could not be found');
+    }
+    // Get all accounts for this item_id
+    const accountAccess = await accountAccessRepository.getAccountAccessByItemId(
+      exchangeData.item_id
+    );
+    const accounts = accountAccess.account;
+    const accountIds: Record<string, string> = {};
+    for (const acc of accounts) {
+      accountIds[acc.providerAccountId] = acc.id;
+    }
+    // Call syncPlaidTransactionJob directly
+    await syncPlaidTransactionJob({
+      userId: this.userId,
+      accountIds,
+      itemId: exchangeData.item_id,
+    });
   }
 }

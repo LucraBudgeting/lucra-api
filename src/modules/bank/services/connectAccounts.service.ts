@@ -16,21 +16,15 @@ export class ConnectAccountsService {
     publicToken: string,
     metaData: PlaidLinkOnSuccessMetadata & { update?: boolean }
   ): Promise<void> {
-    // Only validate for new connections, not updates
-    if (!metaData.update) {
-      await this.validateInitialSyncMetaData(metaData);
-    }
-
     const exchangeData = await this.plaidService.exchangePublicToken(publicToken);
-
-    if (metaData.update && exchangeData.item_id) {
-      // Update the AccountAccess record with the new accessToken and itemId
-      await accountAccessRepository.updatePlaidAccountAccessByItemId(exchangeData.item_id, {
-        accessToken: exchangeData.access_token,
-        providerItemId: exchangeData.item_id,
-      });
+    if (metaData.update) {
+      // Only run transaction sync (syncPlaidTransactionJob)
+      await this.plaidService.syncTransactionsOnly(exchangeData);
+      return;
+    } else {
+      await this.plaidService.syncAccountsAndTransactions(exchangeData);
     }
-    await this.plaidService.syncAccountsAndTransactions(exchangeData);
+    return;
   }
 
   private async validateInitialSyncMetaData(metaData: PlaidLinkOnSuccessMetadata): Promise<void> {
